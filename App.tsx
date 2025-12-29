@@ -17,7 +17,8 @@ import {
 
 import { ChartLayout } from './components/ChartLayout';
 import { ToolsPanel } from './components/ToolsPanel';
-import { MarketDashboard, NewsFeed } from './components/MarketDashboard';
+import { MarketDashboard } from './components/MarketDashboard';
+import { NewsFeed } from './components/NewsFeed';
 import { PanelMode, TabId, ToolId, StockData } from './types';
 
 // --- Mock Data for Watchlist ---
