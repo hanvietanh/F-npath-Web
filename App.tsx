@@ -10,7 +10,9 @@ import {
   Sparkles,
   ChevronDown,
   Users,
-  Zap
+  Zap,
+  LogOut,
+  User as UserIcon
 } from 'lucide-react';
 
 import { ChartLayout } from './components/ChartLayout';
@@ -306,6 +308,38 @@ export default function App() {
             </div>
           )}
         </div>
+
+        {/* User Profile Avatar (Replaces generic div) */}
+        <button className="w-9 h-9 rounded-full overflow-hidden border border-[#2c2c2e] hover:border-[#2962ff] transition-all relative group ml-1">
+            <img 
+                src="https://i.pravatar.cc/150?u=finance_pro_user_2024" 
+                alt="User Profile" 
+                className="w-full h-full object-cover" 
+            />
+            {/* Online Status Dot */}
+            <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-[#00c853] border-2 border-[#0b0e11] rounded-full"></div>
+            
+            {/* Hover Menu / Tooltip */}
+             <div className="absolute top-full right-0 mt-2 w-48 bg-[#1c1c1e] border border-[#2c2c2e] rounded-lg shadow-xl py-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none group-hover:pointer-events-auto z-50">
+                <div className="px-4 py-3 border-b border-[#2c2c2e]">
+                    <div className="text-sm font-bold text-white">Finpath Pro User</div>
+                    <div className="text-xs text-gray-500">Pro Plan • Exp: 12/2025</div>
+                </div>
+                <div className="py-1">
+                    <button className="w-full text-left px-4 py-2 text-xs text-gray-300 hover:bg-[#2c2c2e] hover:text-white flex items-center gap-2">
+                        <UserIcon size={14} /> Trang cá nhân
+                    </button>
+                    <button className="w-full text-left px-4 py-2 text-xs text-gray-300 hover:bg-[#2c2c2e] hover:text-white flex items-center gap-2">
+                        <Settings size={14} /> Cài đặt
+                    </button>
+                </div>
+                <div className="border-t border-[#2c2c2e] py-1">
+                    <button className="w-full text-left px-4 py-2 text-xs text-[#f23645] hover:bg-[#2c2c2e] flex items-center gap-2">
+                        <LogOut size={14} /> Đăng xuất
+                    </button>
+                </div>
+            </div>
+        </button>
       </div>
     </header>
   );
