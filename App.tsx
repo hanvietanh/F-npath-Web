@@ -279,6 +279,10 @@ export default function App() {
             className={`p-2 rounded-full transition-colors relative ${isMenuOpen || activeTool ? 'bg-[#2962ff] text-white' : 'bg-[#1c1c1e] text-gray-400 hover:text-white hover:bg-[#2c2c2e]'}`}
           >
             <Menu size={20} />
+            {/* Notification Dot */}
+            <span className="absolute top-0 right-0 transform translate-x-1/4 -translate-y-1/4 bg-[#f23645] text-white text-[9px] font-bold min-w-[16px] h-4 flex items-center justify-center rounded-full border-2 border-[#000000] z-10 shadow-sm">
+              3
+            </span>
           </button>
 
           {/* Dropdown */}
