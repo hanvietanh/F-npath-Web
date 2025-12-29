@@ -280,7 +280,7 @@ export default function App() {
           >
             <Menu size={20} />
             {/* Notification Dot */}
-            <span className="absolute top-0 right-0 transform translate-x-1/4 -translate-y-1/4 bg-[#f23645] text-white text-[9px] font-bold min-w-[16px] h-4 flex items-center justify-center rounded-full border-2 border-[#000000] z-10 shadow-sm">
+            <span className="absolute top-0 right-0 transform translate-x-1/4 -translate-y-1/4 bg-[#f23645] text-white text-[9px] font-bold min-w-[16px] h-4 flex items-center justify-center rounded-full border-2 border-[#000000] z-10 shadow-sm animate-in zoom-in">
               3
             </span>
           </button>

@@ -13,21 +13,25 @@ import {
   BrainCircuit,
   Bookmark,
   Share2, 
-  PieChart,
-  Activity,
-  Layers,
-  Clock,
-  ChevronRight,
-  LayoutGrid,
-  List,
-  Briefcase,
-  Heart,
-  MessageCircle,
-  MessageSquare,
-  BadgeCheck,
-  Flame,
-  ChevronLeft,
-  ChevronDown
+  PieChart, 
+  Activity, 
+  Layers, 
+  Clock, 
+  ChevronRight, 
+  LayoutGrid, 
+  List, 
+  Briefcase, 
+  Heart, 
+  MessageCircle, 
+  MessageSquare, 
+  BadgeCheck, 
+  Flame, 
+  ChevronLeft, 
+  ChevronDown, 
+  Sparkles, 
+  ArrowRight, 
+  Eye, 
+  UserPlus 
 } from 'lucide-react';
 import { StockData } from '../types';
 
@@ -310,6 +314,109 @@ const TreemapBlock = ({ symbol, percent, color, className }: { symbol: string, p
   </div>
 );
 
+const LiquidityChart = () => {
+    const timeLabels = ["09:15", "09:26", "09:37", "09:48", "09:59", "10:10", "10:21", "10:32", "10:43", "10:54", "11:05", "11:16", "11:27", "13:07", "13:18", "13:29", "13:40", "13:51", "14:02", "14:13", "14:24", "14:35"];
+    
+    const yLabels = [35000, 30000, 25000, 20000, 15000, 10000, 5000, 0];
+    
+    const width = 1000;
+    const height = 400;
+    const padding = { top: 40, right: 20, bottom: 30, left: 50 };
+    const chartW = width - padding.left - padding.right;
+    const chartH = height - padding.top - padding.bottom;
+
+    const yesterdayPoints = [];
+    let yVal = 1500;
+    for(let i=0; i <= 210; i++) { 
+        yVal += (Math.random() * 150 + 50); 
+        if (i > 100 && i < 130) yVal += 50; 
+        yesterdayPoints.push({ x: (i / 210) * chartW, y: Math.min(yVal, 33000) });
+    }
+    
+    const todayPoints = [];
+    let tVal = 500;
+    for(let i=0; i <= 85; i++) { 
+        tVal += (Math.random() * 100 + 20);
+        todayPoints.push({ x: (i / 210) * chartW, y: tVal });
+    }
+
+    const getY = (val: number) => chartH - (val / 35000) * chartH;
+
+    const makePath = (points: {x: number, y: number}[]) => {
+        return points.map((p, i) => `${i===0?'M':'L'} ${padding.left + p.x},${padding.top + getY(p.y)}`).join(' ');
+    };
+    
+    const makeArea = (points: {x: number, y: number}[]) => {
+        const line = makePath(points);
+        const lastX = padding.left + points[points.length-1].x;
+        const bottomY = padding.top + chartH;
+        const firstX = padding.left + points[0].x;
+        return `${line} L ${lastX},${bottomY} L ${firstX},${bottomY} Z`;
+    };
+
+    return (
+        <div className="flex-1 w-full h-full bg-[#000000] relative flex flex-col p-4 select-none">
+             <div className="flex items-center justify-between mb-2">
+                 <div className="text-xs text-gray-400 font-bold">GTGD (Tỷ)</div>
+                 <div className="flex items-center gap-4 text-xs font-bold">
+                     <div className="flex items-center gap-1.5">
+                         <div className="w-2.5 h-2.5 rounded-full bg-[#2962ff]"></div>
+                         <span className="text-white">GTGD hôm nay</span>
+                     </div>
+                     <div className="flex items-center gap-1.5">
+                         <div className="w-2.5 h-2.5 rounded-full bg-[#ffab00]"></div>
+                         <span className="text-white">GTGD Hôm qua</span>
+                     </div>
+                 </div>
+                 <div className="flex bg-[#1c1c1e] rounded text-[10px] font-bold overflow-hidden border border-[#2c2c2e]">
+                     {['0D', '5D', '10D', '20D'].map(d => (
+                         <button key={d} className={`px-2 py-1 ${d === '0D' ? 'bg-[#2962ff] text-white' : 'text-gray-400 hover:text-white'}`}>{d}</button>
+                     ))}
+                 </div>
+             </div>
+
+             <div className="flex-1 relative">
+                <svg width="100%" height="100%" viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none">
+                    <defs>
+                        <linearGradient id="blueGradient" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#2962ff" stopOpacity="0.4"/>
+                            <stop offset="100%" stopColor="#2962ff" stopOpacity="0.05"/>
+                        </linearGradient>
+                    </defs>
+
+                    {yLabels.map((val) => {
+                        const y = padding.top + getY(val);
+                        return (
+                            <g key={val}>
+                                <line x1={padding.left} y1={y} x2={width} y2={y} stroke="#1c1c1e" strokeWidth="1" strokeDasharray="4 4" />
+                                <text x={0} y={y + 4} fill="#6b7280" fontSize="11" textAnchor="start">{val.toLocaleString()}</text>
+                            </g>
+                        )
+                    })}
+
+                    <path d={makePath(yesterdayPoints)} fill="none" stroke="#ffab00" strokeWidth="2" />
+                    
+                    <path d={makeArea(todayPoints)} fill="url(#blueGradient)" />
+                    <path d={makePath(todayPoints)} fill="none" stroke="#2962ff" strokeWidth="2" />
+
+                    {timeLabels.map((t, i) => {
+                        const x = padding.left + (i / (timeLabels.length - 1)) * chartW;
+                        return (
+                             <text key={i} x={x} y={height - 5} fill="#6b7280" fontSize="11" textAnchor="middle">{t}</text>
+                        )
+                    })}
+                </svg>
+                
+                 <div className="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none">
+                   <div className="flex items-center gap-2 text-6xl font-bold text-white">
+                      <Zap size={60} /> Finpath
+                   </div>
+                </div>
+             </div>
+        </div>
+    )
+}
+
 const ImpactChart = () => {
   const maxVal = 10;
   const minVal = -4;
@@ -318,14 +425,12 @@ const ImpactChart = () => {
 
   return (
     <div className="flex-1 w-full h-full bg-[#000000] relative flex flex-col pt-8 pb-4 px-4 select-none">
-        {/* Background Watermark */}
         <div className="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none">
            <div className="flex items-center gap-2 text-6xl font-bold text-white">
               <Zap size={60} /> Finpath
            </div>
         </div>
 
-        {/* Y-axis Grid & Labels */}
         <div className="absolute inset-0 pointer-events-none">
             {[10, 8, 6, 4, 2, 0, -2, -4].map(val => {
                 const bottomPct = ((val - minVal) / totalRange) * 100;
@@ -341,10 +446,8 @@ const ImpactChart = () => {
             })}
         </div>
         
-        {/* Title */}
         <div className="absolute top-2 left-8 text-xs text-gray-400">Điểm</div>
         
-        {/* Legend */}
         <div className="absolute top-2 right-4 flex gap-4 text-xs font-medium z-10">
              <div className="flex items-center gap-1.5">
                  <div className="w-2 h-2 rounded-full bg-[#00c853]"></div>
@@ -356,13 +459,11 @@ const ImpactChart = () => {
              </div>
         </div>
 
-        {/* Chart Bars */}
         <div className="flex-1 flex items-end justify-between ml-8 relative z-10 h-full gap-1">
             {IMPACT_DATA.map((item) => {
                 const heightPct = (Math.abs(item.val) / totalRange) * 100;
                 return (
                     <div key={item.symbol} className="flex-1 h-full relative group flex flex-col justify-end">
-                         {/* Bar */}
                          <div 
                             className={`absolute w-full rounded-t-sm transition-all hover:brightness-110 ${item.val >= 0 ? 'bg-gradient-to-t from-[#00c853]/50 to-[#00c853]' : 'bg-gradient-to-b from-[#f23645]/50 to-[#f23645] rounded-b-sm rounded-t-none'}`}
                             style={{
@@ -371,7 +472,6 @@ const ImpactChart = () => {
                                 top: item.val < 0 ? `${100 - zeroPosPercent}%` : 'auto'
                             }}
                          >
-                            {/* Value Label */}
                             <div className={`
                                 absolute w-full text-center text-[9px] text-gray-400 font-mono
                                 ${item.val >= 0 ? '-top-4' : '-bottom-4'}
@@ -380,12 +480,10 @@ const ImpactChart = () => {
                             </div>
                          </div>
                          
-                         {/* X-Axis Label */}
                          <div className="absolute bottom-[-18px] w-full text-center text-[9px] text-gray-400 font-bold truncate">
                              {item.symbol}
                          </div>
 
-                         {/* Tooltip */}
                          <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute bottom-1/2 left-1/2 -translate-x-1/2 bg-[#1c1c1e] border border-[#2c2c2e] p-2 rounded shadow-xl z-50 pointer-events-none whitespace-nowrap">
                              <div className="font-bold text-white">{item.symbol}</div>
                              <div className={`${item.val >= 0 ? 'text-[#00c853]' : 'text-[#f23645]'}`}>
@@ -397,7 +495,6 @@ const ImpactChart = () => {
             })}
         </div>
         
-        {/* Zero Line Highlight */}
         <div className="absolute w-full border-t border-gray-500 opacity-50" style={{ bottom: `${zeroPosPercent}%`, left: 0 }}></div>
     </div>
   );
@@ -406,9 +503,7 @@ const ImpactChart = () => {
 const ForeignMarketDashboard = () => {
     return (
         <div className="flex-1 flex flex-col min-h-0 bg-[#000000] text-white overflow-hidden">
-            {/* Top Section: Overview Stats + Chart */}
             <div className="h-[220px] flex border-b border-[#1c1c1e] shrink-0">
-                {/* Left: Stats */}
                 <div className="w-[30%] border-r border-[#1c1c1e] p-4 flex flex-col justify-center gap-6">
                     <h3 className="text-base font-bold text-white mb-2">Tổng quan</h3>
                     
@@ -437,7 +532,6 @@ const ForeignMarketDashboard = () => {
                     </div>
                 </div>
 
-                {/* Right: Net Buy Chart */}
                 <div className="flex-1 p-4 flex flex-col relative">
                      <div className="flex justify-between items-center mb-4 z-10">
                         <h3 className="text-sm font-bold text-gray-200">NN mua ròng (tỷ)</h3>
@@ -448,18 +542,15 @@ const ForeignMarketDashboard = () => {
                      </div>
                      
                      <div className="flex-1 relative flex items-end gap-3 pb-6 border-b border-[#1c1c1e]/50 ml-6">
-                        {/* Axis Lines */}
                         <div className="absolute left-0 top-0 bottom-6 w-[1px] bg-[#1c1c1e]"></div>
                         <div className="absolute left-0 right-0 top-[50%] h-[1px] bg-[#1c1c1e]/50 border-dashed"></div>
                         
-                        {/* Y-Axis Labels */}
                         <div className="absolute -left-8 top-0 text-[9px] text-gray-500">1,500</div>
                         <div className="absolute -left-8 top-[25%] text-[9px] text-gray-500">1,000</div>
                         <div className="absolute -left-8 top-[50%] text-[9px] text-gray-500">500</div>
                         <div className="absolute -left-8 top-[75%] text-[9px] text-gray-500">0</div>
                         <div className="absolute -left-8 bottom-6 text-[9px] text-gray-500">-500</div>
 
-                        {/* Bars */}
                         {[
                             { d: '12/12', v: -600, c: '#f23645' },
                             { d: '15/12', v: 700, c: '#00c853' },
@@ -488,11 +579,8 @@ const ForeignMarketDashboard = () => {
                 </div>
             </div>
 
-            {/* Bottom Section: Treemap */}
             <div className="flex-1 bg-[#13171b] overflow-hidden p-1 relative">
-                {/* Simulated Treemap using CSS Grid for exact look matching the screenshot */}
                 <div className="w-full h-full grid grid-cols-6 grid-rows-4 gap-0.5">
-                    {/* Big Green Blocks */}
                     <div className="col-span-2 row-span-2 bg-[#00c853] p-2 flex flex-col items-center justify-center border border-[#0b0e11] hover:brightness-110 cursor-pointer">
                          <span className="font-bold text-lg drop-shadow">VHM</span>
                          <span className="text-xs font-medium">118.63 tỷ</span>
@@ -502,18 +590,15 @@ const ForeignMarketDashboard = () => {
                          <span className="text-xs font-medium">63.51 tỷ</span>
                     </div>
                     
-                    {/* Mixed Column 3 Row 1 */}
                     <div className="col-span-1 row-span-1 bg-[#00c853] p-1 flex flex-col items-center justify-center border border-[#0b0e11] hover:brightness-110 cursor-pointer">
                          <span className="font-bold text-sm drop-shadow">GAS</span>
                          <span className="text-[10px]">49.98 tỷ</span>
                     </div>
-                     {/* Mixed Column 3 Row 2 */}
                     <div className="col-span-1 row-span-1 bg-[#f23645] p-1 flex flex-col items-center justify-center border border-[#0b0e11] hover:brightness-110 cursor-pointer">
                          <span className="font-bold text-sm drop-shadow">DGC</span>
                          <span className="text-[10px]">-49.19 tỷ</span>
                     </div>
 
-                    {/* Column 4 Row 1 & 2 */}
                     <div className="col-span-1 row-span-1 bg-[#00c853] p-1 flex flex-col items-center justify-center border border-[#0b0e11] hover:brightness-110 cursor-pointer">
                          <span className="font-bold text-sm drop-shadow">VND</span>
                          <span className="text-[10px]">39.59 tỷ</span>
@@ -523,13 +608,11 @@ const ForeignMarketDashboard = () => {
                          <span className="text-[10px]">16.84 tỷ</span>
                     </div>
 
-                    {/* Row 3 - Big STB */}
                     <div className="col-span-2 row-span-2 bg-[#00c853] p-2 flex flex-col items-center justify-center border border-[#0b0e11] hover:brightness-110 cursor-pointer">
                          <span className="font-bold text-lg drop-shadow">STB</span>
                          <span className="text-xs font-medium">117.39 tỷ</span>
                     </div>
 
-                    {/* Row 3 Middle Section */}
                      <div className="col-span-1 row-span-1 bg-[#00c853] p-1 flex flex-col items-center justify-center border border-[#0b0e11] hover:brightness-110 cursor-pointer">
                          <span className="font-bold text-sm drop-shadow">FPT</span>
                          <span className="text-[10px]">31.32 tỷ</span>
@@ -547,7 +630,6 @@ const ForeignMarketDashboard = () => {
                          <span className="text-[9px]">17.4 tỷ</span>
                     </div>
 
-                    {/* Row 4 Bottom Section */}
                     <div className="col-span-1 row-span-1 bg-[#f23645] p-1 flex flex-col items-center justify-center border border-[#0b0e11] hover:brightness-110 cursor-pointer">
                          <span className="font-bold text-sm drop-shadow">VIX</span>
                          <span className="text-[10px]">-24.91 tỷ</span>
@@ -593,7 +675,6 @@ const MarketOverviewCard: React.FC<{
       {children}
     </div>
     
-    {/* Active Indicator Corner */}
     {active && (
         <div className="absolute top-0 right-0 w-2 h-2 bg-[#2962ff] rounded-bl"></div>
     )}
@@ -663,7 +744,6 @@ const PostCard: React.FC<{ post: any }> = ({ post }) => {
                  <MoreHorizontal size={16} className="text-gray-500" />
              </div>
              
-             {/* Quote Content */}
              <div className="p-6 rounded-2xl bg-gradient-to-br from-purple-600 to-indigo-700 text-white text-center font-medium text-lg leading-relaxed shadow-lg mb-3">
                  "{post.content}"
              </div>
@@ -681,7 +761,11 @@ const PostCard: React.FC<{ post: any }> = ({ post }) => {
                     <Bookmark size={18} />
                     <span className="text-xs font-bold">{post.saves}</span>
                 </button>
-                 <button className="flex items-center gap-1.5 hover:text-white transition-colors ml-auto">
+                <button className="flex items-center gap-1.5 hover:text-[#2962ff] transition-colors ml-auto">
+                    <Sparkles size={16} />
+                    <span className="text-xs font-bold">Hỏi AI</span>
+                </button>
+                 <button className="flex items-center gap-1.5 hover:text-white transition-colors">
                     <Share2 size={18} />
                 </button>
             </div>
@@ -689,7 +773,6 @@ const PostCard: React.FC<{ post: any }> = ({ post }) => {
      );
   }
 
-  // Handle List Content (Finpath Master style)
   if (post.author === 'Finpath Master') {
       return (
         <div className="border-b border-[#1c1c1e] py-4 px-1 last:border-0 hover:bg-[#0b0e11] transition-colors">
@@ -747,7 +830,11 @@ const PostCard: React.FC<{ post: any }> = ({ post }) => {
                  <button className="flex items-center gap-1.5 hover:text-[#2962ff] transition-colors">
                     <MessageCircle size={16} />
                 </button>
-                 <button className="flex items-center gap-1.5 hover:text-white transition-colors ml-auto">
+                <button className="flex items-center gap-1.5 hover:text-[#2962ff] transition-colors ml-auto">
+                    <Sparkles size={16} />
+                    <span className="text-xs font-bold">Hỏi AI</span>
+                </button>
+                 <button className="flex items-center gap-1.5 hover:text-white transition-colors">
                     <Share2 size={16} />
                 </button>
             </div>
@@ -761,7 +848,6 @@ const PostCard: React.FC<{ post: any }> = ({ post }) => {
          <div className="flex gap-3">
              <div className="relative">
                  <img src={post.avatar} alt={post.author} className="w-10 h-10 rounded-full border-2 border-[#1c1c1e]" />
-                 {/* Simplified verification badge logic for demo */}
                  <div className="absolute -bottom-1 -right-1 bg-[#13171b] rounded-full p-[1px]">
                      <BadgeCheck size={14} className="text-[#2962ff] fill-white" />
                  </div>
@@ -810,7 +896,11 @@ const PostCard: React.FC<{ post: any }> = ({ post }) => {
               <Bookmark size={18} />
                <span className="text-xs font-bold">{post.saves}</span>
           </button>
-           <button className="flex items-center gap-1.5 hover:text-white transition-colors ml-auto">
+          <button className="flex items-center gap-1.5 hover:text-[#2962ff] transition-colors ml-auto">
+              <Sparkles size={16} />
+              <span className="text-xs font-bold">Hỏi AI</span>
+          </button>
+           <button className="flex items-center gap-1.5 hover:text-white transition-colors">
               <Share2 size={18} />
           </button>
       </div>
@@ -818,7 +908,6 @@ const PostCard: React.FC<{ post: any }> = ({ post }) => {
   );
 };
 
-// --- Updated Component: IndicesTickerRow ---
 const IndicesTickerRow: React.FC<{ selected: string; onSelect: (id: string) => void }> = ({ selected, onSelect }) => {
   const [showWorld, setShowWorld] = useState(false);
   const displayedIndices = showWorld ? WORLD_INDICES : INDICES;
@@ -839,13 +928,11 @@ const IndicesTickerRow: React.FC<{ selected: string; onSelect: (id: string) => v
                    >
                        {isActive && <div className="absolute top-0 left-0 w-full h-[2px] bg-[#2962ff]" />}
                        
-                       {/* Left: Name & Vol */}
                        <div className="flex flex-col items-start gap-0.5 min-w-[50px]">
                            <span className={`font-bold text-[11px] ${isActive ? 'text-white' : 'text-gray-400'}`}>{idx.name}</span>
                            <span className="text-[9px] text-gray-500 font-mono tracking-tight">{idx.vol}</span>
                        </div>
 
-                       {/* Middle: Intraday Chart */}
                        <div className="flex-1 mx-2 h-6 opacity-60 group-hover:opacity-100 transition-opacity">
                           <svg width="100%" height="100%" viewBox="0 0 60 25" preserveAspectRatio="none">
                                <defs>
@@ -859,7 +946,6 @@ const IndicesTickerRow: React.FC<{ selected: string; onSelect: (id: string) => v
                           </svg>
                        </div>
 
-                       {/* Right: Price & Value */}
                        <div className="flex flex-col items-end gap-0.5 min-w-[60px]">
                            <div className="flex items-center gap-1">
                               <span className={`font-mono font-bold text-[11px] ${idx.color === '#00c853' ? 'text-[#00c853]' : 'text-[#f23645]'}`}>{idx.val}</span>
@@ -872,7 +958,6 @@ const IndicesTickerRow: React.FC<{ selected: string; onSelect: (id: string) => v
             })}
         </div>
         
-        {/* Toggle Button */}
         <button 
              onClick={() => setShowWorld(!showWorld)}
              className="absolute right-0 top-0 bottom-0 w-6 bg-[#1c1c1e]/90 hover:bg-[#2962ff] text-gray-400 hover:text-white border-l border-[#2c2c2e] flex items-center justify-center transition-all z-20 shadow-[-5px_0_10px_rgba(0,0,0,0.5)]"
@@ -884,7 +969,6 @@ const IndicesTickerRow: React.FC<{ selected: string; onSelect: (id: string) => v
   );
 };
 
-// --- Mini Stock Row Component ---
 const MiniStockRow = ({ symbol, value, maxVal }: { symbol: string, value: number, maxVal: number }) => {
     const isPos = value >= 0;
     const widthPct = Math.min((Math.abs(value) / maxVal) * 100, 100);
@@ -893,7 +977,6 @@ const MiniStockRow = ({ symbol, value, maxVal }: { symbol: string, value: number
         <div className="flex items-center justify-between text-[10px] h-5">
              <span className="text-gray-300 font-bold w-8">{symbol}</span>
              
-             {/* Bar Container */}
              <div className="flex-1 mx-2 h-1.5 bg-[#2a2e39] rounded-full overflow-hidden flex items-center">
                  <div 
                     className={`h-full rounded-full ${isPos ? 'bg-[#00c853]' : 'bg-[#f23645]'}`} 
@@ -908,8 +991,6 @@ const MiniStockRow = ({ symbol, value, maxVal }: { symbol: string, value: number
     );
 };
 
-// --- Main Dashboard Component ---
-
 export const MarketDashboard = () => {
   const [activeDashboardTab, setActiveDashboardTab] = useState<'market' | 'top_stocks' | 'industry' | 'derivatives'>('market');
   const [activeMoverTab, setActiveMoverTab] = useState<'gainers' | 'losers' | 'vol'>('gainers');
@@ -917,20 +998,15 @@ export const MarketDashboard = () => {
   const [viewMode, setViewMode] = useState<'heatmap' | 'impact'>('heatmap');
   const [activeRightTab, setActiveRightTab] = useState<'news' | 'intelligence' | 'ai_news'>('intelligence');
   
-  // State for selected Overview Card
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
 
-  // Logic to simulate changing data based on selection
   const displayedStocks = useMemo(() => {
     switch(selectedIndex) {
         case 'VNINDEX':
-            // Shuffle/randomize to simulate general market view
             return [...MOCK_HEATMAP].sort(() => 0.5 - Math.random());
         case 'HNX':
-            // Simulate HNX data by slicing differently
             return MOCK_HEATMAP.slice(0, 15).map(s => ({...s, symbol: s.symbol + '*'}));
         case 'UPCOM':
-             // Simulate UPCOM data by slicing differently
             return MOCK_HEATMAP.slice(15).map(s => ({...s, symbol: s.symbol + '**'}));
         case 'VN30':
         default:
@@ -941,21 +1017,16 @@ export const MarketDashboard = () => {
   const currentIndex = INDICES.find(i => i.id === selectedIndex) || INDICES[0];
 
   const handleCardClick = (id: string) => {
-      // Toggle logic or always active? The user instruction implies specific action for Foreign card.
-      // If clicking same card, toggle off? Let's say yes for UX.
       setActiveCardId(prev => prev === id ? null : id);
   };
 
-  // Swap data sources: 'intelligence' tab now shows NEWS_POSTS (Finpath Master), 'news' tab shows INTELLIGENCE_POSTS (Social)
   const currentPosts = activeRightTab === 'intelligence' ? NEWS_POSTS : (activeRightTab === 'news' ? INTELLIGENCE_POSTS : []);
 
   return (
     <div className="flex h-full w-full bg-[#000000] overflow-hidden font-sans">
       
-      {/* --- Left Column: Market Watch (65%) --- */}
       <div className="w-[65%] flex flex-col border-r border-[#1c1c1e] h-full min-w-0">
         
-        {/* Dashboard Tabs */}
         <div className="flex h-10 border-b border-[#1c1c1e] bg-[#000000] shrink-0">
              {['THỊ TRƯỜNG', 'CỔ PHIẾU NỔI BẬT', 'NGÀNH', 'PHÁI SINH'].map((tabLabel) => {
                  const tabKey = tabLabel === 'THỊ TRƯỜNG' ? 'market' 
@@ -979,15 +1050,11 @@ export const MarketDashboard = () => {
              })}
         </div>
 
-        {/* Content Area Based on Tab */}
         {activeDashboardTab === 'market' && (
           <>
-            {/* Index Ticker Row (New Added & Interactive) */}
             <IndicesTickerRow selected={selectedIndex} onSelect={setSelectedIndex} />
 
-            {/* Row 1: Overview (Compact Height) */}
             <div className="h-[110px] p-2 grid grid-cols-4 gap-2 border-b border-[#1c1c1e] bg-[#000000] shrink-0">
-              {/* Card 1: Biến động (Market Gauge) */}
               <MarketOverviewCard 
                 title="BIẾN ĐỘNG" 
                 icon={Activity} 
@@ -995,7 +1062,6 @@ export const MarketDashboard = () => {
                 onClick={() => handleCardClick('biendong')}
               >
                  <div className="flex h-full items-center">
-                    {/* Left: Main Metric */}
                     <div className="flex flex-col justify-center w-[35%] border-r border-[#1c1c1e]/50 pr-2">
                         <div className="text-[10px] text-gray-400 font-bold mb-0.5">{currentIndex.name}</div>
                         <div className={`text-xl font-bold tracking-tight ${currentIndex.color === '#00c853' ? 'text-[#00c853]' : 'text-[#f23645]'}`}>
@@ -1005,10 +1071,7 @@ export const MarketDashboard = () => {
                             {currentIndex.chg}
                         </div>
                     </div>
-                    
-                    {/* Right: Breakdown */}
                     <div className="flex-1 flex flex-col justify-center pl-2 gap-1.5">
-                        {/* Tăng */}
                         <div className="flex items-center justify-between text-[10px]">
                             <div className="flex items-center gap-1.5">
                                 <div className="w-1.5 h-1.5 rounded-sm bg-[#00c853]"></div>
@@ -1019,7 +1082,6 @@ export const MarketDashboard = () => {
                                 <span className="text-[9px] text-gray-500 w-10 text-right">8.2k tỷ</span>
                             </div>
                         </div>
-                        {/* TC */}
                         <div className="flex items-center justify-between text-[10px]">
                             <div className="flex items-center gap-1.5">
                                 <div className="w-1.5 h-1.5 rounded-sm bg-yellow-500"></div>
@@ -1030,7 +1092,6 @@ export const MarketDashboard = () => {
                                 <span className="text-[9px] text-gray-500 w-10 text-right">---</span>
                             </div>
                         </div>
-                        {/* Giảm */}
                         <div className="flex items-center justify-between text-[10px]">
                             <div className="flex items-center gap-1.5">
                                 <div className="w-1.5 h-1.5 rounded-sm bg-[#f23645]"></div>
@@ -1045,7 +1106,6 @@ export const MarketDashboard = () => {
                  </div>
               </MarketOverviewCard>
               
-              {/* Card 2: Liquidity (No Chart) */}
               <MarketOverviewCard 
                 title="THANH KHOẢN" 
                 icon={Layers}
@@ -1063,7 +1123,6 @@ export const MarketDashboard = () => {
                  </div>
               </MarketOverviewCard>
     
-              {/* Card 3: Foreign Flow */}
               <MarketOverviewCard 
                 title="NƯỚC NGOÀI" 
                 icon={Globe}
@@ -1071,12 +1130,10 @@ export const MarketDashboard = () => {
                 onClick={() => handleCardClick('nuocngoai')}
               >
                  <div className="flex h-full items-center">
-                    {/* Left */}
                     <div className="w-[35%] flex flex-col justify-center border-r border-[#1c1c1e]/50 pr-2">
                         <div className="text-lg font-bold text-[#f23645]">-245 Tỷ</div>
                         <div className="text-[9px] text-gray-500 mt-0.5">Giá trị ròng</div>
                     </div>
-                    {/* Right with Mini Bars */}
                     <div className="flex-1 pl-2 flex flex-col justify-center gap-1">
                         <MiniStockRow symbol="HPG" value={-5.8} maxVal={6} />
                         <MiniStockRow symbol="TCB" value={3.0} maxVal={6} />
@@ -1085,7 +1142,6 @@ export const MarketDashboard = () => {
                  </div>
               </MarketOverviewCard>
 
-              {/* Card 4: Proprietary Trading (Tự doanh) */}
               <MarketOverviewCard 
                 title="TỰ DOANH" 
                 icon={Briefcase}
@@ -1093,12 +1149,10 @@ export const MarketDashboard = () => {
                 onClick={() => handleCardClick('tudoanh')}
               >
                  <div className="flex h-full items-center">
-                    {/* Left */}
                     <div className="w-[35%] flex flex-col justify-center border-r border-[#1c1c1e]/50 pr-2">
                         <div className="text-lg font-bold text-[#00c853]">+54.2 Tỷ</div>
                         <div className="text-[9px] text-gray-500 mt-0.5">Giá trị ròng</div>
                     </div>
-                    {/* Right with Mini Bars */}
                     <div className="flex-1 pl-2 flex flex-col justify-center gap-1">
                          <MiniStockRow symbol="TCB" value={3.1} maxVal={4} />
                          <MiniStockRow symbol="HPG" value={-1.2} maxVal={4} />
@@ -1108,12 +1162,12 @@ export const MarketDashboard = () => {
               </MarketOverviewCard>
             </div>
     
-            {/* Row 2: Logic Switcher */}
             {activeCardId === 'nuocngoai' ? (
                  <ForeignMarketDashboard />
+            ) : activeCardId === 'thanhkhoan' ? (
+                 <LiquidityChart />
             ) : (
                 <div className="flex-1 min-h-0 bg-[#000000] p-1 overflow-hidden relative flex flex-col">
-                   {/* View Switcher - Auto fade */}
                    <div className="absolute top-2 left-3 z-20 flex bg-[#13171b]/90 backdrop-blur rounded border border-[#1c1c1e] p-0.5 shadow-sm opacity-20 hover:opacity-100 transition-opacity duration-300">
                        <button 
                            onClick={() => setViewMode('heatmap')}
@@ -1131,16 +1185,12 @@ export const MarketDashboard = () => {
 
                    {viewMode === 'heatmap' ? (
                        <>
-                           {/* Treemap View */}
                            <div className="flex-1 p-1 flex flex-col gap-1 min-h-0 bg-[#000000] overflow-hidden">
-                              {/* Row 1 */}
                               <div className="flex-1 flex gap-1 min-h-0">
-                                 {/* HPG Block */}
                                  <div className="w-[22%] flex flex-col">
                                     <TreemapBlock symbol="HPG" percent="+2.48%" color="#00c853" className="flex-1" />
                                  </div>
 
-                                 {/* Real Estate (Bất động sản) */}
                                  <div className="w-[43%] flex flex-col bg-[#1c1c1e] relative">
                                     <div className="absolute top-0 left-0 bg-black/40 text-[9px] text-white px-1 z-10 font-bold">Bất động sản</div>
                                     <div className="flex-1 grid grid-cols-4 grid-rows-4 gap-0.5 mt-0.5">
@@ -1172,7 +1222,6 @@ export const MarketDashboard = () => {
                                     </div>
                                  </div>
 
-                                 {/* Securities (Chứng khoán) */}
                                  <div className="w-[35%] flex flex-col bg-[#1c1c1e] relative">
                                     <div className="absolute top-0 left-0 bg-black/40 text-[9px] text-white px-1 z-10 font-bold">Chứng khoán</div>
                                     <div className="flex-1 grid grid-cols-3 grid-rows-3 gap-0.5 mt-0.5">
@@ -1184,7 +1233,6 @@ export const MarketDashboard = () => {
                                            <TreemapBlock symbol="FTS" percent="+1.2%" color="#00c853" />
                                         </div>
                                         <div className="col-span-3 row-span-1 grid grid-cols-2 gap-0.5 h-8 mt-auto absolute bottom-0 w-full hidden"></div>
-                                        {/* Fill gaps visually */}
                                         <div className="absolute bottom-0 w-full h-[25%] flex gap-0.5">
                                              <TreemapBlock symbol="VCI" percent="+3.49%" color="#00c853" className="w-[70%]" />
                                              <div className="flex-1 bg-[#00c853] flex items-center justify-center text-[8px] font-bold text-white">FTS</div>
@@ -1193,16 +1241,12 @@ export const MarketDashboard = () => {
                                  </div>
                               </div>
 
-                              {/* Row 2 */}
                               <div className="flex-1 flex gap-1 min-h-0">
-                                 {/* Banks (Ngân hàng) */}
                                  <div className="w-[65%] flex flex-col bg-[#1c1c1e] relative">
                                     <div className="absolute top-0 left-0 bg-black/40 text-[9px] text-white px-1 z-10 font-bold">Ngân hàng</div>
                                     <div className="flex-1 grid grid-cols-5 grid-rows-4 gap-0.5 mt-0.5">
-                                        {/* SHB Big Block */}
                                         <TreemapBlock symbol="SHB" percent="-0.91%" color="#f23645" className="col-span-2 row-span-4" />
                                         
-                                        {/* VPB/MBB Middle Col */}
                                         <div className="col-span-2 row-span-4 grid grid-rows-4 gap-0.5">
                                             <TreemapBlock symbol="VPB" percent="-2.09%" color="#f23645" className="row-span-2" />
                                             <TreemapBlock symbol="MBB" percent="-0.6%" color="#f23645" className="row-span-1" />
@@ -1212,7 +1256,6 @@ export const MarketDashboard = () => {
                                             </div>
                                         </div>
 
-                                        {/* Right Col */}
                                         <div className="col-span-1 row-span-4 grid grid-rows-5 gap-0.5">
                                             <TreemapBlock symbol="STB" percent="+2.86%" color="#00c853" className="row-span-2" />
                                             <div className="row-span-1 grid grid-cols-2 gap-0.5">
@@ -1233,10 +1276,8 @@ export const MarketDashboard = () => {
                                     </div>
                                  </div>
 
-                                 {/* Misc Groups */}
                                  <div className="w-[35%] flex flex-col gap-0.5">
                                      <div className="flex-1 flex gap-0.5">
-                                         {/* Consumer (Tiêu dùng) */}
                                          <div className="flex-1 flex flex-col bg-[#1c1c1e] relative">
                                              <div className="absolute top-0 left-0 bg-black/40 text-[9px] text-white px-1 z-10 font-bold">Tiêu dùng</div>
                                              <div className="flex-1 grid grid-cols-2 grid-rows-3 gap-0.5 mt-0.5">
@@ -1249,7 +1290,6 @@ export const MarketDashboard = () => {
                                                  </div>
                                              </div>
                                          </div>
-                                         {/* Oil & Gas (Dầu khí) */}
                                          <div className="flex-1 flex flex-col bg-[#1c1c1e] relative">
                                              <div className="absolute top-0 left-0 bg-black/40 text-[9px] text-white px-1 z-10 font-bold">Dầu khí</div>
                                              <div className="flex-1 grid grid-cols-2 gap-0.5 mt-0.5">
@@ -1259,7 +1299,6 @@ export const MarketDashboard = () => {
                                          </div>
                                      </div>
                                      <div className="h-[40%] flex gap-0.5">
-                                         {/* Defense (Phòng thủ) */}
                                          <div className="w-1/2 flex flex-col bg-[#1c1c1e] relative">
                                              <div className="absolute top-0 left-0 bg-black/40 text-[9px] text-white px-1 z-10 font-bold">Phòng thủ</div>
                                              <div className="flex-1 grid grid-cols-2 gap-0.5 mt-0.5">
@@ -1267,7 +1306,6 @@ export const MarketDashboard = () => {
                                                  <TreemapBlock symbol="FPT" percent="-0.54%" color="#f23645" className="col-span-1" /> 
                                              </div>
                                          </div>
-                                         {/* Logistics */}
                                          <div className="w-1/2 flex flex-col bg-[#1c1c1e] relative">
                                              <div className="absolute top-0 left-0 bg-black/40 text-[9px] text-white px-1 z-10 font-bold">Logistics</div>
                                              <div className="flex-1 p-0.5 mt-0.5">
@@ -1287,10 +1325,8 @@ export const MarketDashboard = () => {
           </>
         )}
 
-        {/* Tab: Cổ phiếu nổi bật (Top Movers) */}
         {activeDashboardTab === 'top_stocks' && (
              <div className="flex-1 grid grid-cols-3 gap-1 bg-[#000000] p-1 overflow-hidden">
-                {/* Column 1: Top Biến động */}
                 <div className="flex flex-col bg-[#000000] border border-[#1c1c1e] rounded overflow-hidden">
                      <div className="px-3 py-2 flex justify-between items-center border-b border-[#1c1c1e]">
                          <span className="text-sm font-bold text-white">Top biến động</span>
@@ -1335,7 +1371,6 @@ export const MarketDashboard = () => {
                      </div>
                 </div>
 
-                {/* Column 2: Top Đột biến khối lượng */}
                 <div className="flex flex-col bg-[#000000] border border-[#1c1c1e] rounded overflow-hidden">
                      <div className="px-3 py-2 flex justify-between items-center border-b border-[#1c1c1e]">
                          <div className="flex items-center gap-1">
@@ -1383,7 +1418,6 @@ export const MarketDashboard = () => {
                      </div>
                 </div>
 
-                {/* Column 3: Top Nước ngoài */}
                 <div className="flex flex-col bg-[#000000] border border-[#1c1c1e] rounded overflow-hidden">
                      <div className="px-3 py-2 flex justify-between items-center border-b border-[#1c1c1e]">
                          <span className="text-sm font-bold text-white">Top nước ngoài</span>
@@ -1394,7 +1428,6 @@ export const MarketDashboard = () => {
                          </div>
                      </div>
                      
-                     {/* Foreign Stats Header */}
                      <div className="grid grid-cols-3 gap-2 px-3 py-2 border-b border-[#1c1c1e] bg-[#000000]">
                          <div className="flex flex-col">
                              <span className="text-[9px] text-gray-400">Tổng giá trị Mua</span>
@@ -1421,10 +1454,9 @@ export const MarketDashboard = () => {
                      <div className="flex-1 overflow-auto custom-scrollbar px-2 py-1">
                          <div className="space-y-1">
                              {TOP_FOREIGN_MOCK.map((row, i) => {
-                                 const maxVal = 900; // rough max for bar scaling
+                                 const maxVal = 900;
                                  return (
                                      <div key={i} className="flex items-center text-[10px] h-5">
-                                         {/* Buy Side */}
                                          <div className="flex-1 flex items-center justify-end gap-2">
                                              <span className="text-gray-400 w-8 text-right font-mono">{row.bv.toFixed(1)}</span>
                                              <div className="flex-1 h-3 flex justify-end">
@@ -1433,10 +1465,8 @@ export const MarketDashboard = () => {
                                              <span className="font-bold text-white w-8 text-center">{row.b}</span>
                                          </div>
                                          
-                                         {/* Divider */}
                                          <div className="w-[1px] h-full bg-[#1c1c1e] mx-1"></div>
 
-                                         {/* Sell Side */}
                                          <div className="flex-1 flex items-center gap-2">
                                              <span className="font-bold text-white w-8 text-center">{row.s}</span>
                                              <div className="flex-1 h-3 flex justify-start">
@@ -1464,7 +1494,6 @@ export const MarketDashboard = () => {
              </div>
         )}
 
-        {/* Placeholders for other tabs */}
         {(activeDashboardTab === 'industry' || activeDashboardTab === 'derivatives') && (
             <div className="flex-1 flex flex-col items-center justify-center text-gray-500 gap-4">
                 <LayoutGrid size={48} className="opacity-20" />
@@ -1474,10 +1503,8 @@ export const MarketDashboard = () => {
 
       </div>
 
-      {/* --- Right Column: Featured Posts (35%) --- */}
       <div className="w-[35%] flex flex-col h-full bg-[#13171b] border-l border-[#1c1c1e]">
           
-          {/* Feed Header */}
           <div className="h-12 border-b border-[#1c1c1e] flex items-center justify-between px-3 bg-[#000000] shrink-0">
              <div className="flex gap-4 h-full">
                  <button 
@@ -1485,7 +1512,6 @@ export const MarketDashboard = () => {
                     className={`h-full border-b-2 text-xs px-1 transition-colors relative ${activeRightTab === 'intelligence' ? 'border-[#2962ff] text-[#2962ff] font-bold' : 'border-transparent hover:border-gray-600 text-gray-400 font-medium'}`}
                  >
                     Tình báo
-                    {/* Notification Dot */}
                     <span className="absolute top-2.5 right-[-2px] w-1.5 h-1.5 bg-[#f23645] rounded-full"></span>
                  </button>
                  <button 
@@ -1507,7 +1533,6 @@ export const MarketDashboard = () => {
              </div>
           </div>
 
-          {/* Feed Content */}
           <div className="flex-1 overflow-y-auto p-4 custom-scrollbar space-y-4 bg-[#000000]">
              {currentPosts.map((post) => (
                  <PostCard key={post.id} post={post} />
@@ -1519,7 +1544,6 @@ export const MarketDashboard = () => {
                  </div>
              )}
              
-             {/* Load more placeholder */}
              {currentPosts.length > 0 && (
                 <div className="text-center py-4">
                     <div className="w-6 h-6 border-2 border-[#2962ff] border-t-transparent rounded-full animate-spin mx-auto opacity-50"></div>
@@ -1532,15 +1556,128 @@ export const MarketDashboard = () => {
   );
 };
 
+const NewsFeedHero = () => (
+    <div className="w-full rounded-2xl border border-[#2c2c2e] bg-[#13171b] p-6 mb-8 hover:border-[#2962ff] transition-colors cursor-pointer group shadow-lg">
+        <span className="inline-block px-2 py-1 bg-[#2962ff] text-white text-[10px] font-bold uppercase rounded mb-3">Tiêu điểm</span>
+        <h1 className="text-3xl font-bold text-white mb-3 leading-tight group-hover:text-[#2962ff] transition-colors">
+            Thị trường chứng khoán năm 2025: Cơ hội nâng hạng và dòng vốn ngoại
+        </h1>
+        <p className="text-gray-400 text-sm mb-4 leading-relaxed line-clamp-3">
+            Với việc áp dụng hệ thống KRX và triển vọng nâng hạng thị trường mới nổi của FTSE Russell, chứng khoán Việt Nam đang đứng trước cơ hội thu hút hàng tỷ USD vốn ngoại trong năm nay.
+        </p>
+        <div className="flex items-center gap-2 text-xs text-gray-500 font-medium">
+            <span className="text-white">Ban biên tập Finpath</span>
+            <span>•</span>
+            <span>2 giờ trước</span>
+        </div>
+    </div>
+);
+
+const SidebarWidget = ({ title, children }: { title: string, children?: React.ReactNode }) => (
+    <div className="bg-[#13171b] rounded-xl border border-[#2c2c2e] overflow-hidden">
+        <div className="px-4 py-3 border-b border-[#2c2c2e]">
+            <h3 className="text-xs font-bold text-white uppercase tracking-wider">{title}</h3>
+        </div>
+        <div className="p-4">
+            {children}
+        </div>
+    </div>
+);
+
 export const NewsFeed = () => {
   return (
-    <div className="w-full h-full bg-[#000000] overflow-y-auto custom-scrollbar flex justify-center">
-      <div className="w-full max-w-3xl p-4 space-y-4">
-         {INTELLIGENCE_POSTS.map(post => (
-            <PostCard key={post.id} post={post} />
-         ))}
-         {/* End of content indicator */}
-         <div className="h-20 flex items-center justify-center text-xs text-gray-600">
+    <div className="w-full h-full bg-[#000000] overflow-y-auto custom-scrollbar">
+      <div className="w-full max-w-5xl mx-auto p-6">
+         <NewsFeedHero />
+         
+         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+             <div className="lg:col-span-2 space-y-4">
+                <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                    <Zap size={20} className="text-yellow-500 fill-yellow-500" /> Tin nổi bật
+                </h2>
+                {INTELLIGENCE_POSTS.map(post => (
+                    <PostCard key={post.id} post={post} />
+                ))}
+             </div>
+
+             <div className="space-y-6">
+                 
+                 <SidebarWidget title="Chủ đề quan tâm">
+                     <div className="flex flex-wrap gap-2">
+                         {['#NângHạng', '#BấtĐộngSản', '#NgânHàng', '#LãiSuất', '#VinGroup', '#FPT'].map(tag => (
+                             <span key={tag} className="px-3 py-1 bg-[#1c1c1e] hover:bg-[#2962ff] hover:text-white text-gray-400 rounded-full text-xs cursor-pointer transition-colors border border-[#2c2c2e]">
+                                 {tag}
+                             </span>
+                         ))}
+                     </div>
+                 </SidebarWidget>
+
+                 <SidebarWidget title="Bài thịnh hành">
+                     <div className="space-y-4">
+                         {[
+                             { title: "Nhận định thị trường tuần 25-29/12: Cơ hội bắt đáy?", views: "15K" },
+                             { title: "Top 5 cổ phiếu ngân hàng đáng mua nhất Q1/2025", views: "12K" },
+                             { title: "Phân tích kỹ thuật VNINDEX: Vượt đỉnh 1300?", views: "10K" },
+                         ].map((item, i) => (
+                             <div key={i} className="group cursor-pointer">
+                                 <h4 className="text-sm font-medium text-gray-200 group-hover:text-[#2962ff] transition-colors line-clamp-2 leading-snug mb-1">
+                                     {item.title}
+                                 </h4>
+                                 <div className="flex items-center gap-1 text-[10px] text-gray-500">
+                                     <Eye size={12} /> {item.views} lượt xem
+                                 </div>
+                             </div>
+                         ))}
+                     </div>
+                 </SidebarWidget>
+
+                 <SidebarWidget title="Cổ phiếu tìm kiếm nhiều">
+                     <div className="space-y-2">
+                         {[
+                             { symbol: "HPG", name: "Hòa Phát", change: "+2.5%", color: "#00c853" },
+                             { symbol: "NVL", name: "Novaland", change: "-1.2%", color: "#f23645" },
+                             { symbol: "DIG", name: "DIC Corp", change: "+0.8%", color: "#00c853" },
+                             { symbol: "SSI", name: "SSI Securities", change: "+1.5%", color: "#00c853" },
+                             { symbol: "VHM", name: "Vinhomes", change: "-0.5%", color: "#f23645" },
+                         ].map((stock, i) => (
+                             <div key={i} className="flex items-center justify-between py-1 hover:bg-[#1c1c1e] rounded px-1 transition-colors cursor-pointer group">
+                                 <div className="flex items-center gap-3">
+                                     <span className="font-bold text-sm text-white group-hover:text-[#2962ff]">{stock.symbol}</span>
+                                     <span className="text-xs text-gray-500">{stock.name}</span>
+                                 </div>
+                                 <span className="text-xs font-bold" style={{ color: stock.color }}>{stock.change}</span>
+                             </div>
+                         ))}
+                     </div>
+                 </SidebarWidget>
+
+                 <SidebarWidget title="Chuyên gia đề xuất">
+                     <div className="space-y-4">
+                         {[
+                             { name: "Dương Văn Duy", role: "Chuyên gia kỹ thuật", avatar: "https://i.pravatar.cc/150?u=duy" },
+                             { name: "Lý Phạm Stock", role: "Phân tích cơ bản", avatar: "https://i.pravatar.cc/150?u=lypham" },
+                             { name: "Team TVI", role: "Tư vấn đầu tư", avatar: "https://i.pravatar.cc/150?u=tvi" },
+                         ].map((expert, i) => (
+                             <div key={i} className="flex items-center justify-between group cursor-pointer">
+                                 <div className="flex items-center gap-3">
+                                     <img src={expert.avatar} alt={expert.name} className="w-8 h-8 rounded-full border border-[#2c2c2e]" />
+                                     <div>
+                                         <div className="text-sm font-bold text-gray-200 group-hover:text-[#2962ff]">{expert.name}</div>
+                                         <div className="text-[10px] text-gray-500">{expert.role}</div>
+                                     </div>
+                                 </div>
+                                 <button className="text-gray-400 hover:text-[#2962ff] transition-colors">
+                                     <UserPlus size={16} />
+                                 </button>
+                             </div>
+                         ))}
+                     </div>
+                 </SidebarWidget>
+
+             </div>
+         </div>
+
+         <div className="h-20 flex items-center justify-center text-xs text-gray-600 mt-8">
              ~ Đã hiển thị hết tin mới ~
          </div> 
       </div>
