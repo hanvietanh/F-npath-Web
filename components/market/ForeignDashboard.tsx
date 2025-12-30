@@ -56,31 +56,43 @@ export const ForeignMarketDashboard = () => {
                         <div className="absolute -left-8 top-[75%] text-[9px] text-gray-500">0</div>
                         <div className="absolute -left-8 bottom-6 text-[9px] text-gray-500">-500</div>
 
-                        {/* Bars */}
-                        {[
-                            { d: '12/12', v: -600, c: '#f23645' },
-                            { d: '15/12', v: 700, c: '#00c853' },
-                            { d: '16/12', v: 10, c: '#00c853' },
-                            { d: '17/12', v: 20, c: '#00c853' },
-                            { d: '18/12', v: -900, c: '#f23645' },
-                            { d: '19/12', v: 550, c: '#00c853' },
-                            { d: '22/12', v: 550, c: '#00c853' },
-                            { d: '23/12', v: 750, c: '#00c853' },
-                            { d: '24/12', v: 1100, c: '#00c853' },
-                            { d: '00:00', v: 300, c: '#00c853' },
-                        ].map((item, i) => (
-                             <div key={i} className="flex-1 flex flex-col justify-end h-full relative group">
-                                  <div 
-                                    className="w-full rounded-sm opacity-90 group-hover:opacity-100 transition-opacity"
-                                    style={{ 
-                                        height: `${Math.abs(item.v) / 15}%`, 
-                                        backgroundColor: item.c,
-                                        marginBottom: item.v > 0 ? '50%' : `calc(50% - ${Math.abs(item.v) / 15}%)`
-                                    }}
-                                  ></div>
-                                  <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[9px] text-gray-500 whitespace-nowrap">{item.d}</span>
-                             </div>
-                        ))}
+                        {/* Chart Area */}
+                        <div className="flex-1 flex gap-2 h-full relative items-center">
+                            {[
+                                { d: '12/12', v: -600, c: '#f23645' },
+                                { d: '15/12', v: 700, c: '#00c853' },
+                                { d: '16/12', v: 10, c: '#00c853' },
+                                { d: '17/12', v: 20, c: '#00c853' },
+                                { d: '18/12', v: -900, c: '#f23645' },
+                                { d: '19/12', v: 550, c: '#00c853' },
+                                { d: '22/12', v: 550, c: '#00c853' },
+                                { d: '23/12', v: 750, c: '#00c853' },
+                                { d: '24/12', v: 1100, c: '#00c853' },
+                                { d: '00:00', v: 300, c: '#00c853' },
+                            ].map((item, i) => (
+                                <div key={i} className="flex-1 relative h-full group">
+                                    <div 
+                                        className="absolute w-full rounded-sm opacity-90 group-hover:opacity-100 transition-opacity"
+                                        style={{ 
+                                            backgroundColor: item.c,
+                                            height: `${Math.abs(item.v) / 25}%`, // 1500 / 25 = 60%, fits well
+                                            bottom: item.v >= 0 ? '50%' : 'auto',
+                                            top: item.v < 0 ? '50%' : 'auto',
+                                        }}
+                                    ></div>
+                                    
+                                    {/* Value Tooltip */}
+                                    <div className="opacity-0 group-hover:opacity-100 absolute left-1/2 -translate-x-1/2 z-20 bg-gray-800 text-white text-[9px] px-1 py-0.5 rounded -top-2 pointer-events-none whitespace-nowrap">
+                                        {item.v}
+                                    </div>
+
+                                    {/* Date Label */}
+                                    <span className="absolute bottom-[-18px] left-1/2 -translate-x-1/2 text-[9px] text-gray-500 whitespace-nowrap">
+                                        {item.d}
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
                      </div>
                 </div>
             </div>

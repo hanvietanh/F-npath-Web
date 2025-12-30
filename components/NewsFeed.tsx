@@ -3,23 +3,6 @@ import { Zap, Eye, UserPlus, ArrowUpRight } from 'lucide-react';
 import { PostCard } from './PostCard';
 import { INTELLIGENCE_POSTS } from './mockData';
 
-const NewsFeedHero = () => (
-    <div className="w-full rounded-2xl border border-[#2c2c2e] bg-[#13171b] p-6 mb-8 hover:border-[#2962ff] transition-colors cursor-pointer group shadow-lg">
-        <span className="inline-block px-2 py-1 bg-[#2962ff] text-white text-[10px] font-bold uppercase rounded mb-3">Tiêu điểm</span>
-        <h1 className="text-3xl font-bold text-white mb-3 leading-tight group-hover:text-[#2962ff] transition-colors">
-            Thị trường chứng khoán năm 2025: Cơ hội nâng hạng và dòng vốn ngoại
-        </h1>
-        <p className="text-gray-400 text-sm mb-4 leading-relaxed line-clamp-3">
-            Với việc áp dụng hệ thống KRX và triển vọng nâng hạng thị trường mới nổi của FTSE Russell, chứng khoán Việt Nam đang đứng trước cơ hội thu hút hàng tỷ USD vốn ngoại trong năm nay.
-        </p>
-        <div className="flex items-center gap-2 text-xs text-gray-500 font-medium">
-            <span className="text-white">Ban biên tập Finpath</span>
-            <span>•</span>
-            <span>2 giờ trước</span>
-        </div>
-    </div>
-);
-
 const SidebarWidget = ({ title, children }: { title: string, children?: React.ReactNode }) => (
     <div className="bg-[#13171b] rounded-xl border border-[#2c2c2e] overflow-hidden">
         <div className="px-4 py-3 border-b border-[#2c2c2e]">
@@ -35,9 +18,6 @@ export const NewsFeed = () => {
   return (
     <div className="w-full h-full bg-[#000000] overflow-y-auto custom-scrollbar">
       <div className="w-full max-w-5xl mx-auto p-6">
-         {/* Hero Section */}
-         <NewsFeedHero />
-         
          {/* News List */}
          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
              {/* Main Feed */}

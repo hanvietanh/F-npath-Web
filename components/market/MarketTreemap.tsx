@@ -88,6 +88,30 @@ export const MarketTreemap = () => {
                     </div>
                 </div>
                 </div>
+
+                {/* Consumer & Energy (Tiêu dùng & Năng lượng) - Fills the gap */}
+                <div className="w-[35%] flex flex-col bg-[#1c1c1e] relative">
+                    <div className="absolute top-0 left-0 bg-black/40 text-[9px] text-white px-1 z-10 font-bold">Tiêu dùng & Năng lượng</div>
+                    <div className="flex-1 grid grid-cols-3 grid-rows-4 gap-0.5 mt-0.5">
+                        {/* GAS */}
+                        <TreemapBlock symbol="GAS" percent="-0.8%" color="#f23645" className="col-span-2 row-span-2" />
+                        
+                        {/* Retailers */}
+                        <div className="col-span-1 row-span-2 grid grid-rows-2 gap-0.5">
+                            <TreemapBlock symbol="MWG" percent="-1.1%" color="#f23645" />
+                            <TreemapBlock symbol="PNJ" percent="+0.5%" color="#00c853" />
+                        </div>
+
+                        {/* Mixed */}
+                        <TreemapBlock symbol="VNM" percent="-0.4%" color="#f23645" className="col-span-1 row-span-2" />
+                        <TreemapBlock symbol="MSN" percent="+1.7%" color="#00c853" className="col-span-1 row-span-2" />
+                        
+                        <div className="col-span-1 row-span-2 grid grid-rows-2 gap-0.5">
+                            <TreemapBlock symbol="PLX" percent="+0.5%" color="#00c853" />
+                            <TreemapBlock symbol="SAB" percent="-0.1%" color="#f23645" />
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     );

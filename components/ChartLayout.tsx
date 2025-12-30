@@ -1,38 +1,15 @@
 import React, { useState } from 'react';
 import { 
-  Crosshair, 
-  Minus, 
-  TrendingUp, 
-  Type, 
-  Pencil, 
-  Smile, 
-  Ruler, 
-  ZoomIn, 
-  Magnet, 
-  Lock, 
-  Trash2,
-  ChevronDown,
-  ChevronRight,
-  Settings,
-  Camera,
-  Maximize,
-  PlusCircle,
-  BarChart2,
-  FunctionSquare,
-  Sparkles,
-  MoreHorizontal
+  Crosshair, Minus, TrendingUp, Type, Pencil, Smile, Ruler, ZoomIn, 
+  Magnet, Lock, Trash2, ChevronDown, Settings, Camera, Maximize, 
+  PlusCircle, BarChart2, FunctionSquare, Sparkles, Layers,
+  MessageCircle, Zap, BookOpen, Clock, PlayCircle
 } from 'lucide-react';
 import { CandleChart } from './CandleChart';
 import { AI_NEWS_ITEMS } from './mockData';
 import { 
-  ToolbarButton, 
-  TopBarButton, 
-  OrderBookTable, 
-  DraggableWidget, 
-  MarketQuickTrade, 
-  LimitQuickTrade, 
-  OrderPlacementPanel, 
-  BottomTradingPanel 
+  ToolbarButton, TopBarButton, OrderBookTable, DraggableWidget, 
+  MarketQuickTrade, LimitQuickTrade, OrderPlacementPanel, BottomTradingPanel 
 } from './TradingWidgets';
 
 interface ChartLayoutProps {
@@ -42,14 +19,89 @@ interface ChartLayoutProps {
   aiNotificationCount: number;
 }
 
+// Feature Groups Definition
+const FEATURE_GROUPS = [
+  {
+    id: 'social',
+    name: 'Tình báo MXH & Tin đồn',
+    icon: MessageCircle,
+    color: 'text-purple-400',
+    items: [
+      { id: 'rumor_timeline', label: 'Trục Thời Gian Tin Đồn' },
+      { id: 'expert_markers', label: 'Dấu Chân KOLs/Room VIP' },
+      { id: 'bull_bear_debate', label: 'Đấu Trường Quan Điểm' },
+      { id: 'credibility_score', label: 'Chấm Điểm Tin Cậy' },
+      { id: 'social_buzz', label: 'Chỉ báo Độ Nhiệt' },
+      { id: 'ai_context', label: 'AI Context Hover' },
+    ]
+  },
+  {
+    id: 'smart_money',
+    name: 'Dòng Tiền Lớn',
+    icon: Zap,
+    color: 'text-yellow-400',
+    items: [
+      { id: 'smart_money_divergence', label: 'Phân Kỳ Cá Mập' },
+      { id: 'room_vip_heatmap', label: 'Vết Dầu Loang Room VIP' },
+      { id: 'etf_radar', label: 'Radar Cơ Cấu ETF' },
+      { id: 'foreign_realtime', label: 'Soi Room Ngoại Realtime' },
+      { id: 'prop_trading', label: 'Dấu Chân Tự Doanh' },
+      { id: 'whale_whisperer', label: 'Giải Mã Lệnh Lớn' },
+    ]
+  },
+  {
+    id: 'fundamental',
+    name: 'Phân Tích Cơ Bản',
+    icon: BookOpen,
+    color: 'text-cyan-400',
+    items: [
+      { id: 'consensus_cloud', label: 'Vùng Mây Định Giá' },
+      { id: 'pe_bands', label: 'Dải Băng P/E Lịch Sử' },
+      { id: 'growth_badges', label: 'Huy Hiệu Tăng Trưởng' },
+      { id: 'sector_rotation', label: 'Radar Ngành' },
+      { id: 'ai_fundamental', label: 'AI Fundamental Insight' },
+    ]
+  },
+  {
+    id: 'event',
+    name: 'Backtest Sự Kiện',
+    icon: Clock,
+    color: 'text-orange-400',
+    items: [
+      { id: 'earnings_replay', label: 'Phản Ứng BCTC' },
+      { id: 'fractal_match', label: 'So Sánh Bối Cảnh' },
+      { id: 'event_impact', label: 'Tác Động Sự Kiện' },
+    ]
+  },
+  {
+    id: 'execution',
+    name: 'Giao Dịch & Quản Trị',
+    icon: PlayCircle,
+    color: 'text-green-400',
+    items: [
+      { id: 'native_trade', label: 'Giao Dịch Native' },
+      { id: 'pnl_realtime', label: 'P&L Realtime' },
+      { id: 'trapped_zones', label: 'Vùng Kẹp Hàng' },
+      { id: 'scenario_planner', label: 'Mô Phỏng Kịch Bản' },
+      { id: 'ghost_trade', label: 'Ghost Trade' },
+    ]
+  }
+];
+
 export const ChartLayout: React.FC<ChartLayoutProps> = ({ isTradeMode, onToggleTradeMode, onOpenAiAssistant, aiNotificationCount }) => {
   const [showMarketWidget, setShowMarketWidget] = useState(true);
   const [showLimitWidget, setShowLimitWidget] = useState(true);
   const [sidebarTab, setSidebarTab] = useState('Chi tiết');
+  
+  // Feature Layer State
+  const [activeFeature, setActiveFeature] = useState<string | null>(null);
+  const [isLayerMenuOpen, setIsLayerMenuOpen] = useState(false);
+
+  const selectedFeatureLabel = FEATURE_GROUPS.flatMap(g => g.items).find(i => i.id === activeFeature)?.label;
 
   return (
     <div className="flex h-full w-full bg-[#13171b]">
-      {/* 1. Left Vertical Toolbar (Drawing Tools) */}
+      {/* 1. Left Vertical Toolbar */}
       <div className="w-[50px] flex-shrink-0 flex flex-col items-center py-2 gap-1 border-r border-[#1c1c1e] bg-[#13171b] z-10">
         <ToolbarButton icon={Crosshair} active />
         <div className="w-4 h-[1px] bg-[#1c1c1e] my-1" />
@@ -67,35 +119,79 @@ export const ChartLayout: React.FC<ChartLayoutProps> = ({ isTradeMode, onToggleT
         <ToolbarButton icon={Trash2} />
       </div>
 
-      {/* 2. Main Center Area (Chart + Bottom Panel) */}
+      {/* 2. Main Center Area */}
       <div className="flex-1 flex flex-col min-w-0 bg-[#000000]">
         {/* Top Horizontal Toolbar */}
-        <div className="h-[46px] flex items-center px-2 gap-1 border-b border-[#1c1c1e] bg-[#13171b]">
-           {/* Symbol Search Mock */}
+        <div className="h-[46px] flex items-center px-2 gap-1 border-b border-[#1c1c1e] bg-[#13171b] relative z-40">
            <div className="flex items-center gap-2 cursor-pointer hover:bg-[#2a2e39] px-2 py-1 rounded transition-colors mr-2">
               <span className="font-bold text-white text-sm">PHR</span>
               <PlusCircle size={14} className="text-gray-400" />
            </div>
            
            <div className="w-[1px] h-5 bg-[#1c1c1e] mx-1" />
-           
-           {/* Timeframes */}
            <TopBarButton label="D" active />
            <TopBarButton label="W" />
            <TopBarButton label="" icon={ChevronDown} />
-           
            <div className="w-[1px] h-5 bg-[#1c1c1e] mx-1" />
-
-           {/* Chart Type */}
            <TopBarButton icon={BarChart2} active hasDropdown />
-           
-           {/* Indicators */}
            <TopBarButton label="Các chỉ báo" icon={FunctionSquare} />
-           <TopBarButton label="Biểu đồ" hasDropdown />
+
+           {/* FEATURE LAYER DROPDOWN */}
+           <div className="relative">
+              <button 
+                onClick={() => setIsLayerMenuOpen(!isLayerMenuOpen)}
+                className={`
+                   h-8 px-3 flex items-center gap-2 rounded transition-colors ml-2 border
+                   ${activeFeature ? 'bg-[#2962ff]/10 text-[#2962ff] border-[#2962ff]' : 'text-gray-300 border-transparent hover:bg-[#2a2e39]'}
+                `}
+              >
+                 <Layers size={16} />
+                 <span className="text-xs font-bold max-w-[150px] truncate">
+                    {selectedFeatureLabel || 'Lớp Tính Năng'}
+                 </span>
+                 <ChevronDown size={12} />
+              </button>
+
+              {isLayerMenuOpen && (
+                 <div className="absolute top-full left-0 mt-2 w-[600px] bg-[#1a1f26] border border-[#2c2c2e] rounded-xl shadow-2xl p-4 grid grid-cols-2 gap-6 z-50 animate-in fade-in zoom-in-95 duration-100">
+                     {FEATURE_GROUPS.map((group) => (
+                        <div key={group.id} className="space-y-2">
+                            <div className={`flex items-center gap-2 text-xs font-bold uppercase tracking-wider ${group.color}`}>
+                                <group.icon size={14} />
+                                {group.name}
+                            </div>
+                            <div className="grid grid-cols-1 gap-1">
+                                {group.items.map((item) => (
+                                    <button 
+                                       key={item.id}
+                                       onClick={() => {
+                                           setActiveFeature(activeFeature === item.id ? null : item.id);
+                                           setIsLayerMenuOpen(false);
+                                       }}
+                                       className={`
+                                          text-left px-3 py-2 rounded text-xs transition-colors flex items-center justify-between group
+                                          ${activeFeature === item.id ? 'bg-[#2962ff] text-white' : 'text-gray-400 hover:bg-[#2c2c2e] hover:text-white'}
+                                       `}
+                                    >
+                                       {item.label}
+                                       {activeFeature === item.id && <Sparkles size={12} />}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                     ))}
+                     
+                     {/* Feature Info Footer */}
+                     <div className="col-span-2 border-t border-[#2c2c2e] pt-3 flex items-center gap-2 text-[10px] text-gray-500">
+                        <Sparkles size={12} className="text-[#2962ff]" />
+                        Chọn một tính năng để kích hoạt lớp dữ liệu giả lập (Mockup Simulation) trên biểu đồ.
+                     </div>
+                 </div>
+              )}
+           </div>
            
            <div className="flex-1" />
 
-           {/* Trade Button (Toggles Both Panels) */}
            <button 
              onClick={() => onToggleTradeMode(!isTradeMode)}
              className={`
@@ -106,7 +202,6 @@ export const ChartLayout: React.FC<ChartLayoutProps> = ({ isTradeMode, onToggleT
               Giao dịch
            </button>
            
-           {/* Right side controls */}
            <div className="flex items-center gap-1">
              <TopBarButton label="VA_999999" hasDropdown />
              <TopBarButton icon={Settings} />
@@ -118,9 +213,8 @@ export const ChartLayout: React.FC<ChartLayoutProps> = ({ isTradeMode, onToggleT
         {/* Chart Canvas & Overlays */}
         <div className="flex-1 flex flex-col relative overflow-hidden">
              <div className="flex-1 relative">
-                 <CandleChart symbol="PHR" />
+                 <CandleChart symbol="PHR" activeFeature={activeFeature} />
 
-                 {/* Ask AI Floating Button */}
                  <div className="absolute bottom-10 right-10 z-20">
                     <div className="relative group">
                         <button 
@@ -144,7 +238,6 @@ export const ChartLayout: React.FC<ChartLayoutProps> = ({ isTradeMode, onToggleT
                     </div>
                  </div>
                  
-                 {/* Draggable Quick Trade Widgets */}
                  {showMarketWidget && (
                     <DraggableWidget initialX={20} initialY={80}>
                         <MarketQuickTrade onClose={() => setShowMarketWidget(false)} />
@@ -157,18 +250,14 @@ export const ChartLayout: React.FC<ChartLayoutProps> = ({ isTradeMode, onToggleT
                     </DraggableWidget>
                  )}
              </div>
-             {/* Bottom Panel (Assets) */}
              {isTradeMode && <BottomTradingPanel onClose={() => onToggleTradeMode(false)} />}
         </div>
       </div>
 
-      {/* 3. Right Sidebar (Details & Order Book) */}
+      {/* 3. Right Sidebar */}
       <div className="w-[340px] flex-shrink-0 border-l border-[#1c1c1e] bg-[#13171b] flex flex-col transition-all duration-300">
-         
-         {/* Order Placement Panel (Inserted at Top when active) */}
          {isTradeMode && <OrderPlacementPanel />}
 
-         {/* Tabs */}
          <div className="flex h-10 border-b border-[#1c1c1e] flex-shrink-0">
             {['Chi tiết', 'AI News', 'Theo dõi', 'Chỉ số'].map((tab, i) => (
                 <button 
@@ -182,32 +271,25 @@ export const ChartLayout: React.FC<ChartLayoutProps> = ({ isTradeMode, onToggleT
             ))}
          </div>
 
-         {/* Conditional Content based on Active Tab */}
          {sidebarTab === 'Chi tiết' ? (
              <>
-                 {/* Stock Header */}
                  <div className="p-4 border-b border-[#1c1c1e] flex-shrink-0 bg-[#13171b]">
                     <div className="flex items-center justify-between mb-1">
                         <div className="flex items-center gap-2">
-                            <span className="text-xl font-bold text-white">VIC</span>
+                            <span className="text-xl font-bold text-white">PHR</span>
                             <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#1c1c1e] border border-[#2c2c2e] text-gray-300">HOSE</span>
                         </div>
-                        <div className="text-2xl font-bold text-[#00c853]">150.04</div>
+                        <div className="text-2xl font-bold text-[#00c853]">56.30</div>
                     </div>
                     <div className="flex justify-between items-center">
-                        <div className="text-[10px] text-gray-500">Vingroup Corporation</div>
-                        <div className="text-sm font-bold text-[#00c853]">+1.04 (+3.88%)</div>
+                        <div className="text-[10px] text-gray-500">Phuoc Hoa Rubber</div>
+                        <div className="text-sm font-bold text-[#00c853]">+1.30 (+2.35%)</div>
                     </div>
                  </div>
 
-                 {/* Order Book Section - Flex-1 to scroll */}
                  <div className="flex-1 overflow-y-auto bg-[#13171b]">
-                     {/* Order Table */}
                      <OrderBookTable />
-
-                     <div className="h-2 bg-[#000000]" /> {/* Spacer */}
-
-                     {/* Match History (Khớp lệnh) */}
+                     <div className="h-2 bg-[#000000]" />
                      <div className="p-3 bg-[#13171b]">
                         <div className="flex items-center justify-between mb-2">
                             <span className="text-sm font-bold text-gray-200">Khớp lệnh</span>
@@ -225,14 +307,10 @@ export const ChartLayout: React.FC<ChartLayoutProps> = ({ isTradeMode, onToggleT
                             </thead>
                             <tbody className="text-xs font-mono">
                                 {[
-                                    { time: '14:45:00', price: '150.04', change: '+1.04', vol: '11,300', type: 'buy' },
-                                    { time: '14:29:21', price: '150.00', change: '+1.00', vol: '200', type: 'sell' },
-                                    { time: '14:28:56', price: '150.00', change: '+1.00', vol: '200', type: 'buy' },
-                                    { time: '14:26:34', price: '149.90', change: '+0.90', vol: '500', type: 'buy' },
-                                    { time: '14:24:21', price: '149.90', change: '+0.90', vol: '1,800', type: 'buy' },
-                                    { time: '14:23:36', price: '149.80', change: '+0.80', vol: '400', type: 'buy' },
-                                    { time: '14:23:01', price: '149.50', change: '+0.50', vol: '400', type: 'sell' },
-                                    { time: '14:20:38', price: '149.50', change: '+0.50', vol: '6,000', type: 'sell' },
+                                    { time: '14:45:00', price: '56.30', change: '+1.30', vol: '11,300', type: 'buy' },
+                                    { time: '14:29:21', price: '56.20', change: '+1.20', vol: '200', type: 'sell' },
+                                    { time: '14:28:56', price: '56.20', change: '+1.20', vol: '200', type: 'buy' },
+                                    { time: '14:26:34', price: '56.10', change: '+1.10', vol: '500', type: 'buy' },
                                 ].map((row, i) => (
                                     <tr key={i} className="hover:bg-[#1c1c1e] transition-colors cursor-pointer group">
                                         <td className="py-1.5 text-left text-gray-400">{row.time}</td>
@@ -244,22 +322,6 @@ export const ChartLayout: React.FC<ChartLayoutProps> = ({ isTradeMode, onToggleT
                                 ))}
                             </tbody>
                         </table>
-                     </div>
-                     
-                     {/* Bottom Summary Mock */}
-                     <div className="mt-4 px-3 py-2 border-t border-[#1c1c1e] text-xs space-y-2 bg-[#13171b]">
-                        <div className="flex justify-between">
-                            <span className="text-gray-400">Tổng KL khớp</span>
-                            <span className="font-bold text-white">1,654 M</span>
-                        </div>
-                        <div className="flex justify-between">
-                            <span className="text-gray-400">KL Mua chủ động</span>
-                            <span className="font-bold text-[#00c853]">906.2k</span>
-                        </div>
-                        <div className="flex justify-between">
-                            <span className="text-gray-400">KL Bán chủ động</span>
-                            <span className="font-bold text-[#f23645]">748.4k</span>
-                        </div>
                      </div>
                  </div>
              </>
@@ -274,23 +336,20 @@ export const ChartLayout: React.FC<ChartLayoutProps> = ({ isTradeMode, onToggleT
                                  </div>
                              ) : (
                                  <div className="w-9 h-9 rounded-full overflow-hidden shrink-0 border border-[#2c2c2e]">
-                                     <img src={item.avatar} alt={item.source} className="w-full h-full object-cover" />
+                                     <img src={item.avatar || 'https://i.pravatar.cc/150'} alt={item.source} className="w-full h-full object-cover" />
                                  </div>
                              )}
                              <div className="flex-1 min-w-0">
                                  <div className="flex justify-between items-start">
                                      <h4 className="text-sm font-bold text-[#2962ff] truncate pr-2 group-hover:underline">{item.title}</h4>
-                                     <MoreHorizontal size={14} className="text-gray-500 shrink-0" />
                                  </div>
                                  <div className="flex items-center gap-1.5 text-[10px] text-gray-500 mt-0.5">
                                      <span className="font-medium text-gray-300">{item.source}</span>
-                                     <span className="w-0.5 h-0.5 rounded-full bg-gray-500"></span>
-                                     <span>{item.time}</span>
                                  </div>
                              </div>
                         </div>
-                        <p className="text-xs text-gray-300 leading-relaxed text-justify">
-                            {item.content} <span className="text-[#2962ff] cursor-pointer hover:underline whitespace-nowrap ml-1">Xem chi tiết</span>
+                        <p className="text-xs text-gray-300 leading-relaxed text-justify line-clamp-3">
+                            {item.content}
                         </p>
                     </div>
                  ))}
