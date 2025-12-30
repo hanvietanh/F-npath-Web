@@ -3,7 +3,8 @@ import {
   Crosshair, Minus, TrendingUp, Type, Pencil, Smile, Ruler, ZoomIn, 
   Magnet, Lock, Trash2, ChevronDown, Settings, Camera, Maximize, 
   PlusCircle, BarChart2, FunctionSquare, Sparkles, Layers,
-  MessageCircle, Zap, BookOpen, Clock, PlayCircle
+  Zap, Crown, Radar, Activity, BookOpen, Clock, PlayCircle, Shield,
+  Search, Eye, HelpCircle, Ghost
 } from 'lucide-react';
 import { CandleChart } from './CandleChart';
 import { AI_NEWS_ITEMS } from './mockData';
@@ -19,71 +20,60 @@ interface ChartLayoutProps {
   aiNotificationCount: number;
 }
 
-// Feature Groups Definition
-const FEATURE_GROUPS = [
+// DEFINING THE 4 TIERS OF FEATURES
+const FEATURE_TIERS = [
   {
-    id: 'social',
-    name: 'Tình báo MXH & Tin đồn',
-    icon: MessageCircle,
+    id: 'tier1',
+    name: 'TIER 1: ALPHA GENERATORS (VŨ KHÍ HẠNG NẶNG)',
+    icon: Crown,
+    color: 'text-yellow-500',
+    items: [
+      { id: 'smart_money_divergence', label: '1. Phân Kỳ Cá Mập' },
+      { id: 'vip_room_heatmap', label: '2. Vết Dầu Loang Room VIP' },
+      { id: 'foreign_room_arbitrage', label: '3. Radar Soi Room Ngoại' },
+      { id: 'rumor_timeline', label: '4. Trục Thời Gian Tin Đồn' },
+      { id: 'trapped_volume', label: '5. Vùng Kẹp Hàng' },
+    ]
+  },
+  {
+    id: 'tier2',
+    name: 'TIER 2: EFFICIENCY BOOSTERS (TỐI ƯU)',
+    icon: Zap,
+    color: 'text-blue-400',
+    items: [
+      { id: 'native_trade', label: '6. Giao Dịch One-Click & P&L' },
+      { id: 'etf_rebalancing', label: '7. Radar Cơ Cấu ETF' },
+      { id: 'prop_trading', label: '8. Dấu Chân Tự Doanh' },
+      { id: 'earnings_replay', label: '9. Phản Ứng BCTC' },
+      { id: 'consensus_cloud', label: '10. Vùng Mây Định Giá' },
+    ]
+  },
+  {
+    id: 'tier3',
+    name: 'TIER 3: CONTEXT & VALIDATION (BỐI CẢNH)',
+    icon: Radar,
     color: 'text-purple-400',
     items: [
-      { id: 'rumor_timeline', label: 'Trục Thời Gian Tin Đồn' },
-      { id: 'expert_markers', label: 'Dấu Chân KOLs/Room VIP' },
-      { id: 'bull_bear_debate', label: 'Đấu Trường Quan Điểm' },
-      { id: 'credibility_score', label: 'Chấm Điểm Tin Cậy' },
-      { id: 'social_buzz', label: 'Chỉ báo Độ Nhiệt' },
-      { id: 'ai_context', label: 'AI Context Hover' },
+      { id: 'bull_bear_debate', label: '11. Đấu Trường Quan Điểm' },
+      { id: 'whale_whisperer', label: '12. Giải Mã Lệnh Lớn' },
+      { id: 'sector_rotation', label: '13. Radar Ngành & Dòng Tiền' },
+      { id: 'visual_fundamentals', label: '14. Hiển Thị Cơ Bản Trực Quan' },
+      { id: 'fractal_context', label: '15. So Sánh Bối Cảnh (Fractal)' },
+      { id: 'rumor_credibility', label: '16. Chấm Điểm Tin Cậy Nguồn Tin' },
+      { id: 'social_buzz', label: '17. Chỉ báo Độ Nhiệt' },
     ]
   },
   {
-    id: 'smart_money',
-    name: 'Dòng Tiền Lớn',
-    icon: Zap,
-    color: 'text-yellow-400',
-    items: [
-      { id: 'smart_money_divergence', label: 'Phân Kỳ Cá Mập' },
-      { id: 'room_vip_heatmap', label: 'Vết Dầu Loang Room VIP' },
-      { id: 'etf_radar', label: 'Radar Cơ Cấu ETF' },
-      { id: 'foreign_realtime', label: 'Soi Room Ngoại Realtime' },
-      { id: 'prop_trading', label: 'Dấu Chân Tự Doanh' },
-      { id: 'whale_whisperer', label: 'Giải Mã Lệnh Lớn' },
-    ]
-  },
-  {
-    id: 'fundamental',
-    name: 'Phân Tích Cơ Bản',
+    id: 'tier4',
+    name: 'TIER 4: LEARNING & SUPPORT (HỖ TRỢ)',
     icon: BookOpen,
-    color: 'text-cyan-400',
-    items: [
-      { id: 'consensus_cloud', label: 'Vùng Mây Định Giá' },
-      { id: 'pe_bands', label: 'Dải Băng P/E Lịch Sử' },
-      { id: 'growth_badges', label: 'Huy Hiệu Tăng Trưởng' },
-      { id: 'sector_rotation', label: 'Radar Ngành' },
-      { id: 'ai_fundamental', label: 'AI Fundamental Insight' },
-    ]
-  },
-  {
-    id: 'event',
-    name: 'Backtest Sự Kiện',
-    icon: Clock,
-    color: 'text-orange-400',
-    items: [
-      { id: 'earnings_replay', label: 'Phản Ứng BCTC' },
-      { id: 'fractal_match', label: 'So Sánh Bối Cảnh' },
-      { id: 'event_impact', label: 'Tác Động Sự Kiện' },
-    ]
-  },
-  {
-    id: 'execution',
-    name: 'Giao Dịch & Quản Trị',
-    icon: PlayCircle,
     color: 'text-green-400',
     items: [
-      { id: 'native_trade', label: 'Giao Dịch Native' },
-      { id: 'pnl_realtime', label: 'P&L Realtime' },
-      { id: 'trapped_zones', label: 'Vùng Kẹp Hàng' },
-      { id: 'scenario_planner', label: 'Mô Phỏng Kịch Bản' },
-      { id: 'ghost_trade', label: 'Ghost Trade' },
+      { id: 'ai_context', label: '18. AI Context Hover' },
+      { id: 'event_impact', label: '19. Tác Động Sự Kiện' },
+      { id: 'scenario_planner', label: '20. Mô Phỏng Kịch Bản' },
+      { id: 'ghost_trade', label: '21. Giao Dịch Bóng Ma' },
+      { id: 'ai_fundamental_insight', label: '22. AI Fundamental Insight' },
     ]
   }
 ];
@@ -97,7 +87,7 @@ export const ChartLayout: React.FC<ChartLayoutProps> = ({ isTradeMode, onToggleT
   const [activeFeature, setActiveFeature] = useState<string | null>(null);
   const [isLayerMenuOpen, setIsLayerMenuOpen] = useState(false);
 
-  const selectedFeatureLabel = FEATURE_GROUPS.flatMap(g => g.items).find(i => i.id === activeFeature)?.label;
+  const selectedFeatureLabel = FEATURE_TIERS.flatMap(g => g.items).find(i => i.id === activeFeature)?.label;
 
   return (
     <div className="flex h-full w-full bg-[#13171b]">
@@ -146,22 +136,22 @@ export const ChartLayout: React.FC<ChartLayoutProps> = ({ isTradeMode, onToggleT
                 `}
               >
                  <Layers size={16} />
-                 <span className="text-xs font-bold max-w-[150px] truncate">
+                 <span className="text-xs font-bold max-w-[200px] truncate">
                     {selectedFeatureLabel || 'Lớp Tính Năng'}
                  </span>
                  <ChevronDown size={12} />
               </button>
 
               {isLayerMenuOpen && (
-                 <div className="absolute top-full left-0 mt-2 w-[600px] bg-[#1a1f26] border border-[#2c2c2e] rounded-xl shadow-2xl p-4 grid grid-cols-2 gap-6 z-50 animate-in fade-in zoom-in-95 duration-100">
-                     {FEATURE_GROUPS.map((group) => (
-                        <div key={group.id} className="space-y-2">
-                            <div className={`flex items-center gap-2 text-xs font-bold uppercase tracking-wider ${group.color}`}>
-                                <group.icon size={14} />
-                                {group.name}
+                 <div className="absolute top-full left-0 mt-2 w-[700px] bg-[#1a1f26] border border-[#2c2c2e] rounded-xl shadow-2xl p-4 grid grid-cols-2 gap-x-8 gap-y-6 z-50 animate-in fade-in zoom-in-95 duration-100 max-h-[80vh] overflow-y-auto custom-scrollbar">
+                     {FEATURE_TIERS.map((tier) => (
+                        <div key={tier.id} className="space-y-2 col-span-1">
+                            <div className={`flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-wider border-b border-[#2c2c2e] pb-1 ${tier.color}`}>
+                                <tier.icon size={14} />
+                                {tier.name}
                             </div>
                             <div className="grid grid-cols-1 gap-1">
-                                {group.items.map((item) => (
+                                {tier.items.map((item) => (
                                     <button 
                                        key={item.id}
                                        onClick={() => {
@@ -170,7 +160,7 @@ export const ChartLayout: React.FC<ChartLayoutProps> = ({ isTradeMode, onToggleT
                                        }}
                                        className={`
                                           text-left px-3 py-2 rounded text-xs transition-colors flex items-center justify-between group
-                                          ${activeFeature === item.id ? 'bg-[#2962ff] text-white' : 'text-gray-400 hover:bg-[#2c2c2e] hover:text-white'}
+                                          ${activeFeature === item.id ? 'bg-[#2962ff] text-white font-bold' : 'text-gray-400 hover:bg-[#2c2c2e] hover:text-white'}
                                        `}
                                     >
                                        {item.label}
@@ -184,7 +174,7 @@ export const ChartLayout: React.FC<ChartLayoutProps> = ({ isTradeMode, onToggleT
                      {/* Feature Info Footer */}
                      <div className="col-span-2 border-t border-[#2c2c2e] pt-3 flex items-center gap-2 text-[10px] text-gray-500">
                         <Sparkles size={12} className="text-[#2962ff]" />
-                        Chọn một tính năng để kích hoạt lớp dữ liệu giả lập (Mockup Simulation) trên biểu đồ.
+                        Mỗi tính năng sẽ kích hoạt một lớp dữ liệu giả lập (Mockup Simulation) riêng biệt.
                      </div>
                  </div>
               )}
