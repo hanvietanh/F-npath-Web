@@ -82,7 +82,7 @@ export const ChartLayout: React.FC<ChartLayoutProps> = ({ isTradeMode, onToggleT
                         >
                             <Sparkles size={20} className="shrink-0" />
                             <span className="max-w-0 overflow-hidden group-hover:max-w-[300px] transition-all duration-300 font-bold text-sm whitespace-nowrap ml-0 group-hover:ml-2">
-                                Có nên mua HPG không?
+                                Có nên mua HPG thời điểm này không?
                             </span>
                         </button>
                         {aiNotificationCount > 0 && (
