@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, X, Pin, PinOff, MoreHorizontal, User, Sparkles, Loader2 } from 'lucide-react';
+import { Send, X, Pin, PinOff, MoreHorizontal, User, Sparkles, Loader2 } from 'lucide-react';
 import { GoogleGenAI } from "@google/genai";
 import { PanelMode, ToolId } from '../types';
 
@@ -10,15 +10,7 @@ interface ToolsPanelProps {
   onClose: () => void;
 }
 
-export const ToolsPanel: React.FC<ToolsPanelProps> = ({
-  activeTool,
-  mode,
-  onTogglePin,
-  onClose
-}) => {
-  const [messages, setMessages] = useState<{role: 'user' | 'ai', text: string}[]>([
-    { role: 'user', text: 'Có nên mua HPG thời điểm này không?' },
-    { role: 'ai', text: `**FINPATH AI: CÓ NÊN MUA [HPG] KHÔNG? (Cập nhật lúc 14:15)**
+const FULL_HPG_RESPONSE = `**FINPATH AI: CÓ NÊN MUA [HPG] KHÔNG? (Cập nhật lúc 14:15)**
 
 **KẾT LUẬN: MUA (An toàn)** (AI chấm điểm: 8/10 - Cơ hội tăng giá cao hơn rủi ro)
 
@@ -49,7 +41,16 @@ AI phân tách luồng thông tin từ 50 hội nhóm và KOLs lớn nhất:
 **HÀNH ĐỘNG NGAY**
 • 🟢 **MUA:** Vùng giá 28.0 - 28.2 (Mua 30% tiền).
 • 🔴 **CẮT LỖ:** Nếu giá thủng 27.0 (Xấu, bỏ chạy).
-• 🎯 **CHỐT LỜI:** Tại giá 30.0 (Lãi dự kiến ~7%).` }
+• 🎯 **CHỐT LỜI:** Tại giá 30.0 (Lãi dự kiến ~7%).`;
+
+export const ToolsPanel: React.FC<ToolsPanelProps> = ({
+  activeTool,
+  mode,
+  onTogglePin,
+  onClose
+}) => {
+  const [messages, setMessages] = useState<{role: 'user' | 'ai', text: string, isStreaming?: boolean}[]>([
+    { role: 'user', text: 'Có nên mua HPG thời điểm này không?' }
   ]);
   
   const [input, setInput] = useState('');
@@ -63,6 +64,47 @@ AI phân tách luồng thông tin từ 50 hội nhóm và KOLs lớn nhất:
   useEffect(() => {
     scrollToBottom();
   }, [messages, isLoading]);
+
+  // Initial Auto-Reply Trigger
+  useEffect(() => {
+    if (messages.length === 1 && messages[0].role === 'user') {
+        const timeout = setTimeout(() => {
+             setMessages(prev => [...prev, { role: 'ai', text: '', isStreaming: true }]);
+        }, 500);
+        return () => clearTimeout(timeout);
+    }
+  }, [messages.length]);
+
+  // Streaming Effect
+  useEffect(() => {
+      const lastMsgIdx = messages.length - 1;
+      const lastMsg = messages[lastMsgIdx];
+      
+      if (lastMsg?.role === 'ai' && lastMsg?.isStreaming) {
+          if (lastMsg.text.length < FULL_HPG_RESPONSE.length) {
+               const timeout = setTimeout(() => {
+                   setMessages(prev => {
+                       const newMsgs = [...prev];
+                       // Typing speed: 3 chars per 10ms
+                       const nextChunk = FULL_HPG_RESPONSE.slice(lastMsg.text.length, lastMsg.text.length + 3);
+                       newMsgs[lastMsgIdx] = { 
+                           ...lastMsg, 
+                           text: lastMsg.text + nextChunk
+                       };
+                       return newMsgs;
+                   });
+               }, 10);
+               return () => clearTimeout(timeout);
+          } else {
+               // Done streaming
+               setMessages(prev => {
+                   const newMsgs = [...prev];
+                   newMsgs[lastMsgIdx] = { ...lastMsg, isStreaming: false };
+                   return newMsgs;
+               });
+          }
+      }
+  }, [messages]);
 
   // Simple Markdown Parser for Bold text
   const renderMessageContent = (text: string) => {
@@ -85,11 +127,8 @@ AI phân tách luồng thông tin từ 50 hội nhóm và KOLs lớn nhất:
     setIsLoading(true);
 
     try {
-      // Initialize Gemini Client
-      // Note: In a real production app, API keys should be handled securely on the backend.
-      // For this prototype, we assume process.env.API_KEY is available.
       if (!process.env.API_KEY) {
-         // Fallback simulation for demo if no API key
+         // Fallback simulation
          setTimeout(() => {
              setMessages(prev => [...prev, { 
                  role: 'ai', 
@@ -102,7 +141,6 @@ AI phân tách luồng thông tin từ 50 hội nhóm và KOLs lớn nhất:
 
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
       
-      // Use gemini-3-flash-preview for fast text tasks
       const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: [
@@ -127,7 +165,6 @@ AI phân tách luồng thông tin từ 50 hội nhóm và KOLs lớn nhất:
 
     } catch (error) {
       console.error("Gemini API Error:", error);
-      // Fallback for demo if API key fails or network error
       setMessages(prev => [...prev, { 
           role: 'ai', 
           text: "I'm having trouble connecting to the Gemini network right now. Please check your API key configuration." 
@@ -188,6 +225,9 @@ AI phân tách luồng thông tin từ 50 hội nhóm và KOLs lớn nhất:
                       : 'bg-[#2962ff] text-white'
                   }`}>
                     {renderMessageContent(msg.text)}
+                    {msg.isStreaming && (
+                        <span className="inline-block w-1.5 h-3 ml-1 bg-[#2962ff] animate-pulse align-middle"></span>
+                    )}
                   </div>
                 </div>
               ))}

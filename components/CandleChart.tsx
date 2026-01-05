@@ -4,19 +4,22 @@ import { Zap } from 'lucide-react';
 import { generateCandleData } from './chart/chartConstants';
 import { ChartSVGLayers } from './chart/ChartSVGLayers';
 import { ChartHTMLLayers } from './chart/ChartHTMLLayers';
+import { CoreChart } from './chart/CoreChart';
 
 interface CandleChartProps {
   symbol: string;
   colorUp?: string;
   colorDown?: string;
   activeFeature?: string | null;
+  showProjection?: boolean;
 }
 
 export const CandleChart: React.FC<CandleChartProps> = ({ 
   symbol, 
   colorUp = '#089981', 
   colorDown = '#f23645',
-  activeFeature
+  activeFeature,
+  showProjection
 }) => {
   const [data, setData] = useState<CandleData[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -49,7 +52,10 @@ export const CandleChart: React.FC<CandleChartProps> = ({
 
   const padding = { top: 60, bottom: 40, right: 60 };
   const effectiveHeight = dimensions.height - padding.top - padding.bottom;
-  const candleWidth = (dimensions.width - padding.right) / data.length;
+  
+  // COMPRESSION LOGIC: If projection is shown, use only 50% of width for historical data
+  const renderWidth = showProjection ? dimensions.width * 0.5 : (dimensions.width - padding.right);
+  const candleWidth = renderWidth / data.length;
   const gap = candleWidth * 0.3;
   const barWidth = candleWidth - gap;
 
@@ -68,58 +74,29 @@ export const CandleChart: React.FC<CandleChartProps> = ({
   return (
     <div ref={containerRef} className="w-full h-full relative select-none bg-[#0b0e11] overflow-hidden">
       
-      {/* 21. Ghost Trade Background override */}
       {activeFeature === 'ghost_trade' && (
           <div className="absolute inset-0 bg-[#2e1065]/20 pointer-events-none z-0 mix-blend-overlay"></div>
       )}
 
       {/* SVG Layer */}
-      <svg width="100%" height="100%" className="overflow-visible relative z-10">
-        {/* Grid */}
-        {[0, 0.2, 0.4, 0.6, 0.8, 1].map((pct) => {
-          const y = padding.top + effectiveHeight * pct;
-          const price = maxPrice - (priceRange * pct);
-          return (
-            <g key={pct}>
-              <line x1="0" y1={y} x2={dimensions.width - padding.right} y2={y} stroke="#2a2e39" strokeWidth="1" />
-              <text x={dimensions.width - 50} y={y + 4} fill="#848e9c" fontSize="11" fontFamily="Arial">
-                {price.toFixed(2)}
-              </text>
-            </g>
-          );
-        })}
-
-        {/* Candles */}
-        {data.map((d, i) => {
-          const x = i * candleWidth + gap / 2;
-          const yOpen = getY(d.open);
-          const yClose = getY(d.close);
-          const yHigh = getY(d.high);
-          const yLow = getY(d.low);
-          const isUp = d.close >= d.open;
-          
-          let fill = isUp ? colorUp : colorDown;
-          if (activeFeature === 'ghost_trade') fill = '#d946ef';
-
-          return (
-            <g key={i} className="group">
-              <line x1={x + barWidth / 2} y1={yHigh} x2={x + barWidth / 2} y2={yLow} stroke={fill} strokeWidth="1" />
-              <rect x={x} y={Math.min(yOpen, yClose)} width={barWidth} height={Math.max(1, Math.abs(yOpen - yClose))} fill={fill} />
-              
-              {/* 18. AI Context Hover */}
-              {activeFeature === 'ai_context' && (
-                  <foreignObject x={x - 60} y={yHigh - 60} width="120" height="60" className="overflow-visible opacity-0 group-hover:opacity-100 transition-opacity z-50 pointer-events-none">
-                       <div className="bg-blue-900/90 text-white text-[10px] p-2 rounded border border-blue-500 shadow-xl">
-                           Biến động: {(Math.random()*3).toFixed(1)}% <br/>
-                           <span className="italic text-gray-300">"Áp lực chốt lời T+2.5"</span>
-                       </div>
-                  </foreignObject>
-              )}
-            </g>
-          );
-        })}
+      <svg width="100%" height="100%" className="overflow-visible relative z-10 transition-all duration-500 ease-in-out">
+        <CoreChart 
+           data={data}
+           dimensions={dimensions}
+           getY={getY}
+           padding={padding}
+           effectiveHeight={effectiveHeight}
+           candleWidth={candleWidth}
+           gap={gap}
+           barWidth={barWidth}
+           minPrice={minPrice}
+           maxPrice={maxPrice}
+           priceRange={priceRange}
+           colorUp={colorUp}
+           colorDown={colorDown}
+           activeFeature={activeFeature}
+        />
         
-        {/* SVG FEATURE OVERLAYS */}
         <ChartSVGLayers 
             activeFeature={activeFeature}
             data={data}
@@ -133,18 +110,25 @@ export const CandleChart: React.FC<CandleChartProps> = ({
             maxPrice={maxPrice}
             priceRange={priceRange}
             lastCandle={lastCandle}
+            showProjection={showProjection}
         />
 
-        {/* Current Price Line */}
         {lastCandle && (
-           <line x1={0} y1={getY(lastCandle.close)} x2={dimensions.width} y2={getY(lastCandle.close)} stroke={activeFeature === 'ghost_trade' ? '#d946ef' : (lastCandle.close >= lastCandle.open ? colorUp : colorDown)} strokeWidth="1" strokeDasharray="4 4" opacity="0.8" />
+           <line 
+             x1={0} 
+             y1={getY(lastCandle.close)} 
+             x2={dimensions.width} 
+             y2={getY(lastCandle.close)} 
+             stroke={activeFeature === 'ghost_trade' ? '#d946ef' : (lastCandle.close >= lastCandle.open ? colorUp : colorDown)} 
+             strokeWidth="1" 
+             strokeDasharray="4 4" 
+             opacity="0.8" 
+           />
         )}
       </svg>
       
-      {/* HTML FEATURE OVERLAYS */}
-      <ChartHTMLLayers activeFeature={activeFeature} />
+      <ChartHTMLLayers activeFeature={activeFeature} showProjection={showProjection} />
 
-      {/* Current Price Label */}
       {lastCandle && (
         <div 
             className="absolute right-0 text-white text-[11px] font-bold px-1.5 py-0.5 rounded-sm z-20"
