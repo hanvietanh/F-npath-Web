@@ -2,12 +2,11 @@ import React, { useState } from 'react';
 import { 
   Crosshair, Minus, TrendingUp, Type, Pencil, Smile, Ruler, ZoomIn, 
   Magnet, Lock, Trash2, ChevronDown, Settings, Camera, Maximize, 
-  PlusCircle, BarChart2, FunctionSquare, Sparkles, Layers,
-  Zap, Crown, Radar, Activity, BookOpen, Clock, PlayCircle, Shield,
-  Search, Eye, HelpCircle, Ghost
+  PlusCircle, BarChart2, FunctionSquare, Sparkles
 } from 'lucide-react';
 import { CandleChart } from './CandleChart';
 import { AI_NEWS_ITEMS } from './mockData';
+import { FeatureMenu } from './chart/FeatureMenu';
 import { 
   ToolbarButton, TopBarButton, OrderBookTable, DraggableWidget, 
   MarketQuickTrade, LimitQuickTrade, OrderPlacementPanel, BottomTradingPanel 
@@ -20,64 +19,6 @@ interface ChartLayoutProps {
   aiNotificationCount: number;
 }
 
-// DEFINING THE 4 TIERS OF FEATURES
-const FEATURE_TIERS = [
-  {
-    id: 'tier1',
-    name: 'TIER 1: ALPHA GENERATORS (VŨ KHÍ HẠNG NẶNG)',
-    icon: Crown,
-    color: 'text-yellow-500',
-    items: [
-      { id: 'smart_money_divergence', label: '1. Phân Kỳ Cá Mập' },
-      { id: 'vip_room_heatmap', label: '2. Vết Dầu Loang Room VIP' },
-      { id: 'foreign_room_arbitrage', label: '3. Radar Soi Room Ngoại' },
-      { id: 'rumor_timeline', label: '4. Trục Thời Gian Tin Đồn' },
-      { id: 'trapped_volume', label: '5. Vùng Kẹp Hàng' },
-    ]
-  },
-  {
-    id: 'tier2',
-    name: 'TIER 2: EFFICIENCY BOOSTERS (TỐI ƯU)',
-    icon: Zap,
-    color: 'text-blue-400',
-    items: [
-      { id: 'native_trade', label: '6. Giao Dịch One-Click & P&L' },
-      { id: 'etf_rebalancing', label: '7. Radar Cơ Cấu ETF' },
-      { id: 'prop_trading', label: '8. Dấu Chân Tự Doanh' },
-      { id: 'earnings_replay', label: '9. Phản Ứng BCTC' },
-      { id: 'consensus_cloud', label: '10. Vùng Mây Định Giá' },
-    ]
-  },
-  {
-    id: 'tier3',
-    name: 'TIER 3: CONTEXT & VALIDATION (BỐI CẢNH)',
-    icon: Radar,
-    color: 'text-purple-400',
-    items: [
-      { id: 'bull_bear_debate', label: '11. Đấu Trường Quan Điểm' },
-      { id: 'whale_whisperer', label: '12. Giải Mã Lệnh Lớn' },
-      { id: 'sector_rotation', label: '13. Radar Ngành & Dòng Tiền' },
-      { id: 'visual_fundamentals', label: '14. Hiển Thị Cơ Bản Trực Quan' },
-      { id: 'fractal_context', label: '15. So Sánh Bối Cảnh (Fractal)' },
-      { id: 'rumor_credibility', label: '16. Chấm Điểm Tin Cậy Nguồn Tin' },
-      { id: 'social_buzz', label: '17. Chỉ báo Độ Nhiệt' },
-    ]
-  },
-  {
-    id: 'tier4',
-    name: 'TIER 4: LEARNING & SUPPORT (HỖ TRỢ)',
-    icon: BookOpen,
-    color: 'text-green-400',
-    items: [
-      { id: 'ai_context', label: '18. AI Context Hover' },
-      { id: 'event_impact', label: '19. Tác Động Sự Kiện' },
-      { id: 'scenario_planner', label: '20. Mô Phỏng Kịch Bản' },
-      { id: 'ghost_trade', label: '21. Giao Dịch Bóng Ma' },
-      { id: 'ai_fundamental_insight', label: '22. AI Fundamental Insight' },
-    ]
-  }
-];
-
 export const ChartLayout: React.FC<ChartLayoutProps> = ({ isTradeMode, onToggleTradeMode, onOpenAiAssistant, aiNotificationCount }) => {
   const [showMarketWidget, setShowMarketWidget] = useState(true);
   const [showLimitWidget, setShowLimitWidget] = useState(true);
@@ -86,8 +27,6 @@ export const ChartLayout: React.FC<ChartLayoutProps> = ({ isTradeMode, onToggleT
   // Feature Layer State
   const [activeFeature, setActiveFeature] = useState<string | null>(null);
   const [isLayerMenuOpen, setIsLayerMenuOpen] = useState(false);
-
-  const selectedFeatureLabel = FEATURE_TIERS.flatMap(g => g.items).find(i => i.id === activeFeature)?.label;
 
   return (
     <div className="flex h-full w-full bg-[#13171b]">
@@ -127,58 +66,12 @@ export const ChartLayout: React.FC<ChartLayoutProps> = ({ isTradeMode, onToggleT
            <TopBarButton label="Các chỉ báo" icon={FunctionSquare} />
 
            {/* FEATURE LAYER DROPDOWN */}
-           <div className="relative">
-              <button 
-                onClick={() => setIsLayerMenuOpen(!isLayerMenuOpen)}
-                className={`
-                   h-8 px-3 flex items-center gap-2 rounded transition-colors ml-2 border
-                   ${activeFeature ? 'bg-[#2962ff]/10 text-[#2962ff] border-[#2962ff]' : 'text-gray-300 border-transparent hover:bg-[#2a2e39]'}
-                `}
-              >
-                 <Layers size={16} />
-                 <span className="text-xs font-bold max-w-[200px] truncate">
-                    {selectedFeatureLabel || 'Lớp Tính Năng'}
-                 </span>
-                 <ChevronDown size={12} />
-              </button>
-
-              {isLayerMenuOpen && (
-                 <div className="absolute top-full left-0 mt-2 w-[700px] bg-[#1a1f26] border border-[#2c2c2e] rounded-xl shadow-2xl p-4 grid grid-cols-2 gap-x-8 gap-y-6 z-50 animate-in fade-in zoom-in-95 duration-100 max-h-[80vh] overflow-y-auto custom-scrollbar">
-                     {FEATURE_TIERS.map((tier) => (
-                        <div key={tier.id} className="space-y-2 col-span-1">
-                            <div className={`flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-wider border-b border-[#2c2c2e] pb-1 ${tier.color}`}>
-                                <tier.icon size={14} />
-                                {tier.name}
-                            </div>
-                            <div className="grid grid-cols-1 gap-1">
-                                {tier.items.map((item) => (
-                                    <button 
-                                       key={item.id}
-                                       onClick={() => {
-                                           setActiveFeature(activeFeature === item.id ? null : item.id);
-                                           setIsLayerMenuOpen(false);
-                                       }}
-                                       className={`
-                                          text-left px-3 py-2 rounded text-xs transition-colors flex items-center justify-between group
-                                          ${activeFeature === item.id ? 'bg-[#2962ff] text-white font-bold' : 'text-gray-400 hover:bg-[#2c2c2e] hover:text-white'}
-                                       `}
-                                    >
-                                       {item.label}
-                                       {activeFeature === item.id && <Sparkles size={12} />}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                     ))}
-                     
-                     {/* Feature Info Footer */}
-                     <div className="col-span-2 border-t border-[#2c2c2e] pt-3 flex items-center gap-2 text-[10px] text-gray-500">
-                        <Sparkles size={12} className="text-[#2962ff]" />
-                        Mỗi tính năng sẽ kích hoạt một lớp dữ liệu giả lập (Mockup Simulation) riêng biệt.
-                     </div>
-                 </div>
-              )}
-           </div>
+           <FeatureMenu 
+              activeFeature={activeFeature} 
+              setActiveFeature={setActiveFeature} 
+              isOpen={isLayerMenuOpen} 
+              setIsOpen={setIsLayerMenuOpen} 
+           />
            
            <div className="flex-1" />
 
@@ -249,7 +142,7 @@ export const ChartLayout: React.FC<ChartLayoutProps> = ({ isTradeMode, onToggleT
          {isTradeMode && <OrderPlacementPanel />}
 
          <div className="flex h-10 border-b border-[#1c1c1e] flex-shrink-0">
-            {['Chi tiết', 'AI News', 'Theo dõi', 'Chỉ số'].map((tab, i) => (
+            {['Chi tiết', 'AI News', 'Theo dõi', 'Chỉ số'].map((tab) => (
                 <button 
                     key={tab} 
                     onClick={() => setSidebarTab(tab)}
@@ -285,7 +178,6 @@ export const ChartLayout: React.FC<ChartLayoutProps> = ({ isTradeMode, onToggleT
                             <span className="text-sm font-bold text-gray-200">Khớp lệnh</span>
                             <BarChart2 size={14} className="text-gray-500" />
                         </div>
-                        
                         <table className="w-full text-right">
                             <thead className="text-[10px] text-gray-500 uppercase font-medium">
                                 <tr>
@@ -338,16 +230,12 @@ export const ChartLayout: React.FC<ChartLayoutProps> = ({ isTradeMode, onToggleT
                                  </div>
                              </div>
                         </div>
-                        <p className="text-xs text-gray-300 leading-relaxed text-justify line-clamp-3">
-                            {item.content}
-                        </p>
+                        <p className="text-xs text-gray-300 leading-relaxed text-justify line-clamp-3">{item.content}</p>
                     </div>
                  ))}
              </div>
          ) : (
-             <div className="flex-1 flex items-center justify-center text-gray-500 text-xs">
-                 Coming soon
-             </div>
+             <div className="flex-1 flex items-center justify-center text-gray-500 text-xs">Coming soon</div>
          )}
       </div>
     </div>

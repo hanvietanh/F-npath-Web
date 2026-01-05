@@ -17,8 +17,41 @@ export const ToolsPanel: React.FC<ToolsPanelProps> = ({
   onClose
 }) => {
   const [messages, setMessages] = useState<{role: 'user' | 'ai', text: string}[]>([
-    { role: 'ai', text: 'Hello! I am your Finpath Gemini Assistant. Ask me about specific tickers, market trends, or technical analysis.' }
+    { role: 'user', text: 'Có nên mua HPG thời điểm này không?' },
+    { role: 'ai', text: `**FINPATH AI: CÓ NÊN MUA [HPG] KHÔNG? (Cập nhật lúc 14:15)**
+
+**KẾT LUẬN: MUA (An toàn)** (AI chấm điểm: 8/10 - Cơ hội tăng giá cao hơn rủi ro)
+
+**1. Soi Quá Khứ (Lịch sử có lặp lại?)**
+• **Mẫu hình:** Giá đang đi ngang tích lũy giống 8 lần trong quá khứ.
+• **Kết quả cũ:** 6/8 lần giá đã tăng mạnh sau khi đi ngang thế này.
+• **Ý nghĩa:** Cửa thắng sáng (xác suất 75%).
+
+**2. Tin Đồn & Đám Đông (Sentiment 360°)**
+AI phân tách luồng thông tin từ 50 hội nhóm và KOLs lớn nhất:
+
+• **Phe Bò (Bullish) - Nguồn: Facebook Groups & Báo Chí**
+   - **Tin đồn KQKD:** Group “F189...” rò rỉ tin lợi nhuận Quý này của HPG vượt 20% so với cùng kỳ.
+   - **KOLs hô hào:** Chuyên gia Long Lãng vừa đăng chart HPG với caption "Siêu cổ phiếu chu kỳ mới", view break đỉnh 30.x.
+
+• **Phe Gấu (Bearish) - Nguồn: Zalo Room VIP & Telegram**
+   - **Rủi ro ngắn hạn:** Room “VPS Broker...” cảnh báo áp lực chốt lời vùng 29.5 rất mạnh (vùng kẹp hàng tháng 9).
+   - **Tin vĩ mô:** Giá than cốc thế giới (nguyên liệu đầu vào) đang nhích nhẹ, có thể ảnh hưởng biên lợi nhuận (Margin) quý sau.
+
+**3. Giá Này Đắt Hay Rẻ? (Cơ bản)**
+• **So với định giá:** Giá hiện tại (28.000đ) vẫn **RẺ HƠN** giá mục tiêu của các công ty chứng khoán (34.000đ). Dư địa tăng còn lớn.
+• **Sóng Ngành:** Cả dòng Thép hôm nay đều xanh tím, tiền đang vào mạnh cả ngành chứ không chỉ riêng mã này. Nước lên thuyền lên.
+
+**4. Kịch Bản Tương Lai (Dự phóng)**
+• **Kịch bản tốt:** Nếu vượt giá 28.5, giá sẽ bay thẳng lên 30.000.
+• **Cản trở:** Lưu ý vùng giá 29.5 có nhiều người đang bị lỗ (kẹp hàng), lên đó họ sẽ bán ra hòa vốn, giá sẽ rung lắc.
+
+**HÀNH ĐỘNG NGAY**
+• 🟢 **MUA:** Vùng giá 28.0 - 28.2 (Mua 30% tiền).
+• 🔴 **CẮT LỖ:** Nếu giá thủng 27.0 (Xấu, bỏ chạy).
+• 🎯 **CHỐT LỜI:** Tại giá 30.0 (Lãi dự kiến ~7%).` }
   ]);
+  
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -30,6 +63,18 @@ export const ToolsPanel: React.FC<ToolsPanelProps> = ({
   useEffect(() => {
     scrollToBottom();
   }, [messages, isLoading]);
+
+  // Simple Markdown Parser for Bold text
+  const renderMessageContent = (text: string) => {
+    // Split by **bold** markers
+    const parts = text.split(/(\*\*.*?\*\*)/g);
+    return parts.map((part, index) => {
+      if (part.startsWith('**') && part.endsWith('**')) {
+        return <strong key={index} className="text-white font-bold">{part.slice(2, -2)}</strong>;
+      }
+      return part;
+    });
+  };
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
@@ -44,7 +89,15 @@ export const ToolsPanel: React.FC<ToolsPanelProps> = ({
       // Note: In a real production app, API keys should be handled securely on the backend.
       // For this prototype, we assume process.env.API_KEY is available.
       if (!process.env.API_KEY) {
-         throw new Error("API Key not found.");
+         // Fallback simulation for demo if no API key
+         setTimeout(() => {
+             setMessages(prev => [...prev, { 
+                 role: 'ai', 
+                 text: "Tôi đang phân tích yêu cầu của bạn dựa trên dữ liệu thị trường mới nhất. Vui lòng đợi trong giây lát..." 
+             }]);
+             setIsLoading(false);
+         }, 1000);
+         return;
       }
 
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
@@ -123,7 +176,7 @@ export const ToolsPanel: React.FC<ToolsPanelProps> = ({
       <div className="flex-1 overflow-hidden flex flex-col relative">
         {activeTool === 'ask-ai' ? (
           <>
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
               {messages.map((msg, idx) => (
                 <div key={idx} className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${msg.role === 'ai' ? 'bg-[#2962ff]/20 text-[#2962ff]' : 'bg-gray-700 text-gray-300'}`}>
@@ -134,7 +187,7 @@ export const ToolsPanel: React.FC<ToolsPanelProps> = ({
                       ? 'bg-[#1e2329] border border-[#2d3748] text-gray-200' 
                       : 'bg-[#2962ff] text-white'
                   }`}>
-                    {msg.text}
+                    {renderMessageContent(msg.text)}
                   </div>
                 </div>
               ))}
@@ -160,7 +213,7 @@ export const ToolsPanel: React.FC<ToolsPanelProps> = ({
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                  placeholder="Ask Gemini about market trends..."
+                  placeholder="Hỏi Gemini về thị trường..."
                   disabled={isLoading}
                   className="w-full bg-[#0b0e11] border border-[#2d3748] rounded-lg pl-4 pr-10 py-3 text-sm focus:outline-none focus:border-[#2962ff] focus:ring-1 focus:ring-[#2962ff] transition-all text-white placeholder-gray-500 disabled:opacity-50"
                 />
