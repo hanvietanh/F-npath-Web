@@ -83,9 +83,9 @@ export const ChartLayout: React.FC<ChartLayoutProps> = ({ isTradeMode, onToggleT
         {/* Chart Canvas & Overlays Container */}
         <div className="flex-1 flex relative overflow-hidden" onClick={() => setSelectedPrdItem(null)}>
              
-             {/* Dynamic Chart Width: 100% or 70% */}
-             <div className={`flex flex-col relative transition-all duration-500 ease-in-out ${activePrdModule ? 'w-[70%]' : 'w-full'}`}>
-                 <div className="flex-1 relative">
+             {/* Chart takes full width always */}
+             <div className="w-full h-full relative">
+                 <div className="absolute inset-0">
                      <CandleChart 
                         symbol="PHR" 
                         activeFeature={activeFeature} 
@@ -94,48 +94,50 @@ export const ChartLayout: React.FC<ChartLayoutProps> = ({ isTradeMode, onToggleT
                         onPrdSelect={setSelectedPrdItem}
                         selectedPrdItem={selectedPrdItem}
                      />
-
-                     {!activePrdModule && (
-                        <div className="absolute bottom-10 right-10 z-20">
-                            <AiFloatingButton 
-                                onClick={handleAiClick} 
-                                notificationCount={aiNotificationCount} 
-                            />
-                        </div>
-                     )}
-                     
-                     {showMarketWidget && !activePrdModule && (
-                        <DraggableWidget initialX={20} initialY={80}>
-                            <MarketQuickTrade onClose={() => setShowMarketWidget(false)} />
-                        </DraggableWidget>
-                     )}
-
-                     {showLimitWidget && !activePrdModule && (
-                        <DraggableWidget initialX={window.innerWidth - 650} initialY={window.innerHeight - 500}>
-                            <LimitQuickTrade onClose={() => setShowLimitWidget(false)} />
-                        </DraggableWidget>
-                     )}
                  </div>
-                 {isTradeMode && <BottomTradingPanel onClose={() => onToggleTradeMode(false)} />}
-             </div>
 
-             {/* PRD AI Analysis Panel: 30% */}
-             {activePrdModule && (
-                 <div className="w-[30%] h-full relative z-30 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+                 {/* PRD AI Analysis Panel - Now self-positioning and draggable */}
+                 {activePrdModule && (
                      <PrdPanel 
                         activeModule={activePrdModule} 
                         selectedId={selectedPrdItem}
                         onClose={() => setActivePrdModule(null)} 
                         onBack={() => setSelectedPrdItem(null)}
                      />
+                 )}
+
+                 {!activePrdModule && (
+                    <div className="absolute bottom-10 right-10 z-20">
+                        <AiFloatingButton 
+                            onClick={handleAiClick} 
+                            notificationCount={aiNotificationCount} 
+                        />
+                    </div>
+                 )}
+                 
+                 {showMarketWidget && !activePrdModule && (
+                    <DraggableWidget initialX={20} initialY={80}>
+                        <MarketQuickTrade onClose={() => setShowMarketWidget(false)} />
+                    </DraggableWidget>
+                 )}
+
+                 {showLimitWidget && !activePrdModule && (
+                    <DraggableWidget initialX={window.innerWidth - 650} initialY={window.innerHeight - 500}>
+                        <LimitQuickTrade onClose={() => setShowLimitWidget(false)} />
+                    </DraggableWidget>
+                 )}
+             </div>
+             
+             {isTradeMode && (
+                 <div className="absolute bottom-0 left-0 right-0 z-40">
+                    <BottomTradingPanel onClose={() => onToggleTradeMode(false)} />
                  </div>
              )}
-
         </div>
       </div>
 
       {/* 3. Right Sidebar */}
-      {!activePrdModule && <RightSidebar isTradeMode={isTradeMode} />}
+      <RightSidebar isTradeMode={isTradeMode} />
     </div>
   );
 };
