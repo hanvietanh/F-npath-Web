@@ -32,6 +32,11 @@ export const CandleChart: React.FC<CandleChartProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 
+  // Pan & Zoom State
+  const [viewState, setViewState] = useState({ scale: 1, offsetX: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStartRef = useRef({ x: 0, offsetX: 0 });
+
   useEffect(() => {
     setData(generateCandleData(100));
   }, [symbol]);
@@ -50,46 +55,119 @@ export const CandleChart: React.FC<CandleChartProps> = ({
     return () => resizeObserver.disconnect();
   }, []);
 
-  const { minPrice, maxPrice, priceRange } = useMemo(() => {
-    if (data.length === 0) return { minPrice: 0, maxPrice: 100, priceRange: 100 };
-    const min = Math.min(...data.map(d => d.low));
-    const max = Math.max(...data.map(d => d.high));
-    return { minPrice: min, maxPrice: max, priceRange: max - min };
-  }, [data]);
+  // --- INTERACTION HANDLERS ---
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    dragStartRef.current = { x: e.clientX, offsetX: viewState.offsetX };
+  };
 
-  const padding = { top: 60, bottom: 40, right: 60 };
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return;
+    const dx = e.clientX - dragStartRef.current.x;
+    setViewState(prev => ({ ...prev, offsetX: dragStartRef.current.offsetX + dx }));
+  };
+
+  const handleMouseUp = () => setIsDragging(false);
+  const handleMouseLeave = () => setIsDragging(false);
+
+  const handleWheel = (e: React.WheelEvent) => {
+      // Zoom towards cursor logic
+      const rect = containerRef.current?.getBoundingClientRect();
+      if (!rect || dimensions.width === 0) return;
+
+      const scaleFactor = 1.1;
+      const direction = e.deltaY < 0 ? 1 : -1;
+      const newScale = Math.max(0.5, Math.min(20, viewState.scale * (direction > 0 ? scaleFactor : 1/scaleFactor)));
+      
+      const mouseX = e.clientX - rect.left;
+      
+      // We need to calculate where the mouse point maps to in data index terms
+      // Formula: x = offsetX + index * candleWidth + padding...
+      // Simplified for zoom math: index ~ (mouseX - offsetX) / candleWidth
+      
+      const paddingRight = activePrdModule ? dimensions.width * 0.25 : 60; // 25% empty space if module active
+      const renderWidth = showProjection ? dimensions.width * 0.5 : (dimensions.width - paddingRight);
+      const baseCandleWidth = renderWidth / (data.length || 1);
+      
+      const cursorIndex = (mouseX - viewState.offsetX) / (baseCandleWidth * viewState.scale);
+      
+      // Calculate new offset to keep cursorIndex at the same screen X position
+      // mouseX = newOffset + cursorIndex * baseCandleWidth * newScale
+      const newOffset = mouseX - (cursorIndex * baseCandleWidth * newScale);
+
+      setViewState({ scale: newScale, offsetX: newOffset });
+  };
+
+  // --- LAYOUT CALCS ---
+  // If AI module is active, we reserve 25% of the right side for the floating panel
+  const paddingRight = activePrdModule ? dimensions.width * 0.25 : 60;
+  const padding = { top: 60, bottom: 40, right: paddingRight };
   const effectiveHeight = dimensions.height - padding.top - padding.bottom;
   
-  // COMPRESSION LOGIC: If projection is shown, use only 50% of width for historical data
   const renderWidth = showProjection ? dimensions.width * 0.5 : (dimensions.width - padding.right);
-  const candleWidth = renderWidth / data.length;
-  const gap = candleWidth * 0.3;
+  const baseCandleWidth = renderWidth / (data.length || 1);
+  
+  // Apply Zoom
+  const candleWidth = baseCandleWidth * viewState.scale;
+  const gap = candleWidth * 0.2;
   const barWidth = candleWidth - gap;
+
+  // Coordinate Transformers
+  const getX = (index: number) => viewState.offsetX + index * candleWidth + gap / 2 + barWidth / 2;
+
+  // Dynamic Y-Axis based on Visible Candles
+  // This ensures the chart scales vertically to fit the candles currently in view
+  const { minPrice, maxPrice, priceRange } = useMemo(() => {
+    if (data.length === 0) return { minPrice: 0, maxPrice: 100, priceRange: 100 };
+    
+    // Find visible indices based on current X position and Width
+    const visibleData = data.filter((_, i) => {
+        const x = getX(i);
+        return x > -candleWidth && x < dimensions.width + candleWidth; // Buffer
+    });
+
+    const dataset = visibleData.length > 0 ? visibleData : data; // Fallback to all data if panned to empty space
+    
+    const min = Math.min(...dataset.map(d => d.low));
+    const max = Math.max(...dataset.map(d => d.high));
+    const range = max - min;
+    // Add 10% vertical padding
+    return { 
+        minPrice: min - range * 0.1, 
+        maxPrice: max + range * 0.1, 
+        priceRange: range * 1.2 || 1 
+    };
+  }, [data, viewState, dimensions.width]);
 
   const getY = (price: number) => {
     return padding.top + effectiveHeight - ((price - minPrice) / priceRange) * effectiveHeight;
   };
-  
-  const getX = (index: number) => {
-      return index * candleWidth + gap / 2 + barWidth / 2;
-  }
 
   if (dimensions.width === 0) return <div ref={containerRef} className="w-full h-full" />;
 
   const lastCandle = data[data.length-1];
 
   return (
-    <div ref={containerRef} className="w-full h-full relative select-none bg-[#0b0e11] overflow-hidden">
+    <div 
+        ref={containerRef} 
+        className={`w-full h-full relative select-none bg-[#0b0e11] overflow-hidden ${isDragging ? 'cursor-grabbing' : 'cursor-crosshair'}`}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseLeave}
+        onWheel={handleWheel}
+    >
       
       {activeFeature === 'ghost_trade' && (
           <div className="absolute inset-0 bg-[#2e1065]/20 pointer-events-none z-0 mix-blend-overlay"></div>
       )}
 
       {/* SVG Layer */}
-      <svg width="100%" height="100%" className="overflow-visible relative z-10 transition-all duration-500 ease-in-out">
+      <svg width="100%" height="100%" className="overflow-visible relative z-10">
         <CoreChart 
            data={data}
            dimensions={dimensions}
+           getX={getX}
            getY={getY}
            padding={padding}
            effectiveHeight={effectiveHeight}
@@ -145,7 +223,7 @@ export const CandleChart: React.FC<CandleChartProps> = ({
 
       {lastCandle && (
         <div 
-            className="absolute right-0 text-white text-[11px] font-bold px-1.5 py-0.5 rounded-sm z-20"
+            className="absolute right-0 text-white text-[11px] font-bold px-1.5 py-0.5 rounded-sm z-20 transition-all duration-75"
             style={{ 
                 top: getY(lastCandle.close) - 10,
                 backgroundColor: activeFeature === 'ghost_trade' ? '#d946ef' : (lastCandle.close >= lastCandle.open ? colorUp : colorDown)

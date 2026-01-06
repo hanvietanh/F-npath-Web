@@ -4,6 +4,7 @@ import { CandleData } from '../../types';
 interface CoreChartProps {
   data: CandleData[];
   dimensions: { width: number; height: number };
+  getX: (i: number) => number;
   getY: (p: number) => number;
   padding: { top: number; bottom: number; right: number };
   effectiveHeight: number;
@@ -19,7 +20,7 @@ interface CoreChartProps {
 }
 
 export const CoreChart: React.FC<CoreChartProps> = ({
-  data, dimensions, getY, padding, effectiveHeight, candleWidth, gap, barWidth, maxPrice, priceRange, colorUp, colorDown, activeFeature
+  data, dimensions, getX, getY, padding, effectiveHeight, candleWidth, gap, barWidth, maxPrice, priceRange, colorUp, colorDown, activeFeature
 }) => {
   return (
     <>
@@ -29,18 +30,35 @@ export const CoreChart: React.FC<CoreChartProps> = ({
           const price = maxPrice - (priceRange * pct);
           return (
             <g key={pct}>
-              <line x1="0" y1={y} x2={dimensions.width - padding.right} y2={y} stroke="#2a2e39" strokeWidth="1" />
-              <text x={dimensions.width - 50} y={y + 4} fill="#848e9c" fontSize="11" fontFamily="Arial">
+              <line x1="0" y1={y} x2={dimensions.width} y2={y} stroke="#2a2e39" strokeWidth="1" />
+              <text x={dimensions.width - 45} y={y + 4} fill="#848e9c" fontSize="11" fontFamily="Arial">
                 {price.toFixed(2)}
               </text>
             </g>
           );
         })}
 
+        {/* Vertical Grid Lines (Time) - Optional but good for context when panning */}
+        {data.map((d, i) => {
+            if (i % 5 === 0) { // Render grid line every 5th candle
+                const x = getX(i);
+                if (x > 0 && x < dimensions.width) {
+                    return (
+                        <line key={i} x1={x} y1={padding.top} x2={x} y2={dimensions.height - padding.bottom} stroke="#2a2e39" strokeWidth="0.5" strokeDasharray="2 2" />
+                    )
+                }
+            }
+            return null;
+        })}
+
         {/* Candles Group */}
-        <g className="transition-all duration-500 ease-in-out">
+        <g className="transition-opacity duration-200">
           {data.map((d, i) => {
-            const x = i * candleWidth + gap / 2;
+            const x = getX(i);
+            
+            // Optimization: Don't render if out of view
+            if (x < -candleWidth || x > dimensions.width + candleWidth) return null;
+
             const yOpen = getY(d.open);
             const yClose = getY(d.close);
             const yHigh = getY(d.high);
@@ -52,8 +70,8 @@ export const CoreChart: React.FC<CoreChartProps> = ({
 
             return (
               <g key={i} className="group">
-                <line x1={x + barWidth / 2} y1={yHigh} x2={x + barWidth / 2} y2={yLow} stroke={fill} strokeWidth="1" />
-                <rect x={x} y={Math.min(yOpen, yClose)} width={barWidth} height={Math.max(1, Math.abs(yOpen - yClose))} fill={fill} />
+                <line x1={x} y1={yHigh} x2={x} y2={yLow} stroke={fill} strokeWidth="1" />
+                <rect x={x - barWidth/2} y={Math.min(yOpen, yClose)} width={barWidth} height={Math.max(1, Math.abs(yOpen - yClose))} fill={fill} />
                 
                 {/* AI Context Hover */}
                 {activeFeature === 'ai_context' && (
