@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { 
   Crosshair, Minus, TrendingUp, Type, Pencil, Smile, Ruler, ZoomIn, 
-  Magnet, Lock, Trash2, Sparkles
+  Magnet, Lock, Trash2
 } from 'lucide-react';
 import { CandleChart } from './CandleChart';
 import { ToolbarButton, DraggableWidget, MarketQuickTrade, LimitQuickTrade, BottomTradingPanel } from './TradingWidgets';
 import { ChartHeader } from './chart/ChartHeader';
 import { RightSidebar } from './chart/RightSidebar';
+import { AiFloatingButton } from './chart/AiFloatingButton';
+import { PrdModuleId } from './chart/prdConstants';
+import { PrdPanel } from './chart/PrdPanel';
 
 interface ChartLayoutProps {
   isTradeMode: boolean;
@@ -19,9 +22,14 @@ export const ChartLayout: React.FC<ChartLayoutProps> = ({ isTradeMode, onToggleT
   const [showMarketWidget, setShowMarketWidget] = useState(true);
   const [showLimitWidget, setShowLimitWidget] = useState(true);
   
-  // Feature Layer State
+  // Feature Layer State (Old system)
   const [activeFeature, setActiveFeature] = useState<string | null>(null);
   const [isLayerMenuOpen, setIsLayerMenuOpen] = useState(false);
+
+  // New PRD Module State
+  const [activePrdModule, setActivePrdModule] = useState<PrdModuleId | null>(null);
+  const [selectedPrdItem, setSelectedPrdItem] = useState<string | null>(null);
+  const [isPrdMenuOpen, setIsPrdMenuOpen] = useState(false);
 
   // Projection State (Triggered by AI Button)
   const [showProjection, setShowProjection] = useState(false);
@@ -29,6 +37,11 @@ export const ChartLayout: React.FC<ChartLayoutProps> = ({ isTradeMode, onToggleT
   const handleAiClick = () => {
     onOpenAiAssistant();
     setShowProjection(true);
+  };
+
+  const handlePrdModuleChange = (id: PrdModuleId | null) => {
+      setActivePrdModule(id);
+      setSelectedPrdItem(null); // Reset selection when changing module
   };
 
   return (
@@ -59,58 +72,70 @@ export const ChartLayout: React.FC<ChartLayoutProps> = ({ isTradeMode, onToggleT
             setActiveFeature={setActiveFeature}
             isLayerMenuOpen={isLayerMenuOpen}
             setIsLayerMenuOpen={setIsLayerMenuOpen}
+            
+            // Pass PRD props
+            activePrdModule={activePrdModule}
+            setActivePrdModule={handlePrdModuleChange}
+            isPrdMenuOpen={isPrdMenuOpen}
+            setIsPrdMenuOpen={setIsPrdMenuOpen}
         />
 
-        {/* Chart Canvas & Overlays */}
-        <div className="flex-1 flex flex-col relative overflow-hidden">
-             <div className="flex-1 relative">
-                 <CandleChart 
-                    symbol="PHR" 
-                    activeFeature={activeFeature} 
-                    showProjection={showProjection} 
-                 />
+        {/* Chart Canvas & Overlays Container */}
+        <div className="flex-1 flex relative overflow-hidden" onClick={() => setSelectedPrdItem(null)}>
+             
+             {/* Dynamic Chart Width: 100% or 70% */}
+             <div className={`flex flex-col relative transition-all duration-500 ease-in-out ${activePrdModule ? 'w-[70%]' : 'w-full'}`}>
+                 <div className="flex-1 relative">
+                     <CandleChart 
+                        symbol="PHR" 
+                        activeFeature={activeFeature} 
+                        showProjection={showProjection}
+                        activePrdModule={activePrdModule}
+                        onPrdSelect={setSelectedPrdItem}
+                        selectedPrdItem={selectedPrdItem}
+                     />
 
-                 <div className="absolute bottom-10 right-10 z-20">
-                    <div className="relative group">
-                        <button 
-                            onClick={handleAiClick}
-                            className={`
-                                flex items-center bg-[#2962ff] hover:bg-[#1e4bd8] text-white rounded-full p-3 
-                                shadow-[0_0_20px_rgba(41,98,255,0.3)] transition-all duration-300 backdrop-blur-sm
-                                ${aiNotificationCount > 0 ? 'opacity-100' : 'opacity-20 group-hover:opacity-100'}
-                            `}
-                        >
-                            <Sparkles size={20} className="shrink-0" />
-                            <span className="max-w-0 overflow-hidden group-hover:max-w-[300px] transition-all duration-300 font-bold text-sm whitespace-nowrap ml-0 group-hover:ml-2">
-                                Có nên mua HPG thời điểm này không?
-                            </span>
-                        </button>
-                        {aiNotificationCount > 0 && (
-                            <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#f23645] text-[10px] font-bold text-white shadow-sm ring-2 ring-[#000000]">
-                                {aiNotificationCount}
-                            </span>
-                        )}
-                    </div>
+                     {!activePrdModule && (
+                        <div className="absolute bottom-10 right-10 z-20">
+                            <AiFloatingButton 
+                                onClick={handleAiClick} 
+                                notificationCount={aiNotificationCount} 
+                            />
+                        </div>
+                     )}
+                     
+                     {showMarketWidget && !activePrdModule && (
+                        <DraggableWidget initialX={20} initialY={80}>
+                            <MarketQuickTrade onClose={() => setShowMarketWidget(false)} />
+                        </DraggableWidget>
+                     )}
+
+                     {showLimitWidget && !activePrdModule && (
+                        <DraggableWidget initialX={window.innerWidth - 650} initialY={window.innerHeight - 500}>
+                            <LimitQuickTrade onClose={() => setShowLimitWidget(false)} />
+                        </DraggableWidget>
+                     )}
                  </div>
-                 
-                 {showMarketWidget && (
-                    <DraggableWidget initialX={20} initialY={80}>
-                        <MarketQuickTrade onClose={() => setShowMarketWidget(false)} />
-                    </DraggableWidget>
-                 )}
-
-                 {showLimitWidget && (
-                    <DraggableWidget initialX={window.innerWidth - 650} initialY={window.innerHeight - 500}>
-                        <LimitQuickTrade onClose={() => setShowLimitWidget(false)} />
-                    </DraggableWidget>
-                 )}
+                 {isTradeMode && <BottomTradingPanel onClose={() => onToggleTradeMode(false)} />}
              </div>
-             {isTradeMode && <BottomTradingPanel onClose={() => onToggleTradeMode(false)} />}
+
+             {/* PRD AI Analysis Panel: 30% */}
+             {activePrdModule && (
+                 <div className="w-[30%] h-full relative z-30 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+                     <PrdPanel 
+                        activeModule={activePrdModule} 
+                        selectedId={selectedPrdItem}
+                        onClose={() => setActivePrdModule(null)} 
+                        onBack={() => setSelectedPrdItem(null)}
+                     />
+                 </div>
+             )}
+
         </div>
       </div>
 
       {/* 3. Right Sidebar */}
-      <RightSidebar isTradeMode={isTradeMode} />
+      {!activePrdModule && <RightSidebar isTradeMode={isTradeMode} />}
     </div>
   );
 };

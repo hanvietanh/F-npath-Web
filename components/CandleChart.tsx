@@ -5,6 +5,7 @@ import { generateCandleData } from './chart/chartConstants';
 import { ChartSVGLayers } from './chart/ChartSVGLayers';
 import { ChartHTMLLayers } from './chart/ChartHTMLLayers';
 import { CoreChart } from './chart/CoreChart';
+import { PrdModuleId } from './chart/prdConstants';
 
 interface CandleChartProps {
   symbol: string;
@@ -12,6 +13,9 @@ interface CandleChartProps {
   colorDown?: string;
   activeFeature?: string | null;
   showProjection?: boolean;
+  activePrdModule?: PrdModuleId | null;
+  onPrdSelect?: (id: string) => void;
+  selectedPrdItem?: string | null;
 }
 
 export const CandleChart: React.FC<CandleChartProps> = ({ 
@@ -19,7 +23,10 @@ export const CandleChart: React.FC<CandleChartProps> = ({
   colorUp = '#089981', 
   colorDown = '#f23645',
   activeFeature,
-  showProjection
+  showProjection,
+  activePrdModule,
+  onPrdSelect,
+  selectedPrdItem
 }) => {
   const [data, setData] = useState<CandleData[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -111,6 +118,9 @@ export const CandleChart: React.FC<CandleChartProps> = ({
             priceRange={priceRange}
             lastCandle={lastCandle}
             showProjection={showProjection}
+            activePrdModule={activePrdModule}
+            onPrdSelect={onPrdSelect || (() => {})}
+            selectedPrdItem={selectedPrdItem || null}
         />
 
         {lastCandle && (
@@ -127,7 +137,11 @@ export const CandleChart: React.FC<CandleChartProps> = ({
         )}
       </svg>
       
-      <ChartHTMLLayers activeFeature={activeFeature} showProjection={showProjection} />
+      <ChartHTMLLayers 
+          activeFeature={activeFeature} 
+          showProjection={showProjection} 
+          activePrdModule={activePrdModule}
+      />
 
       {lastCandle && (
         <div 

@@ -4,6 +4,8 @@ import {
 } from 'lucide-react';
 import { TopBarButton } from '../ui/ToolbarButtons';
 import { FeatureMenu } from './FeatureMenu';
+import { PrdMenu } from './PrdMenu';
+import { PrdModuleId } from './prdConstants';
 
 interface ChartHeaderProps {
   isTradeMode: boolean;
@@ -12,10 +14,18 @@ interface ChartHeaderProps {
   setActiveFeature: (feature: string | null) => void;
   isLayerMenuOpen: boolean;
   setIsLayerMenuOpen: (isOpen: boolean) => void;
+  
+  // New Props for PRD
+  activePrdModule: PrdModuleId | null;
+  setActivePrdModule: (id: PrdModuleId | null) => void;
+  isPrdMenuOpen: boolean;
+  setIsPrdMenuOpen: (isOpen: boolean) => void;
 }
 
 export const ChartHeader: React.FC<ChartHeaderProps> = ({
-  isTradeMode, onToggleTradeMode, activeFeature, setActiveFeature, isLayerMenuOpen, setIsLayerMenuOpen
+  isTradeMode, onToggleTradeMode, 
+  activeFeature, setActiveFeature, isLayerMenuOpen, setIsLayerMenuOpen,
+  activePrdModule, setActivePrdModule, isPrdMenuOpen, setIsPrdMenuOpen
 }) => {
   return (
     <div className="h-[46px] flex items-center px-2 gap-1 border-b border-[#1c1c1e] bg-[#13171b] relative z-40">
@@ -32,6 +42,7 @@ export const ChartHeader: React.FC<ChartHeaderProps> = ({
        <TopBarButton icon={BarChart2} active hasDropdown />
        <TopBarButton label="Các chỉ báo" icon={FunctionSquare} />
 
+       {/* Original Feature Menu (Optional, kept for compatibility) */}
        <FeatureMenu 
           activeFeature={activeFeature} 
           setActiveFeature={setActiveFeature} 
@@ -41,10 +52,18 @@ export const ChartHeader: React.FC<ChartHeaderProps> = ({
        
        <div className="flex-1" />
 
+       {/* New PRD AI Intelligence Menu */}
+       <PrdMenu 
+          activeModule={activePrdModule}
+          setActiveModule={setActivePrdModule}
+          isOpen={isPrdMenuOpen}
+          setIsOpen={setIsPrdMenuOpen}
+       />
+
        <button 
          onClick={() => onToggleTradeMode(!isTradeMode)}
          className={`
-           bg-[#2962ff] hover:bg-[#1e4bd8] text-white text-xs font-bold px-4 py-1.5 rounded flex items-center gap-1 transition-colors mr-3 shadow-lg shadow-blue-900/20
+           bg-[#2962ff] hover:bg-[#1e4bd8] text-white text-xs font-bold px-4 py-1.5 rounded flex items-center gap-1 transition-colors mr-3 ml-2 shadow-lg shadow-blue-900/20
            ${isTradeMode ? 'ring-2 ring-white/20' : ''}
          `}
        >
