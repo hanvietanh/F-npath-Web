@@ -22,15 +22,39 @@ export const getSafetyScannerPoints = (data: CandleData[]) => {
 };
 
 export const getSentimentMarkers = (data: CandleData[]) => {
-    // Return markers relative to the end of data
     return [
         { id: 's1', index: data.length - 15, type: 'bull', title: 'Tin đồn lợi nhuận', source: 'Room F189', time: '14:00' },
         { id: 's2', index: data.length - 5, type: 'bear', title: 'Áp lực bán 29.5', source: 'Broker VPS', time: '09:15' },
     ];
 };
 
+export const getPeBands = (data: CandleData[]) => {
+    // Simulate "Earnings" trend using a moving average of price to create smooth bands
+    // In a real app, this would use actual EPS data.
+    const lookback = 30;
+    const bands = data.map((d, i) => {
+        // Calculate simple moving average as a proxy for "Fair Value" baseline
+        let sum = 0;
+        let count = 0;
+        for (let j = Math.max(0, i - lookback); j <= i; j++) {
+            sum += data[j].close;
+            count++;
+        }
+        const avgPrice = count > 0 ? sum / count : d.close;
+        
+        // Assume the Avg Price roughly correlates to P/E 15 for this stock
+        const impliedEps = avgPrice / 15;
+
+        return {
+            pe10: impliedEps * 10,
+            pe15: impliedEps * 15,
+            pe20: impliedEps * 20
+        };
+    });
+    return bands;
+};
+
 export const getAiAnalysisData = (moduleId: PrdModuleId, selectedId?: string | null) => {
-    // Dynamic data based on selection
     if (moduleId === 'safety_scanner' && selectedId) {
         const points = getSafetyScannerPoints([]); 
         const pt = points.find(p => p.id === selectedId);
@@ -108,11 +132,11 @@ export const getAiAnalysisData = (moduleId: PrdModuleId, selectedId?: string | n
                 status: 'UNDERVALUED (Rẻ)',
                 targetPrice: '34,000',
                 gap: '+17%',
-                summary: 'So với kỳ vọng: Giá hiện tại 28.000đ thấp hơn 17% so với mức định giá trung bình. P/E 6.8x đang ở vùng đáy 5 năm.',
+                summary: 'Giá hiện tại đang nằm trong vùng P/E 10.x - Đây là vùng định giá RẺ nhất trong 3 năm qua. Cơ hội tích sản.',
                 metrics: [
-                    { label: 'P/E Hiện tại', value: '6.8x', eval: 'Rẻ' },
-                    { label: 'P/E Trung bình 5Y', value: '10.2x', eval: '' },
-                    { label: 'ROE', value: '22%', eval: 'Tốt' }
+                    { label: 'P/E Hiện tại', value: '10.2x', eval: 'Rẻ' },
+                    { label: 'P/E Trung bình', value: '15.0x', eval: '' },
+                    { label: 'Định giá', value: 'Hấp dẫn', eval: 'Mua' }
                 ]
             };
         case 'trapped_zones':
@@ -136,22 +160,31 @@ export const getAiAnalysisData = (moduleId: PrdModuleId, selectedId?: string | n
     }
 };
 
+export const getGhostMatchRange = (dataLength: number) => {
+    return {
+        start: 30,
+        end: 55,
+        similarity: '92%'
+    };
+};
+
 export const getGhostPath = (data: CandleData[], dimensions: { width: number; height: number }, getX: (i:number)=>number, getY: (p:number)=>number) => {
     const lastCandle = data[data.length - 1];
-    const startX = getX(data.length - 1);
+    const lastIndex = data.length - 1;
     
-    let path = `M ${startX} ${getY(lastCandle.close)}`;
-    let currentX = startX;
-    let currentPrice = lastCandle.close;
+    const startX = getX(lastIndex);
+    const startY = getY(lastCandle.close);
     
-    // Project 20 candles forward with a nicer curve
-    for(let i=1; i<=20; i++) {
-        currentX += (dimensions.width / data.length); 
-        const change = Math.sin(i * 0.5) * 0.3 + 0.1; // Gentle curve up
-        currentPrice += change;
-        path += ` L ${currentX} ${getY(currentPrice)}`;
-    }
-    return path;
+    const dipIndex = lastIndex + 10;
+    const endIndex = lastIndex + 25;
+
+    const dipX = getX(dipIndex);
+    const dipY = getY(lastCandle.close * 0.95);
+
+    const endX = getX(endIndex);
+    const endY = getY(lastCandle.close * 1.08);
+
+    return `M ${startX} ${startY} L ${dipX} ${dipY} L ${endX} ${endY}`;
 };
 
 export const getTrappedZone = (maxPrice: number, priceRange: number) => {

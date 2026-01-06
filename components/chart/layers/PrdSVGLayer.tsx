@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { CandleData } from '../../../types';
-import { PrdModuleId, getSafetyScannerPoints, getGhostPath, getTrappedZone, getExecutionPlan, getSentimentMarkers } from '../prdConstants';
+import { PrdModuleId, getSafetyScannerPoints, getGhostPath, getTrappedZone, getExecutionPlan, getSentimentMarkers, getGhostMatchRange, getPeBands } from '../prdConstants';
+import { BarChart2 } from 'lucide-react';
 
 interface PrdSVGLayerProps {
   activeModule: PrdModuleId;
@@ -19,6 +20,35 @@ interface PrdSVGLayerProps {
 export const PrdSVGLayer: React.FC<PrdSVGLayerProps> = ({
   activeModule, data, dimensions, getX, getY, lastCandle, maxPrice, priceRange, onSelect, selectedId
 }) => {
+  const [hoverIndex, setHoverIndex] = useState<number | null>(null);
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    
+    // Reverse engineer index from X. 
+    let closestIndex = -1;
+    let minDiff = 1000;
+
+    for(let i=0; i<data.length; i++) {
+        const cx = getX(i);
+        const diff = Math.abs(cx - x);
+        if (diff < minDiff) {
+            minDiff = diff;
+            closestIndex = i;
+        }
+    }
+    
+    if (minDiff < 30) { 
+        setHoverIndex(closestIndex);
+    } else {
+        setHoverIndex(null);
+    }
+  };
+
+  const handleMouseLeave = () => {
+      setHoverIndex(null);
+  };
 
   // Module 1: T+ Safety Scanner
   if (activeModule === 'safety_scanner') {
@@ -74,7 +104,7 @@ export const PrdSVGLayer: React.FC<PrdSVGLayerProps> = ({
       );
   }
 
-  // Module 3: Sentiment 360 - Interactive Markers
+  // Module 3: Sentiment 360
   if (activeModule === 'sentiment_360') {
       const markers = getSentimentMarkers(data);
       return (
@@ -108,56 +138,198 @@ export const PrdSVGLayer: React.FC<PrdSVGLayerProps> = ({
   // Module 2: Ghost Projection
   if (activeModule === 'ghost_projection') {
       const path = getGhostPath(data, dimensions, getX, getY);
+      const { start, end, similarity } = getGhostMatchRange(data.length);
+      const startX = getX(start);
+      const width = getX(end) - startX;
+      
       return (
           <g className="animate-in fade-in duration-1000">
                <defs>
-                   <linearGradient id="ghostGrad" x1="0" y1="0" x2="1" y2="0">
-                       <stop offset="0%" stopColor="#06b6d4" stopOpacity="0.8" />
-                       <stop offset="100%" stopColor="#06b6d4" stopOpacity="0.1" />
-                   </linearGradient>
+                   <marker
+                        id="arrowhead-orange"
+                        markerWidth="10"
+                        markerHeight="7"
+                        refX="9"
+                        refY="3.5"
+                        orient="auto"
+                   >
+                       <polygon points="0 0, 10 3.5, 0 7" fill="#f59e0b" />
+                   </marker>
+                   <pattern id="diagonalHatch" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                        <rect width="2" height="4" transform="translate(0,0)" fill="#06b6d4" fillOpacity="0.2"/>
+                   </pattern>
                </defs>
-               
-               {/* Highlight Past Pattern */}
-               <rect 
-                  x={getX(10)} y={0} 
-                  width={getX(35) - getX(10)} height={dimensions.height} 
-                  fill="#facc15" fillOpacity="0.05" 
-               />
-               <text x={getX(10)+5} y={30} fill="#facc15" fontSize="10" opacity="0.8">Pattern Match</text>
 
-               {/* Ghost Path */}
-               <path d={path} fill="none" stroke="url(#ghostGrad)" strokeWidth="2.5" strokeDasharray="4 3" strokeLinecap="round" />
-               <circle cx={getX(data.length-1)} cy={getY(lastCandle.close)} r="3" fill="#06b6d4" />
+               {/* 1. Historical Match Highlight */}
+               <rect 
+                  x={startX} 
+                  y={0} 
+                  width={width} 
+                  height={dimensions.height} 
+                  fill="url(#diagonalHatch)" 
+                  opacity="0.5"
+               />
+               <rect 
+                  x={startX} 
+                  y={0} 
+                  width={width} 
+                  height={dimensions.height} 
+                  stroke="#06b6d4"
+                  strokeWidth="1"
+                  strokeDasharray="4 4"
+                  fill="none"
+                  opacity="0.7"
+               />
+               <rect x={startX} y={dimensions.height - 30} width={width} height={20} fill="#06b6d4" opacity="0.8" rx="2" />
+               <text x={startX + width/2} y={dimensions.height - 16} textAnchor="middle" fill="black" fontSize="9" fontWeight="bold">
+                   TƯƠNG ĐỒNG {similarity}
+               </text>
+
+               {/* 2. Ghost Path */}
+               <path 
+                  d={path} 
+                  fill="none" 
+                  stroke="#f59e0b" 
+                  strokeWidth="4" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                  markerEnd="url(#arrowhead-orange)"
+                  className="drop-shadow-lg"
+               />
           </g>
       );
   }
 
-  // Module 4: Valuation & Sector
+  // Module 4: Valuation & Sector (P/E Bands) - REDESIGNED
   if (activeModule === 'valuation_sector') {
-      const avgPE = getY(lastCandle.close * 1.02);
-      const minPE = getY(lastCandle.close * 0.92);
-      const maxPE = getY(lastCandle.close * 1.12);
+      const peBands = useMemo(() => getPeBands(data), [data]);
+      
+      // Helper to build area polygon
+      // Fills area between Top Line and Bottom Line
+      const buildBandArea = (topKey: 'pe20'|'pe15', botKey: 'pe15'|'pe10') => {
+          let topPts = "";
+          let botPts = ""; 
+          
+          peBands.forEach((b, i) => {
+              const x = getX(i);
+              const yTop = getY(b[topKey]);
+              const yBot = getY(b[botKey]);
+
+              if (i === 0) {
+                  topPts += `M ${x} ${yTop}`;
+                  botPts = `L ${x} ${yBot}`; 
+              } else {
+                  topPts += ` L ${x} ${yTop}`;
+                  botPts = `L ${x} ${yBot} ` + botPts; 
+              }
+          });
+          return topPts + " " + botPts + " Z";
+      };
+
+      const getLinePath = (key: 'pe20'|'pe15'|'pe10') => {
+          return peBands.map((b, i) => `${i===0?'M':'L'} ${getX(i)} ${getY(b[key])}`).join(' ');
+      };
+
+      const pathGreyBand = buildBandArea('pe20', 'pe15');
+      const pathYellowBand = buildBandArea('pe15', 'pe10');
+      
+      const line20 = getLinePath('pe20');
+      const line15 = getLinePath('pe15');
+      const line10 = getLinePath('pe10');
+
+      // Determine tooltip data
+      const targetIndex = hoverIndex !== null ? hoverIndex : data.length - 1;
+      const targetData = peBands[targetIndex];
+      const targetCandle = data[targetIndex];
+      const tx = getX(targetIndex);
+      const ty = getY(targetCandle.close);
+      
+      // Dynamic Tooltip Content based on Zone
+      let tooltipText = "Định giá hợp lý";
+      let tooltipColor = "#1e293b"; // Dark blue
+      let tooltipIcon = "⚖️";
+
+      if (targetCandle.close <= targetData.pe10 * 1.05) {
+          tooltipText = "Vùng định giá rẻ trong lịch sử";
+          tooltipColor = "#d97706"; // Gold
+          tooltipIcon = "📈";
+      } else if (targetCandle.close >= targetData.pe20 * 0.95) {
+          tooltipText = "Vùng định giá đắt";
+          tooltipColor = "#64748b"; // Grey
+          tooltipIcon = "⚠️";
+      }
+
+      // Labels Position (Far right of the visible data)
+      const lastBand = peBands[peBands.length - 1];
+      const lx = getX(data.length - 1) + 10;
 
       return (
-          <g className="animate-in fade-in duration-700">
-               {/* PE Bands */}
-               <path d={`M 0 ${avgPE} L ${dimensions.width} ${avgPE}`} stroke="#10b981" strokeWidth="1" strokeDasharray="5 5" opacity="0.7" />
-               <text x={10} y={avgPE - 5} fill="#10b981" fontSize="10">Avg P/E (5Y)</text>
+          <g className="animate-in fade-in duration-700" onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave}>
+               {/* Invisible rect for mouse capture */}
+               <rect x={0} y={0} width={dimensions.width} height={dimensions.height} fill="transparent" />
 
-               <path d={`M 0 ${minPE} L ${dimensions.width} ${minPE}`} stroke="#10b981" strokeWidth="1" strokeDasharray="2 2" opacity="0.4" />
-               <text x={10} y={minPE - 5} fill="#10b981" fontSize="10" opacity="0.6">Min P/E</text>
-
-               <path d={`M 0 ${maxPE} L ${dimensions.width} ${maxPE}`} stroke="#10b981" strokeWidth="1" strokeDasharray="2 2" opacity="0.4" />
-               <text x={10} y={maxPE - 5} fill="#10b981" fontSize="10" opacity="0.6">Max P/E</text>
-
-               {/* Right Side Cloud */}
                <defs>
-                   <radialGradient id="valueCloud" cx="0.8" cy="0.5" r="0.5">
-                       <stop offset="0%" stopColor="#10b981" stopOpacity="0.2" />
-                       <stop offset="100%" stopColor="#10b981" stopOpacity="0" />
-                   </radialGradient>
+                   {/* Gradients to match the 'Band' look in the image */}
+                   <linearGradient id="fillGrey" x1="0" y1="0" x2="0" y2="1">
+                       <stop offset="0%" stopColor="#94a3b8" stopOpacity="0.3" />
+                       <stop offset="100%" stopColor="#94a3b8" stopOpacity="0.1" />
+                   </linearGradient>
+                   <linearGradient id="fillYellow" x1="0" y1="0" x2="0" y2="1">
+                       <stop offset="0%" stopColor="#fbbf24" stopOpacity="0.3" />
+                       <stop offset="100%" stopColor="#fbbf24" stopOpacity="0.1" />
+                   </linearGradient>
                </defs>
-               <rect x={dimensions.width * 0.6} y={maxPE} width={dimensions.width * 0.4} height={minPE - maxPE} fill="url(#valueCloud)" />
+
+               {/* 1. Render Bands (Areas) */}
+               <path d={pathGreyBand} fill="url(#fillGrey)" stroke="none" />
+               <path d={pathYellowBand} fill="url(#fillYellow)" stroke="none" />
+
+               {/* 2. Render Lines (Borders) */}
+               <path d={line20} fill="none" stroke="#9ca3af" strokeWidth="1.5" />
+               <path d={line15} fill="none" stroke="#1e293b" strokeWidth="2" />
+               <path d={line10} fill="none" stroke="#d97706" strokeWidth="1.5" />
+
+               {/* 3. Render Right Axis Labels */}
+               <g transform={`translate(${lx}, 0)`}>
+                    {/* PE 20 */}
+                    <circle cx={0} cy={getY(lastBand.pe20)} r="3" fill="#9ca3af" />
+                    <text x={8} y={getY(lastBand.pe20) + 4} fill="#9ca3af" fontSize="11" fontWeight="bold">P/E 20</text>
+                    <line x1={0} y1={getY(lastBand.pe20)} x2={6} y2={getY(lastBand.pe20)} stroke="#9ca3af" strokeWidth="1" />
+
+                    {/* PE 15 */}
+                    <circle cx={0} cy={getY(lastBand.pe15)} r="4" fill="#1e293b" stroke="#000" strokeWidth="1" />
+                    <text x={8} y={getY(lastBand.pe15) + 4} fill="#cbd5e1" fontSize="14" fontWeight="bold">P/E 15</text>
+                    <line x1={0} y1={getY(lastBand.pe15)} x2={6} y2={getY(lastBand.pe15)} stroke="#1e293b" strokeWidth="2" />
+
+                    {/* PE 10 */}
+                    <circle cx={0} cy={getY(lastBand.pe10)} r="3" fill="#d97706" />
+                    <text x={8} y={getY(lastBand.pe10) + 4} fill="#d97706" fontSize="11" fontWeight="bold">P/E 10</text>
+                    <line x1={0} y1={getY(lastBand.pe10)} x2={6} y2={getY(lastBand.pe10)} stroke="#d97706" strokeWidth="1" />
+               </g>
+
+               {/* 4. Interactive Tooltip (Styled like image) */}
+               {hoverIndex !== null && (
+                   <g transform={`translate(${tx}, ${ty})`}>
+                       {/* Line from point down to axis or chart bottom */}
+                       <line x1={0} y1={0} x2={0} y2={100} stroke={tooltipColor} strokeWidth="1" strokeDasharray="3 3" opacity="0.6" />
+                       
+                       {/* Connector Dot */}
+                       <circle r="4" fill="white" stroke={tooltipColor} strokeWidth="2" />
+                       
+                       {/* Tooltip Card */}
+                       <g transform="translate(-10, 20)">
+                           <rect x="0" y="0" width="150" height="45" rx="8" fill="#fffbe6" stroke="#d97706" strokeWidth="1" filter="drop-shadow(0px 4px 12px rgba(0,0,0,0.3))" />
+                           <foreignObject x="0" y="0" width="150" height="45">
+                               <div className="w-full h-full flex items-center px-3 gap-2">
+                                   <div className="text-xl">{tooltipIcon}</div>
+                                   <div className="flex flex-col">
+                                       <span className="text-[10px] font-bold text-gray-800 leading-tight">{tooltipText}</span>
+                                   </div>
+                               </div>
+                           </foreignObject>
+                       </g>
+                   </g>
+               )}
           </g>
       );
   }
