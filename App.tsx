@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Menu, 
@@ -381,13 +382,13 @@ export default function App() {
   );
 
   return (
-    <div className="h-screen flex flex-col bg-[#000000] text-white overflow-hidden font-sans">
+    <div className="h-screen max-h-screen flex flex-col bg-[#000000] text-white overflow-hidden font-sans">
       <Header />
 
-      <div className="flex-1 flex relative overflow-hidden">
+      <div className="flex-1 flex relative overflow-hidden h-full">
         {/* MAIN STAGE */}
         <main 
-          className="flex-1 flex flex-col min-w-0 transition-all duration-300 ease-in-out relative z-0"
+          className="flex-1 flex flex-col min-w-0 transition-all duration-300 ease-in-out relative z-0 h-full"
           style={{ marginRight: panelMode === 'pinned' ? '400px' : '0px' }}
         >
            {/* Tab Content Render */}

@@ -1,3 +1,4 @@
+
 import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { CandleData } from '../types';
 import { Zap } from 'lucide-react';
@@ -5,7 +6,7 @@ import { generateCandleData } from './chart/chartConstants';
 import { ChartSVGLayers } from './chart/ChartSVGLayers';
 import { ChartHTMLLayers } from './chart/ChartHTMLLayers';
 import { CoreChart } from './chart/CoreChart';
-import { PrdModuleId } from './chart/prdConstants';
+import { PrdModuleId, getConsensusCloud } from './chart/prdConstants';
 
 interface CandleChartProps {
   symbol: string;
@@ -115,8 +116,7 @@ export const CandleChart: React.FC<CandleChartProps> = ({
   // Coordinate Transformers
   const getX = (index: number) => viewState.offsetX + index * candleWidth + gap / 2 + barWidth / 2;
 
-  // Dynamic Y-Axis based on Visible Candles
-  // This ensures the chart scales vertically to fit the candles currently in view
+  // Dynamic Y-Axis based on Visible Candles + Features (Consensus Cloud)
   const { minPrice, maxPrice, priceRange } = useMemo(() => {
     if (data.length === 0) return { minPrice: 0, maxPrice: 100, priceRange: 100 };
     
@@ -128,8 +128,19 @@ export const CandleChart: React.FC<CandleChartProps> = ({
 
     const dataset = visibleData.length > 0 ? visibleData : data; // Fallback to all data if panned to empty space
     
-    const min = Math.min(...dataset.map(d => d.low));
-    const max = Math.max(...dataset.map(d => d.high));
+    let min = Math.min(...dataset.map(d => d.low));
+    let max = Math.max(...dataset.map(d => d.high));
+
+    // --- FEATURE SPEC: Expand Scale for Consensus Cloud ---
+    if (activePrdModule === 'consensus_cloud') {
+         const lastClose = data[data.length-1]?.close || 28;
+         const cloud = getConsensusCloud(lastClose);
+         // If cloud max is higher than current chart max, expand to fit it
+         if (cloud.max > max) max = cloud.max;
+         // If cloud min is lower, expand
+         if (cloud.min < min) min = cloud.min;
+    }
+
     const range = max - min;
     // Add 10% vertical padding
     return { 
@@ -137,7 +148,7 @@ export const CandleChart: React.FC<CandleChartProps> = ({
         maxPrice: max + range * 0.1, 
         priceRange: range * 1.2 || 1 
     };
-  }, [data, viewState, dimensions.width]);
+  }, [data, viewState, dimensions.width, activePrdModule]);
 
   const getY = (price: number) => {
     return padding.top + effectiveHeight - ((price - minPrice) / priceRange) * effectiveHeight;
