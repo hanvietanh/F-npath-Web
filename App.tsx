@@ -20,24 +20,8 @@ import { ChartLayout } from './components/ChartLayout';
 import { ToolsPanel } from './components/ToolsPanel';
 import { MarketDashboard } from './components/MarketDashboard';
 import { NewsFeed } from './components/NewsFeed';
-import { PanelMode, TabId, ToolId, StockData } from './types';
-
-// --- Mock Data for Watchlist ---
-const watchlistData: StockData[] = [
-  { symbol: 'VN30', price: 1254.30, change: 12.5, changePercent: 1.01, volume: 15400200 },
-  { symbol: 'ACB', price: 25.45, change: 0.15, changePercent: 0.59, volume: 4500000 },
-  { symbol: 'FPT', price: 98.20, change: 1.20, changePercent: 1.24, volume: 1200300 },
-  { symbol: 'HPG', price: 28.90, change: -0.20, changePercent: -0.69, volume: 22100500 },
-  { symbol: 'MBB', price: 18.60, change: 0.05, changePercent: 0.27, volume: 8900100 },
-  { symbol: 'MWG', price: 45.10, change: -0.50, changePercent: -1.10, volume: 3400200 },
-  { symbol: 'STB', price: 31.20, change: 0.40, changePercent: 1.30, volume: 15600800 },
-  { symbol: 'TCB', price: 34.50, change: 0.00, changePercent: 0.00, volume: 5600400 },
-  { symbol: 'VCB', price: 88.10, change: -0.90, changePercent: -1.01, volume: 980200 },
-  { symbol: 'VHM', price: 42.80, change: 0.30, changePercent: 0.71, volume: 4500100 },
-  { symbol: 'VIC', price: 44.50, change: 0.10, changePercent: 0.23, volume: 2300500 },
-  { symbol: 'VNM', price: 67.20, change: -0.30, changePercent: -0.44, volume: 1800600 },
-  { symbol: 'VPB', price: 19.40, change: 0.15, changePercent: 0.78, volume: 11200900 },
-];
+import { PriceBoard } from './components/watchlist/PriceBoard';
+import { PanelMode, TabId, ToolId } from './types';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabId>('chart');
@@ -350,37 +334,6 @@ export default function App() {
     </header>
   );
 
-  const WatchlistTab = () => (
-    <div className="w-full h-full overflow-auto bg-[#000000]">
-      <table className="w-full text-sm text-left">
-        <thead className="text-xs text-gray-500 bg-[#000000] sticky top-0 uppercase font-medium border-b border-[#1c1c1e]">
-          <tr>
-            <th className="px-4 py-3">Symbol</th>
-            <th className="px-4 py-3 text-right">Price</th>
-            <th className="px-4 py-3 text-right">Change</th>
-            <th className="px-4 py-3 text-right">% Change</th>
-            <th className="px-4 py-3 text-right">Volume</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-[#1c1c1e]">
-          {watchlistData.map((stock) => (
-            <tr key={stock.symbol} className="hover:bg-[#1c1c1e] transition-colors group cursor-pointer">
-              <td className="px-4 py-3 font-bold text-white group-hover:text-[#2962ff]">{stock.symbol}</td>
-              <td className="px-4 py-3 text-right text-gray-200 font-mono">{stock.price.toFixed(2)}</td>
-              <td className={`px-4 py-3 text-right font-medium font-mono ${stock.change >= 0 ? 'text-[#00c853]' : 'text-[#f23645]'}`}>
-                {stock.change > 0 ? '+' : ''}{stock.change.toFixed(2)}
-              </td>
-              <td className={`px-4 py-3 text-right font-medium ${stock.changePercent >= 0 ? 'bg-[#00c853]/10 text-[#00c853]' : 'bg-[#f23645]/10 text-[#f23645]'}`}>
-                 <span className="px-2 py-1 rounded">{stock.changePercent > 0 ? '+' : ''}{stock.changePercent.toFixed(2)}%</span>
-              </td>
-              <td className="px-4 py-3 text-right text-gray-400 font-mono">{stock.volume.toLocaleString()}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-
   return (
     <div className="h-screen max-h-screen flex flex-col bg-[#000000] text-white overflow-hidden font-sans">
       <Header />
@@ -401,7 +354,7 @@ export default function App() {
                   aiNotificationCount={aiNotificationCount}
                 />
               )}
-              {activeTab === 'watchlist' && <WatchlistTab />}
+              {activeTab === 'watchlist' && <PriceBoard />}
               {activeTab === 'market' && <MarketDashboard />}
               {activeTab === 'news_feed' && <NewsFeed />}
               {activeTab === 'community' && (
