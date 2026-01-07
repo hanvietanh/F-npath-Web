@@ -6,7 +6,7 @@ import { generateCandleData } from './chart/chartConstants';
 import { ChartSVGLayers } from './chart/ChartSVGLayers';
 import { ChartHTMLLayers } from './chart/ChartHTMLLayers';
 import { CoreChart } from './chart/CoreChart';
-import { PrdModuleId, getConsensusCloud } from './chart/prdConstants';
+import { PrdModuleId, getConsensusCloud, getPeBands } from './chart/prdConstants';
 
 interface CandleChartProps {
   symbol: string;
@@ -116,7 +116,7 @@ export const CandleChart: React.FC<CandleChartProps> = ({
   // Coordinate Transformers
   const getX = (index: number) => viewState.offsetX + index * candleWidth + gap / 2 + barWidth / 2;
 
-  // Dynamic Y-Axis based on Visible Candles + Features (Consensus Cloud)
+  // Dynamic Y-Axis based on Visible Candles + Features (Consensus Cloud & Valuation)
   const { minPrice, maxPrice, priceRange } = useMemo(() => {
     if (data.length === 0) return { minPrice: 0, maxPrice: 100, priceRange: 100 };
     
@@ -135,10 +135,19 @@ export const CandleChart: React.FC<CandleChartProps> = ({
     if (activePrdModule === 'consensus_cloud') {
          const lastClose = data[data.length-1]?.close || 28;
          const cloud = getConsensusCloud(lastClose);
-         // If cloud max is higher than current chart max, expand to fit it
          if (cloud.max > max) max = cloud.max;
-         // If cloud min is lower, expand
          if (cloud.min < min) min = cloud.min;
+    }
+
+    // --- FEATURE SPEC: Expand Scale for Valuation Sectors (P/E Bands) ---
+    if (activePrdModule === 'valuation_sector') {
+         const peBands = getPeBands(dataset); // Get bands for visible range to be safe
+         // Check max of PE20 and min of PE10
+         const maxPe20 = Math.max(...peBands.map(b => b.pe20));
+         const minPe10 = Math.min(...peBands.map(b => b.pe10));
+         
+         if (maxPe20 > max) max = maxPe20;
+         if (minPe10 < min) min = minPe10;
     }
 
     const range = max - min;

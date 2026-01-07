@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { 
   Crosshair, Minus, TrendingUp, Type, Pencil, Smile, Ruler, ZoomIn, 
@@ -36,7 +37,10 @@ export const ChartLayout: React.FC<ChartLayoutProps> = ({ isTradeMode, onToggleT
 
   const handleAiClick = () => {
     onOpenAiAssistant();
+    // Enable the projection layer
     setShowProjection(true);
+    // Automatically activate the Consensus Cloud module to show "Intelligence" on chart
+    setActivePrdModule('consensus_cloud');
   };
 
   const handlePrdModuleChange = (id: PrdModuleId | null) => {

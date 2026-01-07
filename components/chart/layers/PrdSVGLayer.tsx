@@ -34,6 +34,9 @@ export const PrdSVGLayer: React.FC<PrdSVGLayerProps> = ({
 }) => {
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
 
+  // FIX: Move useMemo to top level to avoid "Rendered fewer hooks than expected" error
+  const peBands = useMemo(() => getPeBands(data), [data]);
+
   const handleMouseMove = (e: React.MouseEvent) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
@@ -127,26 +130,81 @@ export const PrdSVGLayer: React.FC<PrdSVGLayerProps> = ({
       )
   }
 
-  // --- Module 4: Valuation (PE Bands Only) ---
+  // --- Module 4: Valuation (P/E Bands Overlay) ---
   if (activeModule === 'valuation_sector') {
-      const peBands = useMemo(() => getPeBands(data), [data]);
       
-      const getLinePath = (key: 'pe20'|'pe15'|'pe10') => peBands.map((b, i) => `${i===0?'M':'L'} ${getX(i)} ${getY(b[key])}`).join(' ');
-      const line20 = getLinePath('pe20');
-      const line15 = getLinePath('pe15');
-      const line10 = getLinePath('pe10');
+      // We need stepped paths to create filled areas
+      // "L" is line to, we construct polygon for area fill
+      
+      const createPath = (key: 'pe20'|'pe15'|'pe10') => {
+          return peBands.map((b, i) => {
+              const cmd = i === 0 ? 'M' : 'L';
+              const x = getX(i);
+              // Handle stepped look visually if needed, but getPeBands already returns stepped values.
+              // Just connect points.
+              return `${cmd} ${x} ${getY(b[key])}`;
+          }).join(' ');
+      };
+      
+      const createReversePath = (key: 'pe20'|'pe15'|'pe10') => {
+          // Iterate backwards
+          let d = '';
+          for (let i = peBands.length - 1; i >= 0; i--) {
+              d += ` L ${getX(i)} ${getY(peBands[i][key])}`;
+          }
+          return d;
+      };
+
+      const line20 = createPath('pe20');
+      const line15 = createPath('pe15');
+      const line10 = createPath('pe10');
+      const reverse15 = createReversePath('pe15');
+      const reverse10 = createReversePath('pe10');
+
+      // Top area (Risk Zone): From Top of Screen down to Red line
+      // Since SVG 0,0 is top-left, we go from 0,0 to width,0 then down to red line...
+      const areaRisk = `M 0 0 L ${dimensions.width} 0 ${createReversePath('pe20')} L 0 ${getY(peBands[0].pe20)} Z`;
+
+      // Fair Value Area: Between Red (20) and Yellow (15)
+      // Path: Line20 -> down to Yellow End -> Line15 Reverse -> close
+      const areaFair = `${line20} ${reverse15} Z`;
+
+      // Buy Zone Area: Between Yellow (15) and Green (10)
+      const areaBuy = `${line15} ${reverse10} Z`;
+
+      // Deep Value Area: Below Green (10)
+      // Path: Line10 -> down to bottom -> left -> close
+      const areaDeep = `${line10} L ${dimensions.width} ${dimensions.height} L 0 ${dimensions.height} Z`;
 
       return (
-          <g className="animate-in fade-in duration-700" onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave}>
-               <rect x={0} y={0} width={dimensions.width} height={dimensions.height} fill="transparent" cursor="crosshair" />
-               <path d={line20} fill="none" stroke="#f23645" strokeWidth="2" opacity="0.8" />
-               <path d={line15} fill="none" stroke="#fbbf24" strokeWidth="1.5" strokeDasharray="4 4" opacity="0.8" />
-               <path d={line10} fill="none" stroke="#00c853" strokeWidth="2" opacity="0.8" />
-               
-               {/* Interactive Tooltip Logic */}
-               {hoverIndex !== null && hoverIndex < data.length && (
-                   <g transform={`translate(${getX(hoverIndex)}, ${getY(data[hoverIndex].close)})`} className="pointer-events-none">
-                       <circle r="4" fill="#fbbf24" stroke="white" strokeWidth="2" />
+          <g className="animate-in fade-in duration-700">
+               {/* Fills */}
+               <path d={areaRisk} fill="#fecaca" fillOpacity="0.3" stroke="none" /> {/* Red tint */}
+               <path d={areaFair} fill="#fef08a" fillOpacity="0.2" stroke="none" /> {/* Yellow tint */}
+               <path d={areaBuy} fill="#bbf7d0" fillOpacity="0.2" stroke="none" /> {/* Green tint */}
+               <path d={areaDeep} fill="#86efac" fillOpacity="0.3" stroke="none" /> {/* Deep Green tint */}
+
+               {/* Lines (Stepped) */}
+               <path d={line20} fill="none" stroke="#ef4444" strokeWidth="2" strokeDasharray="6 4" />
+               <path d={line15} fill="none" stroke="#eab308" strokeWidth="2" strokeDasharray="6 4" />
+               <path d={line10} fill="none" stroke="#22c55e" strokeWidth="2" strokeDasharray="6 4" />
+
+               {/* Annotations / Labels on the right side */}
+               <text x={dimensions.width - 10} y={getY(peBands[peBands.length-1].pe20) - 5} textAnchor="end" fill="#ef4444" fontSize="10" fontWeight="bold">P/E 20x (Risk)</text>
+               <text x={dimensions.width - 10} y={getY(peBands[peBands.length-1].pe15) - 5} textAnchor="end" fill="#eab308" fontSize="10" fontWeight="bold">P/E 15x (Fair)</text>
+               <text x={dimensions.width - 10} y={getY(peBands[peBands.length-1].pe10) - 5} textAnchor="end" fill="#22c55e" fontSize="10" fontWeight="bold">P/E 10x (Buy)</text>
+
+               {/* Specific Feature Annotation from Screenshot: "Sườn dốc" */}
+               {data.length > 85 && (
+                   <g transform={`translate(${getX(data.length - 15)}, ${getY(data[data.length - 15].low) + 40})`}>
+                       <path d="M 0 0 L 10 -20" stroke="black" strokeWidth="1.5" />
+                       <circle cx="10" cy="-20" r="3" fill="black" />
+                       <text x="0" y="15" textAnchor="middle" fill="black" fontSize="11" fontWeight="bold" className="drop-shadow-md bg-white/80">
+                           Sườn dốc:
+                       </text>
+                       <text x="0" y="28" textAnchor="middle" fill="black" fontSize="11" className="drop-shadow-md bg-white/80">
+                           Giá tụt dưới P/E 10x (Cơ hội mua)
+                       </text>
                    </g>
                )}
           </g>

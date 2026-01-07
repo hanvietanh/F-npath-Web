@@ -35,26 +35,25 @@ export const getSentimentMarkers = (data: CandleData[]) => {
 };
 
 // --- 3. Valuation / P/E Bands Data ---
+// UPDATED: Use stepped logic to simulate quarterly EPS changes
 export const getPeBands = (data: CandleData[]) => {
-    const period = 20;
-    const basePE = 15;
+    const startPrice = data[0]?.close || 50;
     
+    // Simulate EPS that steps up every ~25 candles (quarterly)
     const bands = data.map((d, i) => {
-        let sum = 0;
-        let count = 0;
-        for (let j = Math.max(0, i - period + 1); j <= i; j++) {
-            sum += data[j].close;
-            count++;
-        }
-        const smoothedPrice = count > 0 ? sum / count : d.close;
-        const growthFactor = 1 + (i / data.length) * 0.15; 
-        const eps = (smoothedPrice / basePE) * growthFactor;
+        const quarter = Math.floor(i / 20); // Step every 20 candles
+        // Base EPS creates the steps. 
+        // We ensure EPS fits the price range (Price ~ 56, PE 15 => EPS ~ 3.7)
+        const baseEps = 2.8 + (quarter * 0.15); 
+        
+        // Add a slight jitter or curve to the step if desired, but reference shows flat steps
+        const eps = baseEps;
 
         return {
             eps: eps,
-            pe10: eps * 10,
-            pe15: eps * 15,
-            pe20: eps * 20,
+            pe10: eps * 10, // Green Line
+            pe15: eps * 15, // Yellow Line
+            pe20: eps * 20, // Red Line
             date: d.time
         };
     });
@@ -62,13 +61,11 @@ export const getPeBands = (data: CandleData[]) => {
 };
 
 // --- 7. Consensus Cloud Data ---
-// Now accepts currentPrice to generate relative targets nicely
 export const getConsensusCloud = (currentPrice: number = 28.0) => {
-    // Generate targets relative to current price to look realistic
     return {
-        min: +(currentPrice * 1.0963).toFixed(2),  // +9.63%
-        avg: +(currentPrice * 1.1937).toFixed(2),  // +19.37%
-        max: +(currentPrice * 1.3343).toFixed(2),  // +33.43%
+        min: +(currentPrice * 1.0963).toFixed(2),
+        avg: +(currentPrice * 1.1937).toFixed(2),
+        max: +(currentPrice * 1.3343).toFixed(2),
         upside: '+19.37%',
         rating_bias: 'BUY',
         sources: [
@@ -127,10 +124,22 @@ export const getFundamentalInsights = (data: CandleData[]) => {
 // --- Main AI Analysis Data Router ---
 export const getAiAnalysisData = (moduleId: PrdModuleId, selectedId?: string | null) => {
     
-    // 7. Consensus Cloud Logic
+    // 4. Valuation Logic (P/E Bands)
+    if (moduleId === 'valuation_sector') {
+         return {
+                status: 'ATTRACTIVE (Hấp dẫn)',
+                targetPrice: '20.x',
+                gap: '+17%',
+                summary: 'Giá cổ phiếu đã điều chỉnh về vùng P/E 10x (Vùng Mua Dài Hạn). Dữ liệu lịch sử 5 năm cho thấy đây là đáy định giá cứng.',
+                metrics: [
+                    { label: 'P/E Hiện tại', value: '10.2x', eval: 'Rất rẻ' },
+                    { label: 'P/E Trung bình', value: '15.0x', eval: 'Mục tiêu' },
+                    { label: 'EPS TTM', value: '3,200đ', eval: 'Tăng trưởng' }
+                ]
+         };
+    }
+
     if (moduleId === 'consensus_cloud') {
-         // This mock return isn't strictly used by SVG layer (which calls getConsensusCloud directly), 
-         // but used by the Draggable Panel
          return {
                 status: 'UNDERVALUED (Rẻ)',
                 targetPrice: 'Dynamic',
@@ -144,6 +153,7 @@ export const getAiAnalysisData = (moduleId: PrdModuleId, selectedId?: string | n
          };
     }
 
+    // ... (Keep existing logic for other modules)
     // 8. Event Impact Logic
     if (moduleId === 'event_impact') {
         if (selectedId && selectedId.startsWith('evt_')) {
@@ -199,7 +209,6 @@ export const getAiAnalysisData = (moduleId: PrdModuleId, selectedId?: string | n
          }
     }
 
-    // Legacy Modules
     if (moduleId === 'safety_scanner' && selectedId) {
         const points = getSafetyScannerPoints([]); 
         const pt = points.find(p => p.id === selectedId);
@@ -238,12 +247,6 @@ export const getAiAnalysisData = (moduleId: PrdModuleId, selectedId?: string | n
                 sentiment: 'Bullish (Tích cực)', bullRatio: 75,
                 summary: 'Tin tốt ra nhưng dòng tiền lớn đang bán chủ động. Cẩn trọng bẫy tăng giá.',
                 sources: [{ type: 'bull', text: 'Tin đồn lợi nhuận đột biến' }, { type: 'bear', text: 'Áp lực bán vùng 29.5' }]
-            };
-        case 'valuation_sector':
-            return {
-                status: 'UNDERVALUED (Rẻ)', targetPrice: '34,000', gap: '+17%',
-                summary: 'Đường P/E Band cho thấy giá đang tiệm cận vùng P/E 10x (Màu xanh). Vùng mua an toàn.',
-                metrics: [{ label: 'P/E Hiện tại', value: '10.8x', eval: 'Rẻ' }, { label: 'P/E Trung bình', value: '15.0x', eval: 'Mục tiêu' }]
             };
         case 'trapped_zones':
             return {
