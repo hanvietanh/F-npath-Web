@@ -20,6 +20,22 @@ export interface SignalData {
   isSell?: boolean;
 }
 
+export interface ExpertCardData {
+  id: number;
+  name: string;
+  avatar: string;
+  isVerified: boolean;
+  followers: string;
+  rating: number;
+  isFollowing: boolean;
+  rooms: {
+    name: string;
+    members: string;
+    action: string;
+  }[];
+  return30d: string;
+}
+
 export const SIGNALS: SignalData[] = [
   {
     id: 1,
@@ -142,6 +158,93 @@ export const SIGNALS: SignalData[] = [
     price: 36.80,
     expectedProfit: 21.00,
     holdingTime: '6 tháng'
+  }
+];
+
+export const FEATURED_EXPERTS: ExpertCardData[] = [
+  {
+    id: 1,
+    name: 'Duy Uptrend',
+    avatar: 'https://i.pravatar.cc/150?u=duy',
+    isVerified: true,
+    followers: '3,289',
+    rating: 4.9,
+    isFollowing: false,
+    rooms: [
+      { name: 'Room tín hiệu giao dịch', members: '8,289', action: 'Tham gia' }
+    ],
+    return30d: '+223.8%'
+  }
+];
+
+export const RECOMMENDED_EXPERTS: ExpertCardData[] = [
+  {
+    id: 2,
+    name: 'Ngô Minh Đức LCTV',
+    avatar: 'https://i.pravatar.cc/150?u=duc',
+    isVerified: true,
+    followers: '3,289',
+    rating: 4.9,
+    isFollowing: true,
+    rooms: [
+      { name: 'Nhóm đầu tư tăng trưởng dài...', members: '8,289', action: 'Tham gia' }
+    ],
+    return30d: '+223.8%'
+  }
+];
+
+export const TOP_PL_EXPERTS: ExpertCardData[] = [
+  {
+    id: 3,
+    name: 'Dương Văn Chung',
+    avatar: 'https://i.pravatar.cc/150?u=chung',
+    isVerified: true,
+    followers: '3,289',
+    rating: 4.9,
+    isFollowing: false,
+    rooms: [
+      { name: 'AlphaStock Tư Vấn', members: '1,067', action: 'Tham gia' }
+    ],
+    return30d: '+15.4%'
+  },
+  {
+    id: 4,
+    name: 'Team TVI',
+    avatar: 'https://i.pravatar.cc/150?u=tvi',
+    isVerified: true,
+    followers: '15,200',
+    rating: 4.8,
+    isFollowing: false,
+    rooms: [
+      { name: 'Tư vấn VIP TVI', members: '12,500', action: 'Tham gia' }
+    ],
+    return30d: '+18.2%'
+  },
+  {
+    id: 5,
+    name: 'Lý Phạm Stock',
+    avatar: 'https://i.pravatar.cc/150?u=lypham',
+    isVerified: true,
+    followers: '5,100',
+    rating: 4.7,
+    isFollowing: false,
+    rooms: [
+      { name: 'Cộng đồng Lý Phạm', members: '3,200', action: 'Tham gia' }
+    ],
+    return30d: '+45.6%'
+  },
+  {
+    id: 6,
+    name: 'Cộng đồng Lý Phạm',
+    avatar: 'https://i.pravatar.cc/150?u=lypham2',
+    isVerified: false,
+    followers: '3,200',
+    rating: 4.5,
+    isFollowing: false,
+    rooms: [
+       { name: 'Cộng đồng Lý Phạm', members: '3,200', action: 'Tham gia' }
+    ],
+    return30d: '+45.6%'
   }
 ];
 
