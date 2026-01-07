@@ -2,15 +2,13 @@
 import React from 'react';
 import { FilterBar } from './FilterBar';
 import { PriceTable } from './PriceTable';
-import { IndicesTickerRow } from '../MarketCommon';
+import { WatchlistHeader } from './WatchlistHeader';
 
 export const PriceBoard: React.FC = () => {
-  const [selectedIndex, setSelectedIndex] = React.useState('VNINDEX');
-
   return (
     <div className="flex flex-col h-full w-full bg-[#000000]">
-      {/* Top Ticker Summary */}
-      <IndicesTickerRow selected={selectedIndex} onSelect={setSelectedIndex} />
+      {/* Top Header & Dashboard */}
+      <WatchlistHeader />
       
       {/* Controls */}
       <FilterBar />
