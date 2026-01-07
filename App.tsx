@@ -21,6 +21,7 @@ import { ToolsPanel } from './components/ToolsPanel';
 import { MarketDashboard } from './components/MarketDashboard';
 import { NewsFeed } from './components/NewsFeed';
 import { PriceBoard } from './components/watchlist/PriceBoard';
+import { InvestmentOpportunities } from './components/InvestmentOpportunities';
 import { PanelMode, TabId, ToolId } from './types';
 
 export default function App() {
@@ -97,7 +98,7 @@ export default function App() {
             setActiveTab('watchlist');
             break;
         case 'opportunities':
-            setActiveTab('market');
+            setActiveTab('opportunities');
             break;
         case 'aibot':
             setActiveTool('ask-ai');
@@ -175,12 +176,12 @@ export default function App() {
               onClick={() => setOpenDropdown(openDropdown === 'watchlist' ? null : 'watchlist')}
               className={`
                 h-full px-4 flex items-center gap-1 text-[13px] font-bold transition-all relative
-                ${openDropdown === 'watchlist' || activeTab === 'watchlist' ? 'text-white' : 'text-gray-500 hover:text-gray-300'}
+                ${openDropdown === 'watchlist' || activeTab === 'watchlist' || activeTab === 'opportunities' ? 'text-white' : 'text-gray-500 hover:text-gray-300'}
               `}
             >
               Bảng giá & ý tưởng
               <ChevronDown size={14} className={`transition-transform duration-200 ${openDropdown === 'watchlist' ? 'rotate-180' : ''}`} />
-              {activeTab === 'watchlist' && <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-[3px] bg-[#2962ff] rounded-t-full shadow-[0_0_10px_#2962ff]" />}
+              {(activeTab === 'watchlist' || activeTab === 'opportunities') && <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-[3px] bg-[#2962ff] rounded-t-full shadow-[0_0_10px_#2962ff]" />}
             </button>
             {openDropdown === 'watchlist' && (
                <div className="absolute top-full left-0 mt-1 w-48 bg-[#1c1c1e] border border-[#2c2c2e] rounded-lg shadow-xl py-1 z-50 animate-in fade-in zoom-in-95 duration-100">
@@ -357,6 +358,7 @@ export default function App() {
               {activeTab === 'watchlist' && <PriceBoard />}
               {activeTab === 'market' && <MarketDashboard />}
               {activeTab === 'news_feed' && <NewsFeed />}
+              {activeTab === 'opportunities' && <InvestmentOpportunities />}
               {activeTab === 'community' && (
                 <div className="flex items-center justify-center h-full text-gray-500 flex-col gap-4">
                   <Users size={48} className="opacity-50" />

@@ -1,5 +1,5 @@
 
-export type TabId = 'market' | 'watchlist' | 'community' | 'chart' | 'news_feed';
+export type TabId = 'market' | 'watchlist' | 'community' | 'chart' | 'news_feed' | 'opportunities';
 export type PanelMode = 'closed' | 'floating' | 'pinned';
 export type ToolId = 'intelligence' | 'news' | 'chat' | 'ask-ai';
 
