@@ -21,7 +21,7 @@ export const FeatureHTMLOverlays: React.FC<FeatureHTMLProps> = ({ activeFeature 
               <div className="h-2 w-full bg-gray-700 rounded-full overflow-hidden mb-2">
                   <div className="h-full bg-[#00c853] w-[95%]"></div>
               </div>
-              <div className="text-right text-xs text-white font-mono mb-2">95.4% <span className="text-gray-500">-></span> 100%</div>
+              <div className="text-right text-xs text-white font-mono mb-2">95.4% <span className="text-gray-500">&rarr;</span> 100%</div>
               <button className="w-full bg-[#00c853] text-black font-bold text-xs py-1 rounded hover:bg-[#00e676]">MUA NGAY (MP)</button>
           </div>
       )
