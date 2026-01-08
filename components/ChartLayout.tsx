@@ -49,7 +49,10 @@ export const ChartLayout: React.FC<ChartLayoutProps> = ({ isTradeMode, onToggleT
   const [showProjection, setShowProjection] = useState(false);
 
   const handleAiClick = () => {
-    onOpenAiAssistant();
+    // Instead of opening the global tool panel, we switch the sidebar tab to Ask AI
+    setSidebarTab('Ask AI');
+    setIsSidebarVisible(true);
+    
     // Enable the projection layer
     setShowProjection(true);
     // Automatically activate the Consensus Cloud module to show "Intelligence" on chart
