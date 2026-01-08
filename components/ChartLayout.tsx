@@ -33,11 +33,17 @@ export const ChartLayout: React.FC<ChartLayoutProps> = ({ isTradeMode, onToggleT
   const [selectedPrdItem, setSelectedPrdItem] = useState<string | null>(null);
   const [isPrdMenuOpen, setIsPrdMenuOpen] = useState(false);
 
-  // Sidebar Tab State (Lifted from RightSidebar)
+  // Sidebar Tab State
   const [sidebarTab, setSidebarTab] = useState('Theo dõi');
   
+  // Stock Detail Panel Visibility - Decoupled from sidebarTab
+  const [isStockDetailOpen, setIsStockDetailOpen] = useState(false);
+
   // Maximize State for Stock Detail Panel
   const [isDetailMaximized, setIsDetailMaximized] = useState(false);
+  
+  // Visibility State for Right Sidebar (Manual Toggle)
+  const [isSidebarVisible, setIsSidebarVisible] = useState(true);
 
   // Projection State (Triggered by AI Button)
   const [showProjection, setShowProjection] = useState(false);
@@ -55,9 +61,25 @@ export const ChartLayout: React.FC<ChartLayoutProps> = ({ isTradeMode, onToggleT
       setSelectedPrdItem(null); // Reset selection when changing module
   };
   
+  // Handle Right Sidebar Tab Change
+  const handleSidebarTabChange = (tab: string) => {
+      setSidebarTab(tab);
+      // If user specifically clicks "Chi tiết", open the panel
+      if (tab === 'Chi tiết') {
+          setIsStockDetailOpen(true);
+      }
+      // Note: We do NOT close the panel if switching AWAY from "Chi tiết"
+      // This allows the panel to stay open while viewing other sidebar tabs.
+  };
+  
   const handleCloseStockDetail = () => {
-      setSidebarTab('Theo dõi');
+      setIsStockDetailOpen(false);
       setIsDetailMaximized(false); // Reset maximize state when closing
+      // If we are closing the panel and the active tab is "Chi tiết", switch back to "Theo dõi"
+      // to avoid having the "Chi tiết" tab selected with no content showing.
+      if (sidebarTab === 'Chi tiết') {
+          setSidebarTab('Theo dõi');
+      }
   };
 
   return (
@@ -94,6 +116,10 @@ export const ChartLayout: React.FC<ChartLayoutProps> = ({ isTradeMode, onToggleT
             setActivePrdModule={handlePrdModuleChange}
             isPrdMenuOpen={isPrdMenuOpen}
             setIsPrdMenuOpen={setIsPrdMenuOpen}
+
+            // Sidebar Control
+            isSidebarVisible={isSidebarVisible}
+            onToggleSidebar={() => setIsSidebarVisible(!isSidebarVisible)}
         />
 
         {/* Chart Canvas & Overlays Container */}
@@ -138,7 +164,7 @@ export const ChartLayout: React.FC<ChartLayoutProps> = ({ isTradeMode, onToggleT
                  )}
 
                  {showLimitWidget && !activePrdModule && (
-                    <DraggableWidget initialX={window.innerWidth - 650 - (sidebarTab === 'Chi tiết' ? 360 : 320)} initialY={window.innerHeight - 500}>
+                    <DraggableWidget initialX={window.innerWidth - 650 - (isStockDetailOpen ? 360 : 320)} initialY={window.innerHeight - 500}>
                         <LimitQuickTrade onClose={() => setShowLimitWidget(false)} />
                     </DraggableWidget>
                  )}
@@ -153,7 +179,8 @@ export const ChartLayout: React.FC<ChartLayoutProps> = ({ isTradeMode, onToggleT
       </div>
 
       {/* FLOATING STOCK DETAIL PANEL - Full Height Sibling */}
-      {sidebarTab === 'Chi tiết' && !isTradeMode && (
+      {/* Condition updated: Checks isStockDetailOpen state instead of sidebarTab */}
+      {isStockDetailOpen && !isTradeMode && (
           <div className="w-[360px] border-l border-r border-[#1c1c1e] bg-[#13171b] z-20 shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
               <StockDetail 
                 onClose={handleCloseStockDetail} 
@@ -163,12 +190,13 @@ export const ChartLayout: React.FC<ChartLayoutProps> = ({ isTradeMode, onToggleT
           </div>
       )}
 
-      {/* 3. Right Sidebar - Hidden if Detail is Maximized */}
-      {!isDetailMaximized && (
+      {/* 3. Right Sidebar - Hidden if Detail is Maximized OR Manually Collapsed */}
+      {!isDetailMaximized && isSidebarVisible && (
         <RightSidebar 
             isTradeMode={isTradeMode} 
             activeTab={sidebarTab}
-            onTabChange={setSidebarTab}
+            onTabChange={handleSidebarTabChange}
+            onCollapse={() => setIsSidebarVisible(false)}
         />
       )}
     </div>
