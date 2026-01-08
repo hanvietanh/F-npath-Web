@@ -1,21 +1,11 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { 
-  Menu, 
-  Search, 
-  Bell, 
-  Settings, 
-  Newspaper,
-  BrainCircuit,
-  MessageSquare,
-  Sparkles,
-  ChevronDown,
-  Users,
-  Zap,
-  LogOut,
-  User as UserIcon
+  Menu, Search, Bell, Settings, Newspaper, BrainCircuit,
+  MessageSquare, Sparkles, ChevronDown, Users, Zap, LogOut,
+  User as UserIcon, AlertTriangle
 } from 'lucide-react';
 
+// --- IMPORTANT: Đảm bảo các file này tồn tại và export đúng tên ---
 import { ChartLayout } from './components/ChartLayout';
 import { ToolsPanel } from './components/ToolsPanel';
 import { MarketDashboard } from './components/MarketDashboard';
@@ -24,7 +14,34 @@ import { PriceBoard } from './components/watchlist/PriceBoard';
 import { InvestmentOpportunities } from './components/InvestmentOpportunities';
 import { PanelMode, TabId, ToolId } from './types';
 
-export default function App() {
+// Component bắt lỗi: Giúp hiện lỗi ra màn hình thay vì trắng xoá
+class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean, error: Error | null }> {
+  constructor(props: any) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="h-screen w-full flex flex-col items-center justify-center bg-black text-white p-4">
+          <AlertTriangle size={48} className="text-red-500 mb-4" />
+          <h1 className="text-xl font-bold text-red-500">Đã xảy ra lỗi (Application Error)</h1>
+          <p className="mt-2 text-gray-400">Hãy chụp ảnh màn hình này để kiểm tra:</p>
+          <pre className="mt-4 p-4 bg-gray-900 rounded border border-gray-800 text-red-400 overflow-auto max-w-full text-sm">
+            {this.state.error?.toString()}
+          </pre>
+          <p className="mt-4 text-xs text-gray-500">Gợi ý: Kiểm tra lại các file import component (hoa/thường) hoặc export default.</p>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+function MainApp() {
   const [activeTab, setActiveTab] = useState<TabId>('chart');
   const [panelMode, setPanelMode] = useState<PanelMode>('closed');
   const [activeTool, setActiveTool] = useState<ToolId | null>(null);
@@ -34,10 +51,15 @@ export default function App() {
   // Header Dropdown States
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   
-  // Lifted state for ChartLayout trade mode to control it from Header
+  // Lifted state for ChartLayout trade mode
   const [tradeMode, setTradeMode] = useState(false);
   
   const navRef = useRef<HTMLDivElement>(null);
+
+  // Debug log để biết App đã chạy
+  useEffect(() => {
+    console.log("App mounted successfully on Path:", window.location.pathname);
+  }, []);
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -55,7 +77,6 @@ export default function App() {
   // Layout Logic Helpers
   const handleToolSelect = (tool: ToolId) => {
     setActiveTool(tool);
-    // If closed, open as floating by default. If already pinned, stay pinned.
     if (panelMode === 'closed') {
       setPanelMode('floating');
     }
@@ -66,8 +87,6 @@ export default function App() {
   };
 
   const handleGeminiClick = () => {
-    // Specifically for the header button: Always open 'ask-ai' and always PIN it
-    // so it doesn't cover content (per user request).
     setActiveTool('ask-ai');
     setPanelMode('pinned');
     setAiNotificationCount(0);
@@ -92,7 +111,7 @@ export default function App() {
             break;
         case 'trade_demo':
         case 'trade_notes':
-            setActiveTab('chart'); // Placeholder
+            setActiveTab('chart'); 
             break;
         case 'watchlist':
             setActiveTab('watchlist');
@@ -106,7 +125,7 @@ export default function App() {
             setAiNotificationCount(0);
             break;
         case 'filter':
-            setActiveTab('watchlist'); // Placeholder
+            setActiveTab('watchlist');
             break;
         case 'community':
             setActiveTab('community');
@@ -119,8 +138,7 @@ export default function App() {
     }
   };
 
-  // --- Sub-Components (Internal to App for simplicity of interaction) ---
-
+  // --- Header Component ---
   const Header = () => (
     <header className="h-[56px] bg-[#000000] border-b border-[#1c1c1e] flex items-center justify-between px-4 z-50 shrink-0">
       <div className="flex items-center gap-6">
@@ -300,7 +318,7 @@ export default function App() {
           )}
         </div>
 
-        {/* User Profile Avatar (Replaces generic div) */}
+        {/* User Profile Avatar */}
         <button className="w-9 h-9 rounded-full overflow-hidden border border-[#2c2c2e] hover:border-[#2962ff] transition-all relative group ml-1">
             <img 
                 src="https://i.pravatar.cc/150?u=finance_pro_user_2024" 
@@ -386,5 +404,14 @@ export default function App() {
         </div>
       </div>
     </div>
+  );
+}
+
+// Wrapper export default để bắt lỗi toàn bộ App
+export default function App() {
+  return (
+    <ErrorBoundary>
+      <MainApp />
+    </ErrorBoundary>
   );
 }
