@@ -35,20 +35,12 @@ export const getSentimentMarkers = (data: CandleData[]) => {
 };
 
 // --- 3. Valuation / P/E Bands Data ---
-// UPDATED: Use stepped logic to simulate quarterly EPS changes
 export const getPeBands = (data: CandleData[]) => {
     const startPrice = data[0]?.close || 50;
-    
-    // Simulate EPS that steps up every ~25 candles (quarterly)
     const bands = data.map((d, i) => {
-        const quarter = Math.floor(i / 20); // Step every 20 candles
-        // Base EPS creates the steps. 
-        // We ensure EPS fits the price range (Price ~ 56, PE 15 => EPS ~ 3.7)
+        const quarter = Math.floor(i / 20); 
         const baseEps = 2.8 + (quarter * 0.15); 
-        
-        // Add a slight jitter or curve to the step if desired, but reference shows flat steps
         const eps = baseEps;
-
         return {
             eps: eps,
             pe10: eps * 10, // Green Line
@@ -61,19 +53,21 @@ export const getPeBands = (data: CandleData[]) => {
 };
 
 // --- 7. Consensus Cloud Data ---
-export const getConsensusCloud = (currentPrice: number = 28.0) => {
+export const getConsensusCloud = (currentPrice: number = 56.25) => {
+    // Matching screenshot values
     return {
-        min: +(currentPrice * 1.0963).toFixed(2),
-        avg: +(currentPrice * 1.1937).toFixed(2),
-        max: +(currentPrice * 1.3343).toFixed(2),
-        upside: '+19.37%',
+        min: 61.67,
+        avg: 67.35,
+        max: 75.06, 
+        upside: '+19.38%',
         rating_bias: 'BUY',
         sources: [
-            { firm: 'VCSC', price: (currentPrice * 1.33).toFixed(1), rec: 'BUY', date: '01/10/2024' },
-            { firm: 'HSC', price: (currentPrice * 1.25).toFixed(1), rec: 'BUY', date: '15/10/2024' },
-            { firm: 'SSI', price: (currentPrice * 1.1).toFixed(1), rec: 'OUTPERFORM', date: '10/10/2024' },
-            { firm: 'VND', price: (currentPrice * 1.15).toFixed(1), rec: 'BUY', date: '12/10/2024' }
-        ]
+            { firm: 'VCSC', price: '37.2', rec: 'BUY', date: '01/10/2024', color: '#00c853' },
+            { firm: 'HSC', price: '35.0', rec: 'BUY', date: '15/10/2024', color: '#00c853' },
+            { firm: 'SSI', price: '30.8', rec: 'OUTPERFORM', date: '10/10/2024', color: '#eab308' },
+            { firm: 'VND', price: '32.2', rec: 'BUY', date: '12/10/2024', color: '#00c853' }
+        ],
+        avgTablePrice: '33.42'
     };
 };
 
@@ -124,7 +118,6 @@ export const getFundamentalInsights = (data: CandleData[]) => {
 // --- Main AI Analysis Data Router ---
 export const getAiAnalysisData = (moduleId: PrdModuleId, selectedId?: string | null) => {
     
-    // 4. Valuation Logic (P/E Bands)
     if (moduleId === 'valuation_sector') {
          return {
                 status: 'ATTRACTIVE (Hấp dẫn)',
@@ -141,10 +134,11 @@ export const getAiAnalysisData = (moduleId: PrdModuleId, selectedId?: string | n
 
     if (moduleId === 'consensus_cloud') {
          return {
+                title: '7. Vùng Mây Định Giá',
                 status: 'UNDERVALUED (Rẻ)',
                 targetPrice: 'Dynamic',
-                gap: '+19.37%',
-                summary: 'Giá hiện tại đang thấp hơn 19% so với định giá trung bình của 8 công ty chứng khoán (Consensus). Vùng Mây Định Giá màu xanh cho thấy dư địa tăng lớn. Khuyến nghị chung là MUA.',
+                gap: '+19.38%',
+                summary: '"Giá hiện tại đang thấp hơn 19% so với định giá trung bình của 8 công ty chứng khoán (Consensus). Vùng Mây Định Giá màu xanh cho thấy dư địa tăng lớn. Khuyến nghị chung là MUA."',
                 metrics: [
                     { label: 'Consensus Avg', value: '+19.37%', eval: 'Hấp dẫn' },
                     { label: 'Rating Bias', value: 'BUY (6/8)', eval: 'Tích cực' },
@@ -153,8 +147,6 @@ export const getAiAnalysisData = (moduleId: PrdModuleId, selectedId?: string | n
          };
     }
 
-    // ... (Keep existing logic for other modules)
-    // 8. Event Impact Logic
     if (moduleId === 'event_impact') {
         if (selectedId && selectedId.startsWith('evt_')) {
             const history = getEventImpactHistory(Array(100).fill(0));
@@ -183,7 +175,6 @@ export const getAiAnalysisData = (moduleId: PrdModuleId, selectedId?: string | n
         };
     }
 
-    // 9. Fundamental Insight Logic
     if (moduleId === 'fundamental_insight') {
          if (selectedId && selectedId.startsWith('fund_')) {
              const funds = getFundamentalInsights(Array(100).fill(0));
@@ -263,7 +254,6 @@ export const getAiAnalysisData = (moduleId: PrdModuleId, selectedId?: string | n
     }
 };
 
-// ... existing helpers ...
 export const getGhostMatchRange = (dataLength: number) => ({ start: 30, end: 55, similarity: '92%' });
 export const getGhostPath = (data: CandleData[], dimensions: { width: number; height: number }, getX: (i:number)=>number, getY: (p:number)=>number) => {
     const lastCandle = data[data.length - 1];

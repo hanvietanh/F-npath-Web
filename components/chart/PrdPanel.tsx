@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { PrdModuleId, PRD_MODULES, getAiAnalysisData } from './prdConstants';
 import { Activity, TrendingUp, ShieldAlert, ArrowLeft, X, Move } from 'lucide-react';
@@ -102,16 +103,16 @@ export const PrdPanel: React.FC<PrdPanelProps> = ({ activeModule, selectedId, on
         <div 
             ref={panelRef}
             style={wrapperStyle}
-            className="absolute w-[300px] bg-[#0b0e11]/95 backdrop-blur-md border border-[#2c2c2e] rounded-lg shadow-2xl z-50 flex flex-col overflow-hidden animate-in slide-in-from-right-5 duration-300"
+            className="absolute w-[320px] bg-[#13171b]/95 backdrop-blur-md border border-[#2c2c2e] rounded-lg shadow-2xl z-50 flex flex-col overflow-hidden animate-in slide-in-from-right-5 duration-300"
         >
-            {/* Compact Header */}
+            {/* Header matching screenshot: Icon + Title + Resize/Close controls */}
             <div 
-                className="h-9 px-3 border-b border-[#2c2c2e] flex items-center justify-between bg-[#1a1f26]/90 cursor-grab active:cursor-grabbing group"
+                className="h-10 px-3 border-b border-[#2c2c2e] flex items-center justify-between bg-[#1a1f26] cursor-grab active:cursor-grabbing group"
                 onMouseDown={handleMouseDown}
             >
-                <div className="flex items-center gap-2">
-                    <moduleInfo.icon size={16} style={{ color: moduleInfo.color }} />
-                    <span className="text-xs font-bold text-gray-200">{moduleInfo.label}</span>
+                <div className="flex items-center gap-2 text-[#0ea5e9]">
+                    <moduleInfo.icon size={16} />
+                    <span className="text-xs font-bold text-gray-200">{data.title || moduleInfo.label}</span>
                 </div>
                 <div className="flex items-center gap-2">
                     <Move size={12} className="text-gray-600 group-hover:text-gray-400 transition-colors" />
@@ -121,19 +122,28 @@ export const PrdPanel: React.FC<PrdPanelProps> = ({ activeModule, selectedId, on
                 </div>
             </div>
 
-            {/* Compact Body */}
-            <div className="p-3 space-y-3 max-h-[500px] overflow-y-auto custom-scrollbar">
-                
-                {/* Insight - Condensed */}
-                <div className="bg-[#1c1c1e]/50 p-2 rounded border-l-2 border-[#eab308]">
-                     <p className="text-[11px] text-gray-300 leading-snug font-medium italic">
-                        "{data.summary}"
-                     </p>
-                </div>
-
-                {/* Module Specifics */}
-                {activeModule === 'safety_scanner' && (
-                    <>
+            {/* Body */}
+            <div className="p-4 bg-[#13171b]">
+                {/* Specific Layout for Consensus Cloud Text */}
+                 <p className="text-xs text-white leading-relaxed font-medium italic border-l-2 border-[#eab308] pl-3 py-1">
+                    {data.summary}
+                 </p>
+                 
+                 {/* Fallback for other modules */}
+                 {activeModule !== 'consensus_cloud' && activeModule !== 'safety_scanner' && activeModule !== 'sentiment_360' && activeModule !== 'execution_plan' && (
+                     <div className="mt-3 text-[10px] text-gray-500">
+                         {data.metrics?.map((m: any, i: number) => (
+                             <div key={i} className="flex justify-between py-1 border-b border-[#2c2c2e] last:border-0">
+                                 <span>{m.label}</span>
+                                 <span className="text-white">{m.value}</span>
+                             </div>
+                         ))}
+                     </div>
+                 )}
+                 
+                 {/* Specific Layout for Safety Scanner */}
+                  {activeModule === 'safety_scanner' && (
+                    <div className="mt-3 space-y-2">
                         <div className="flex gap-2">
                              <div className="flex-1 bg-[#1c1c1e] py-2 rounded border border-[#2c2c2e] flex flex-col items-center">
                                  <div className="text-lg font-bold text-[#00c853]">{data.score}/10</div>
@@ -144,20 +154,11 @@ export const PrdPanel: React.FC<PrdPanelProps> = ({ activeModule, selectedId, on
                                  <div className="text-[8px] text-gray-500 uppercase font-bold">Tỷ lệ sống</div>
                              </div>
                         </div>
-
-                        <div className="space-y-0.5">
-                             {data.details.map((d: any, i: number) => (
-                                 <div key={i} className="flex justify-between items-center py-1.5 border-b border-[#2c2c2e] last:border-0 text-[11px]">
-                                     <span className="text-gray-400">{d.label}</span>
-                                     <span className="text-white font-bold">{d.value}</span>
-                                 </div>
-                             ))}
-                        </div>
-                    </>
-                )}
-
-                {activeModule === 'sentiment_360' && (
-                    <div className="space-y-3">
+                    </div>
+                  )}
+                  
+                 {activeModule === 'sentiment_360' && (
+                    <div className="space-y-3 mt-3">
                         <div className="flex h-5 bg-[#2c2c2e] rounded relative overflow-hidden">
                             <div className="bg-[#00c853]" style={{ width: `${data.bullRatio}%` }}></div>
                             <div className="bg-[#f23645]" style={{ width: `${100 - data.bullRatio}%` }}></div>
@@ -178,7 +179,7 @@ export const PrdPanel: React.FC<PrdPanelProps> = ({ activeModule, selectedId, on
                 )}
                 
                 {activeModule === 'execution_plan' && (
-                    <div className="space-y-2">
+                    <div className="space-y-2 mt-3">
                         <button className="w-full py-2 bg-[#00c853] hover:bg-[#00e676] text-black font-bold text-xs rounded shadow transition-all">
                             MUA NGAY (Market)
                         </button>

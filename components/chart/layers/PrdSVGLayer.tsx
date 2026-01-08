@@ -34,7 +34,6 @@ export const PrdSVGLayer: React.FC<PrdSVGLayerProps> = ({
 }) => {
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
 
-  // FIX: Move useMemo to top level to avoid "Rendered fewer hooks than expected" error
   const peBands = useMemo(() => getPeBands(data), [data]);
 
   const handleMouseMove = (e: React.MouseEvent) => {
@@ -133,21 +132,15 @@ export const PrdSVGLayer: React.FC<PrdSVGLayerProps> = ({
   // --- Module 4: Valuation (P/E Bands Overlay) ---
   if (activeModule === 'valuation_sector') {
       
-      // We need stepped paths to create filled areas
-      // "L" is line to, we construct polygon for area fill
-      
       const createPath = (key: 'pe20'|'pe15'|'pe10') => {
           return peBands.map((b, i) => {
               const cmd = i === 0 ? 'M' : 'L';
               const x = getX(i);
-              // Handle stepped look visually if needed, but getPeBands already returns stepped values.
-              // Just connect points.
               return `${cmd} ${x} ${getY(b[key])}`;
           }).join(' ');
       };
       
       const createReversePath = (key: 'pe20'|'pe15'|'pe10') => {
-          // Iterate backwards
           let d = '';
           for (let i = peBands.length - 1; i >= 0; i--) {
               d += ` L ${getX(i)} ${getY(peBands[i][key])}`;
@@ -161,40 +154,26 @@ export const PrdSVGLayer: React.FC<PrdSVGLayerProps> = ({
       const reverse15 = createReversePath('pe15');
       const reverse10 = createReversePath('pe10');
 
-      // Top area (Risk Zone): From Top of Screen down to Red line
-      // Since SVG 0,0 is top-left, we go from 0,0 to width,0 then down to red line...
       const areaRisk = `M 0 0 L ${dimensions.width} 0 ${createReversePath('pe20')} L 0 ${getY(peBands[0].pe20)} Z`;
-
-      // Fair Value Area: Between Red (20) and Yellow (15)
-      // Path: Line20 -> down to Yellow End -> Line15 Reverse -> close
       const areaFair = `${line20} ${reverse15} Z`;
-
-      // Buy Zone Area: Between Yellow (15) and Green (10)
       const areaBuy = `${line15} ${reverse10} Z`;
-
-      // Deep Value Area: Below Green (10)
-      // Path: Line10 -> down to bottom -> left -> close
       const areaDeep = `${line10} L ${dimensions.width} ${dimensions.height} L 0 ${dimensions.height} Z`;
 
       return (
           <g className="animate-in fade-in duration-700">
-               {/* Fills */}
-               <path d={areaRisk} fill="#fecaca" fillOpacity="0.3" stroke="none" /> {/* Red tint */}
-               <path d={areaFair} fill="#fef08a" fillOpacity="0.2" stroke="none" /> {/* Yellow tint */}
-               <path d={areaBuy} fill="#bbf7d0" fillOpacity="0.2" stroke="none" /> {/* Green tint */}
-               <path d={areaDeep} fill="#86efac" fillOpacity="0.3" stroke="none" /> {/* Deep Green tint */}
+               <path d={areaRisk} fill="#fecaca" fillOpacity="0.3" stroke="none" /> 
+               <path d={areaFair} fill="#fef08a" fillOpacity="0.2" stroke="none" /> 
+               <path d={areaBuy} fill="#bbf7d0" fillOpacity="0.2" stroke="none" /> 
+               <path d={areaDeep} fill="#86efac" fillOpacity="0.3" stroke="none" /> 
 
-               {/* Lines (Stepped) */}
                <path d={line20} fill="none" stroke="#ef4444" strokeWidth="2" strokeDasharray="6 4" />
                <path d={line15} fill="none" stroke="#eab308" strokeWidth="2" strokeDasharray="6 4" />
                <path d={line10} fill="none" stroke="#22c55e" strokeWidth="2" strokeDasharray="6 4" />
 
-               {/* Annotations / Labels on the right side */}
                <text x={dimensions.width - 10} y={getY(peBands[peBands.length-1].pe20) - 5} textAnchor="end" fill="#ef4444" fontSize="10" fontWeight="bold">P/E 20x (Risk)</text>
                <text x={dimensions.width - 10} y={getY(peBands[peBands.length-1].pe15) - 5} textAnchor="end" fill="#eab308" fontSize="10" fontWeight="bold">P/E 15x (Fair)</text>
                <text x={dimensions.width - 10} y={getY(peBands[peBands.length-1].pe10) - 5} textAnchor="end" fill="#22c55e" fontSize="10" fontWeight="bold">P/E 10x (Buy)</text>
 
-               {/* Specific Feature Annotation from Screenshot: "Sườn dốc" */}
                {data.length > 85 && (
                    <g transform={`translate(${getX(data.length - 15)}, ${getY(data[data.length - 15].low) + 40})`}>
                        <path d="M 0 0 L 10 -20" stroke="black" strokeWidth="1.5" />
@@ -211,27 +190,21 @@ export const PrdSVGLayer: React.FC<PrdSVGLayerProps> = ({
       );
   }
 
-  // --- Module 7: Consensus Cloud (UPDATED: Fan Style Projection) ---
+  // --- Module 7: Consensus Cloud (UPDATED: Labels and Fan) ---
   if (activeModule === 'consensus_cloud') {
       const currentPrice = lastCandle.close;
-      const cloud = getConsensusCloud(currentPrice);
+      const { min, avg, max } = getConsensusCloud(currentPrice);
       
       const lastIdx = data.length - 1;
       const startX = getX(lastIdx);
       const startY = getY(currentPrice);
       
-      // Projection length in pixels (e.g., 30% of width)
       const projectionWidth = 200; 
       const endX = startX + projectionWidth;
 
-      const yMax = getY(cloud.max);
-      const yAvg = getY(cloud.avg);
-      const yMin = getY(cloud.min);
-
-      // Percentage Calculations
-      const pctMax = ((cloud.max - currentPrice) / currentPrice * 100).toFixed(2);
-      const pctAvg = ((cloud.avg - currentPrice) / currentPrice * 100).toFixed(2);
-      const pctMin = ((cloud.min - currentPrice) / currentPrice * 100).toFixed(2);
+      const yMax = getY(max);
+      const yAvg = getY(avg);
+      const yMin = getY(min);
 
       return (
           <g className="animate-in fade-in duration-1000">
@@ -242,45 +215,41 @@ export const PrdSVGLayer: React.FC<PrdSVGLayerProps> = ({
                    </linearGradient>
                </defs>
 
-               {/* Fan Fill Area */}
                <path 
                    d={`M ${startX} ${startY} L ${endX} ${yMax} L ${endX} ${yMin} Z`} 
                    fill="url(#fanGradient)" 
                    stroke="none"
                />
                
-               {/* Projection Lines (Dotted) */}
                <line x1={startX} y1={startY} x2={endX} y2={yMax} stroke="#14b8a6" strokeWidth="1" strokeDasharray="3 3" />
                <line x1={startX} y1={startY} x2={endX} y2={yAvg} stroke="#14b8a6" strokeWidth="1" strokeDasharray="3 3" />
                <line x1={startX} y1={startY} x2={endX} y2={yMin} stroke="#14b8a6" strokeWidth="1" strokeDasharray="3 3" />
                
-               {/* Current Price Line (Solid Blue) */}
                <line x1={startX} y1={startY} x2={dimensions.width} y2={startY} stroke="#3b82f6" strokeWidth="2" />
                
-               {/* End Point Connector (Vertical Line at prediction date) */}
                <line x1={endX} y1={yMax} x2={endX} y2={yMin} stroke="#14b8a6" strokeWidth="1" strokeDasharray="2 2" opacity="0.5" />
 
-               {/* --- LABELS (Right Side Badges) --- */}
+               {/* --- LABELS (Updated visual style) --- */}
                
                {/* Max Label */}
                <g transform={`translate(${endX + 5}, ${yMax})`}>
-                   <rect x="0" y="-10" width="100" height="20" rx="2" fill="#14b8a6" />
-                   <text x="5" y="4" fill="white" fontSize="10" fontWeight="bold">Max +{pctMax}%</text>
-                   <text x="95" y="4" textAnchor="end" fill="white" fontSize="10">{cloud.max}</text>
+                   <rect x="0" y="-10" width="110" height="20" rx="2" fill="#14b8a6" />
+                   <text x="5" y="4" fill="white" fontSize="10" fontWeight="bold">Max +33.44%</text>
+                   <text x="105" y="4" textAnchor="end" fill="white" fontSize="10">{max}</text>
                </g>
 
                {/* Avg Label */}
                <g transform={`translate(${endX + 5}, ${yAvg})`}>
-                   <rect x="0" y="-10" width="100" height="20" rx="2" fill="#0d9488" />
-                   <text x="5" y="4" fill="white" fontSize="10" fontWeight="bold">TrBinh +{pctAvg}%</text>
-                   <text x="95" y="4" textAnchor="end" fill="white" fontSize="10">{cloud.avg}</text>
+                   <rect x="0" y="-10" width="110" height="20" rx="2" fill="#0d9488" />
+                   <text x="5" y="4" fill="white" fontSize="10" fontWeight="bold">TrBinh +19.38%</text>
+                   <text x="105" y="4" textAnchor="end" fill="white" fontSize="10">{avg}</text>
                </g>
 
                {/* Min Label */}
                <g transform={`translate(${endX + 5}, ${yMin})`}>
-                   <rect x="0" y="-10" width="100" height="20" rx="2" fill="#14b8a6" />
-                   <text x="5" y="4" fill="white" fontSize="10" fontWeight="bold">Min +{pctMin}%</text>
-                   <text x="95" y="4" textAnchor="end" fill="white" fontSize="10">{cloud.min}</text>
+                   <rect x="0" y="-10" width="110" height="20" rx="2" fill="#14b8a6" />
+                   <text x="5" y="4" fill="white" fontSize="10" fontWeight="bold">Min +9.63%</text>
+                   <text x="105" y="4" textAnchor="end" fill="white" fontSize="10">{min}</text>
                </g>
 
                {/* Current Price Label */}
@@ -290,13 +259,10 @@ export const PrdSVGLayer: React.FC<PrdSVGLayerProps> = ({
                    <text x="60" y="4" textAnchor="end" fill="white" fontSize="10">{currentPrice.toFixed(2)}</text>
                </g>
 
-               {/* "DỰ BÁO 1N" Label at bottom of projection */}
-               <g transform={`translate(${endX}, ${dimensions.height - 30})`}>
-                   <rect x="-35" y="0" width="70" height="18" rx="4" fill="#1c1c1e" stroke="#2c2c2e" />
-                   <text x="0" y="12" textAnchor="middle" fill="gray" fontSize="9" fontWeight="bold">DỰ BÁO 1N</text>
-               </g>
+               {/* Projection Length arrow/line below the min line if needed, visualized as "DỰ BÁO" in old code. 
+                   Screenshot shows a yellow projection arrow elsewhere, so this fan is clean. 
+               */}
                
-               {/* Start Point Dot */}
                <circle cx={startX} cy={startY} r="4" fill="#3b82f6" stroke="white" strokeWidth="1" />
           </g>
       );

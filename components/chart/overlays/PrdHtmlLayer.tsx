@@ -43,30 +43,35 @@ export const PrdHtmlLayer: React.FC<PrdHtmlLayerProps> = ({ activeModule }) => {
       );
   }
 
-  // --- Feature Spec: Consensus Cloud Tooltip (Module 7) ---
+  // --- Feature Spec: Consensus Cloud Detailed Table ---
   if (activeModule === 'consensus_cloud') {
       const cloud = getConsensusCloud();
       return (
-          <div className="absolute top-[30%] right-[5%] group">
-                <div className="bg-[#1c1c1e] border border-[#2c2c2e] p-3 rounded-lg shadow-2xl w-52 animate-in fade-in">
-                     <div className="flex items-center gap-2 mb-2 border-b border-[#2c2c2e] pb-1">
-                         <Users size={12} className="text-[#0ea5e9]" />
+          <div className="absolute top-[45%] right-[20px] group z-40">
+                <div className="bg-[#13171b]/95 backdrop-blur border border-[#2c2c2e] rounded-lg shadow-2xl w-[280px] animate-in fade-in overflow-hidden">
+                     <div className="flex items-center gap-2 px-3 py-2 border-b border-[#2c2c2e] bg-[#1a1f26]">
+                         <Users size={14} className="text-[#0ea5e9]" />
                          <span className="text-xs font-bold text-white">Chi tiết Định giá</span>
                      </div>
-                     <div className="space-y-1.5">
-                         {cloud.sources.map((src, i) => (
-                             <div key={i} className="flex justify-between text-[10px]">
-                                 <span className="text-gray-400">{src.firm} <span className="text-[9px] text-gray-600">({src.date})</span></span>
-                                 <div className="flex gap-2">
-                                     <span className="text-white font-bold">{src.price}</span>
-                                     <span className={`${src.rec === 'BUY' ? 'text-[#00c853]' : 'text-yellow-500'} font-bold`}>{src.rec}</span>
-                                 </div>
-                             </div>
-                         ))}
-                         <div className="border-t border-[#2c2c2e] mt-1 pt-1 flex justify-between text-[10px] font-bold">
-                             <span className="text-gray-300">Trung bình</span>
-                             <span className="text-[#0ea5e9]">{cloud.avg}</span>
-                         </div>
+                     <div className="p-0">
+                         <table className="w-full text-[10px]">
+                             <tbody>
+                                 {cloud.sources.map((src, i) => (
+                                     <tr key={i} className="border-b border-[#2c2c2e] last:border-0 hover:bg-[#1c1c1e]">
+                                         <td className="py-2 pl-3 text-gray-300 font-medium">
+                                             {src.firm} <span className="text-[9px] text-gray-500 ml-1">({src.date})</span>
+                                         </td>
+                                         <td className="py-2 text-right font-bold text-white w-12">{src.price}</td>
+                                         <td className="py-2 pr-3 text-right font-bold w-20" style={{ color: src.color }}>{src.rec}</td>
+                                     </tr>
+                                 ))}
+                                 <tr className="bg-[#2c2c2e]/50">
+                                     <td className="py-2 pl-3 font-bold text-white">Trung bình</td>
+                                     <td className="py-2 text-right font-bold text-[#0ea5e9]">{cloud.avgTablePrice}</td>
+                                     <td></td>
+                                 </tr>
+                             </tbody>
+                         </table>
                      </div>
                 </div>
           </div>
