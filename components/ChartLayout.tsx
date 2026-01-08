@@ -164,7 +164,7 @@ export const ChartLayout: React.FC<ChartLayoutProps> = ({ isTradeMode, onToggleT
                  )}
 
                  {showLimitWidget && !activePrdModule && (
-                    <DraggableWidget initialX={window.innerWidth - 650 - (isStockDetailOpen ? 360 : 320)} initialY={window.innerHeight - 500}>
+                    <DraggableWidget initialX={window.innerWidth - 650 - (isStockDetailOpen ? 280 : 320)} initialY={window.innerHeight - 500}>
                         <LimitQuickTrade onClose={() => setShowLimitWidget(false)} />
                     </DraggableWidget>
                  )}
@@ -181,7 +181,7 @@ export const ChartLayout: React.FC<ChartLayoutProps> = ({ isTradeMode, onToggleT
       {/* FLOATING STOCK DETAIL PANEL - Full Height Sibling */}
       {/* Condition updated: Checks isStockDetailOpen state instead of sidebarTab */}
       {isStockDetailOpen && !isTradeMode && (
-          <div className="w-[360px] border-l border-r border-[#1c1c1e] bg-[#13171b] z-20 shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
+          <div className="w-[280px] border-l border-r border-[#1c1c1e] bg-[#13171b] z-20 shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
               <StockDetail 
                 onClose={handleCloseStockDetail} 
                 isMaximized={isDetailMaximized}
