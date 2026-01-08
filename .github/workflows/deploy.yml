@@ -25,9 +25,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: 'npm'
+          # Đã XÓA dòng cache: 'npm' ở đây để sửa lỗi của bạn
 
-      # Đã sửa thành npm install để không bị lỗi thiếu lock file
       - name: Install dependencies
         run: npm install
 
