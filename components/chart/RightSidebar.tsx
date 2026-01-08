@@ -1,18 +1,18 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { OrderBookTable } from '../trading/OrderBook';
 import { OrderPlacementPanel } from '../trading/OrderPanel';
 import { WatchlistTabContent } from './rightSidebar/WatchlistTabContent';
-import { StockDetail } from './rightSidebar/StockDetail';
 import { NewsTab } from './rightSidebar/NewsTab';
 
 interface RightSidebarProps {
   isTradeMode: boolean;
+  activeTab: string;
+  onTabChange: (tab: string) => void;
 }
 
-export const RightSidebar: React.FC<RightSidebarProps> = ({ isTradeMode }) => {
-  const [sidebarTab, setSidebarTab] = useState('Theo dõi');
-
+export const RightSidebar: React.FC<RightSidebarProps> = ({ isTradeMode, activeTab, onTabChange }) => {
+  
   // If in Trade Mode, we replace the entire sidebar content with the Order Panel
   if (isTradeMode) {
       return (
@@ -34,7 +34,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({ isTradeMode }) => {
       );
   }
 
-  // Normal Mode: Show Tabs (Chi tiết, AI News, Theo dõi, Chỉ số)
+  // Normal Mode: Show Tabs
   return (
     <div className="w-[320px] flex flex-col h-full bg-[#13171b] border-l border-[#1c1c1e] shrink-0 z-30 transition-all duration-300">
         
@@ -43,31 +43,35 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({ isTradeMode }) => {
             {['Chi tiết', 'AI News', 'Theo dõi', 'Chỉ số'].map((tab) => (
                 <button 
                     key={tab} 
-                    onClick={() => setSidebarTab(tab)}
+                    onClick={() => onTabChange(tab)}
                     className={`flex-1 text-xs font-bold uppercase tracking-wide hover:bg-[#1e2329] transition-colors relative
-                    ${sidebarTab === tab ? 'text-[#2962ff] bg-[#1a1f26]' : 'text-gray-500'}`}
+                    ${activeTab === tab ? 'text-[#2962ff] bg-[#1a1f26]' : 'text-gray-500'}`}
                 >
                     {tab}
-                    {sidebarTab === tab && <div className="absolute bottom-0 left-0 w-full h-[2px] bg-[#2962ff]" />}
+                    {activeTab === tab && <div className="absolute bottom-0 left-0 w-full h-[2px] bg-[#2962ff]" />}
                 </button>
             ))}
         </div>
 
         {/* Content based on Tab */}
         <div className="flex-1 overflow-hidden flex flex-col">
-            {sidebarTab === 'Theo dõi' && (
+            {/* 
+                LOGIC CHANGE: 
+                If 'Chi tiết' is active, we ALSO show Watchlist here. 
+                This allows the user to click stocks in the list while the Detail Panel 
+                is floating to the left.
+            */}
+            {(activeTab === 'Theo dõi' || activeTab === 'Chi tiết') && (
                 <WatchlistTabContent />
             )}
 
-            {sidebarTab === 'Chi tiết' && (
-                <StockDetail />
-            )}
+            {/* Note: 'Chi tiết' content is now handled by parent ChartLayout floating panel */}
 
-            {sidebarTab === 'AI News' && (
+            {activeTab === 'AI News' && (
                  <NewsTab />
             )}
 
-            {sidebarTab === 'Chỉ số' && (
+            {activeTab === 'Chỉ số' && (
                  <div className="flex-1 flex items-center justify-center text-gray-500 text-xs">Chỉ số content coming soon</div>
             )}
         </div>

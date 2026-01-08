@@ -11,6 +11,7 @@ import { RightSidebar } from './chart/RightSidebar';
 import { AiFloatingButton } from './chart/AiFloatingButton';
 import { PrdModuleId } from './chart/prdConstants';
 import { PrdPanel } from './chart/PrdPanel';
+import { StockDetail } from './chart/rightSidebar/StockDetail';
 
 interface ChartLayoutProps {
   isTradeMode: boolean;
@@ -32,6 +33,12 @@ export const ChartLayout: React.FC<ChartLayoutProps> = ({ isTradeMode, onToggleT
   const [selectedPrdItem, setSelectedPrdItem] = useState<string | null>(null);
   const [isPrdMenuOpen, setIsPrdMenuOpen] = useState(false);
 
+  // Sidebar Tab State (Lifted from RightSidebar)
+  const [sidebarTab, setSidebarTab] = useState('Theo dõi');
+  
+  // Maximize State for Stock Detail Panel
+  const [isDetailMaximized, setIsDetailMaximized] = useState(false);
+
   // Projection State (Triggered by AI Button)
   const [showProjection, setShowProjection] = useState(false);
 
@@ -46,6 +53,11 @@ export const ChartLayout: React.FC<ChartLayoutProps> = ({ isTradeMode, onToggleT
   const handlePrdModuleChange = (id: PrdModuleId | null) => {
       setActivePrdModule(id);
       setSelectedPrdItem(null); // Reset selection when changing module
+  };
+  
+  const handleCloseStockDetail = () => {
+      setSidebarTab('Theo dõi');
+      setIsDetailMaximized(false); // Reset maximize state when closing
   };
 
   return (
@@ -67,7 +79,7 @@ export const ChartLayout: React.FC<ChartLayoutProps> = ({ isTradeMode, onToggleT
         <ToolbarButton icon={Trash2} />
       </div>
 
-      {/* 2. Main Center Area */}
+      {/* 2. Main Center Area (Chart) */}
       <div className="flex-1 flex flex-col min-w-0 bg-[#000000]">
         <ChartHeader 
             isTradeMode={isTradeMode}
@@ -87,8 +99,8 @@ export const ChartLayout: React.FC<ChartLayoutProps> = ({ isTradeMode, onToggleT
         {/* Chart Canvas & Overlays Container */}
         <div className="flex-1 flex relative overflow-hidden" onClick={() => setSelectedPrdItem(null)}>
              
-             {/* Chart takes full width always */}
-             <div className="w-full h-full relative">
+             {/* Chart Area */}
+             <div className="flex-1 h-full relative min-w-0">
                  <div className="absolute inset-0">
                      <CandleChart 
                         symbol="PHR" 
@@ -126,7 +138,7 @@ export const ChartLayout: React.FC<ChartLayoutProps> = ({ isTradeMode, onToggleT
                  )}
 
                  {showLimitWidget && !activePrdModule && (
-                    <DraggableWidget initialX={window.innerWidth - 650} initialY={window.innerHeight - 500}>
+                    <DraggableWidget initialX={window.innerWidth - 650 - (sidebarTab === 'Chi tiết' ? 360 : 320)} initialY={window.innerHeight - 500}>
                         <LimitQuickTrade onClose={() => setShowLimitWidget(false)} />
                     </DraggableWidget>
                  )}
@@ -140,8 +152,25 @@ export const ChartLayout: React.FC<ChartLayoutProps> = ({ isTradeMode, onToggleT
         </div>
       </div>
 
-      {/* 3. Right Sidebar */}
-      <RightSidebar isTradeMode={isTradeMode} />
+      {/* FLOATING STOCK DETAIL PANEL - Full Height Sibling */}
+      {sidebarTab === 'Chi tiết' && !isTradeMode && (
+          <div className="w-[360px] border-l border-r border-[#1c1c1e] bg-[#13171b] z-20 shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
+              <StockDetail 
+                onClose={handleCloseStockDetail} 
+                isMaximized={isDetailMaximized}
+                onToggleMaximize={() => setIsDetailMaximized(!isDetailMaximized)}
+              />
+          </div>
+      )}
+
+      {/* 3. Right Sidebar - Hidden if Detail is Maximized */}
+      {!isDetailMaximized && (
+        <RightSidebar 
+            isTradeMode={isTradeMode} 
+            activeTab={sidebarTab}
+            onTabChange={setSidebarTab}
+        />
+      )}
     </div>
   );
 };
