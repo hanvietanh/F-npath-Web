@@ -2,7 +2,7 @@ name: Deploy Vite App
 
 on:
   push:
-    branches: ["main"]  # Hoặc "master" nếu nhánh chính của bạn tên là master
+    branches: ["main"]
   workflow_dispatch:
 
 permissions:
@@ -24,22 +24,22 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "20" # Chọn version node phù hợp
+          node-version: "20"
           cache: 'npm'
 
+      # Đã sửa thành npm install để không bị lỗi thiếu lock file
       - name: Install dependencies
         run: npm install
 
       - name: Build
         run: npm run build
         env:
-           # Nếu build cần key để chạy thì thêm secret vào đây (xem Bước 3 bên dưới)
-           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }} 
+           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./dist # Vite build ra folder dist
+          path: ./dist
 
   deploy:
     environment:
