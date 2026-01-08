@@ -40,7 +40,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({ isTradeMode, activeT
         
         {/* Top-Level Tabs */}
         <div className="flex h-10 border-b border-[#1c1c1e] bg-[#13171b] shrink-0">
-            {['Chi tiết', 'AI News', 'Theo dõi', 'Chỉ số'].map((tab) => (
+            {['Chi tiết', 'Theo dõi', 'AI News', 'Chỉ số'].map((tab) => (
                 <button 
                     key={tab} 
                     onClick={() => onTabChange(tab)}
