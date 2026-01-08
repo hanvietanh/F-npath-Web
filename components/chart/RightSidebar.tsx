@@ -4,7 +4,8 @@ import { OrderBookTable } from '../trading/OrderBook';
 import { OrderPlacementPanel } from '../trading/OrderPanel';
 import { WatchlistTabContent } from './rightSidebar/WatchlistTabContent';
 import { NewsTab } from './rightSidebar/NewsTab';
-import { ChevronsRight } from 'lucide-react';
+import { ChevronsRight, Sparkles } from 'lucide-react';
+import { AiAssistant } from '../tools/AiAssistant';
 
 interface RightSidebarProps {
   isTradeMode: boolean;
@@ -48,13 +49,15 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({ isTradeMode, activeT
         {/* Top-Level Tabs with Collapse Button */}
         <div className="flex h-10 border-b border-[#1c1c1e] bg-[#13171b] shrink-0">
             <div className="flex-1 flex min-w-0">
-                {['Chi tiết', 'Theo dõi', 'AI News', 'Chỉ số'].map((tab) => (
+                {['Chi tiết', 'Theo dõi', 'AI News', 'Ask AI'].map((tab) => (
                     <button 
                         key={tab} 
                         onClick={() => onTabChange(tab)}
-                        className={`flex-1 text-xs font-bold uppercase tracking-wide hover:bg-[#1e2329] transition-colors relative truncate
+                        className={`flex-1 text-xs font-bold uppercase tracking-wide hover:bg-[#1e2329] transition-colors relative truncate flex items-center justify-center gap-1
                         ${activeTab === tab ? 'text-[#2962ff] bg-[#1a1f26]' : 'text-gray-500'}`}
+                        title={tab}
                     >
+                        {tab === 'Ask AI' && <Sparkles size={10} />}
                         {tab}
                         {activeTab === tab && <div className="absolute bottom-0 left-0 w-full h-[2px] bg-[#2962ff]" />}
                     </button>
@@ -82,8 +85,10 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({ isTradeMode, activeT
                  <NewsTab />
             )}
 
-            {activeTab === 'Chỉ số' && (
-                 <div className="flex-1 flex items-center justify-center text-gray-500 text-xs">Chỉ số content coming soon</div>
+            {activeTab === 'Ask AI' && (
+                <div className="flex-1 flex flex-col min-h-0 relative bg-[#13171b]">
+                    <AiAssistant />
+                </div>
             )}
         </div>
     </div>
