@@ -32,8 +32,8 @@ const Sparkline: React.FC<{ data: number[], color: string }> = ({ data, color })
 };
 
 const WatchlistTabContent = () => {
-    const [activeSubTab, setActiveSubTab] = useState('Danh mục');
-    const subTabs = ['Danh mục', 'Top biến động', 'Top khối lượng', 'Top nước ngoài', 'Chỉ số', 'Crypto', 'Vàng'];
+    const [activeSubTab, setActiveSubTab] = useState('Đầu tư');
+    const subTabs = ['Đầu tư', 'Top biến động', 'Top khối lượng', 'Top nước ngoài', 'Chỉ số', 'Crypto', 'Vàng'];
 
     // Mock Data matching the screenshot
     const items = [
@@ -55,22 +55,17 @@ const WatchlistTabContent = () => {
     return (
         <div className="flex flex-col h-full bg-[#13171b]">
             {/* Top Controls & Sub-tabs */}
-            <div className="flex items-center px-3 py-2 border-b border-[#1c1c1e] shrink-0 bg-[#13171b] gap-3">
-                <button className="bg-[#2c2c2e] hover:bg-[#3a3a3c] text-gray-200 text-xs font-bold px-3 py-1.5 rounded transition-colors shrink-0">
-                    Đầu tư
-                </button>
-                
-                <div className="w-[1px] h-4 bg-[#2c2c2e] shrink-0"></div>
-
-                {/* Scrollable Sub-tabs */}
-                <div className="flex-1 flex items-center gap-4 overflow-x-auto no-scrollbar" style={{ scrollbarWidth: 'none' }}>
+            <div className="flex items-center px-3 py-2 border-b border-[#1c1c1e] shrink-0 bg-[#13171b]">
+                <div className="flex-1 flex items-center gap-2 overflow-x-auto no-scrollbar" style={{ scrollbarWidth: 'none' }}>
                      {subTabs.map(tab => (
                          <button 
                             key={tab}
                             onClick={() => setActiveSubTab(tab)}
                             className={`
-                                whitespace-nowrap text-[11px] font-bold transition-colors shrink-0
-                                ${activeSubTab === tab ? 'text-[#2962ff]' : 'text-gray-500 hover:text-gray-300'}
+                                whitespace-nowrap text-[11px] font-bold px-3 py-1.5 rounded transition-all shrink-0
+                                ${activeSubTab === tab 
+                                    ? 'bg-[#2c2c2e] text-white shadow-sm ring-1 ring-white/5' 
+                                    : 'text-gray-500 hover:text-gray-300 hover:bg-[#2c2c2e]/50'}
                             `}
                          >
                              {tab}
