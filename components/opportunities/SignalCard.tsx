@@ -5,9 +5,10 @@ import { SignalData } from './constants';
 
 interface SignalCardProps {
   signal: SignalData;
+  onDetail?: () => void;
 }
 
-export const SignalCard: React.FC<SignalCardProps> = ({ signal }) => {
+export const SignalCard: React.FC<SignalCardProps> = ({ signal, onDetail }) => {
   return (
     <div className="bg-[#13171b] border border-[#1c1c1e] rounded-xl p-4 hover:border-[#2962ff]/50 transition-all hover:shadow-[0_0_20px_rgba(0,0,0,0.5)] group flex flex-col">
         
@@ -35,7 +36,10 @@ export const SignalCard: React.FC<SignalCardProps> = ({ signal }) => {
         </div>
 
         {/* Card Body */}
-        <div className="bg-[#0b0e11] rounded-lg p-3 mb-3 border border-[#1c1c1e] relative overflow-hidden flex-1">
+        <div 
+            className="bg-[#0b0e11] rounded-lg p-3 mb-3 border border-[#1c1c1e] relative overflow-hidden flex-1 cursor-pointer hover:bg-[#1a1f26] transition-colors"
+            onClick={onDetail}
+        >
             {/* Decorative Background Blur */}
             <div className={`absolute top-0 right-0 w-24 h-24 ${signal.isSell ? 'bg-[#f23645]/5' : 'bg-[#00c853]/5'} rounded-full blur-xl -translate-y-1/2 translate-x-1/2 pointer-events-none`}></div>
 
@@ -62,7 +66,10 @@ export const SignalCard: React.FC<SignalCardProps> = ({ signal }) => {
 
         {/* Card Footer Actions */}
         <div className="grid grid-cols-2 gap-2 mt-auto">
-            <button className="py-2 rounded bg-[#2c2c2e] hover:bg-[#3a3a3c] text-[10px] font-bold text-gray-300 transition-colors">
+            <button 
+                onClick={onDetail}
+                className="py-2 rounded bg-[#2c2c2e] hover:bg-[#3a3a3c] text-[10px] font-bold text-gray-300 transition-colors"
+            >
                 Chi tiết
             </button>
             <button className="py-2 rounded bg-[#2c2c2e] hover:bg-[#3a3a3c] text-[10px] font-bold text-gray-300 transition-colors flex items-center justify-center gap-1.5 group/btn">
