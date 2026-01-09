@@ -4,19 +4,24 @@ import { FilterHeader } from './opportunities/FilterHeader';
 import { SignalCard } from './opportunities/SignalCard';
 import { ExpertSidebar } from './opportunities/ExpertSidebar';
 import { SignalDetailModal } from './opportunities/SignalDetailModal';
-import { SIGNALS, SignalData } from './opportunities/constants';
+import { SIGNALS, SignalData, ExpertProfile } from './opportunities/constants';
 
-export const InvestmentOpportunities: React.FC = () => {
+interface InvestmentOpportunitiesProps {
+    onOpenProfile?: (expert: ExpertProfile) => void;
+}
+
+export const InvestmentOpportunities: React.FC<InvestmentOpportunitiesProps> = ({ onOpenProfile }) => {
   const [selectedSignal, setSelectedSignal] = useState<SignalData | null>(null);
 
   return (
     <div className="flex h-full w-full bg-[#000000] text-white overflow-hidden font-sans relative">
       
-      {/* Modal Overlay */}
+      {/* Modal Overlay for Signal Details */}
       {selectedSignal && (
           <SignalDetailModal 
               signal={selectedSignal} 
-              onClose={() => setSelectedSignal(null)} 
+              onClose={() => setSelectedSignal(null)}
+              onOpenProfile={onOpenProfile}
           />
       )}
 
@@ -35,6 +40,7 @@ export const InvestmentOpportunities: React.FC = () => {
                         key={signal.id} 
                         signal={signal} 
                         onDetail={() => setSelectedSignal(signal)}
+                        onExpertClick={onOpenProfile}
                     />
                 ))}
             </div>
@@ -44,7 +50,7 @@ export const InvestmentOpportunities: React.FC = () => {
       </div>
 
       {/* RIGHT COLUMN - SIDEBAR */}
-      <ExpertSidebar />
+      <ExpertSidebar onExpertClick={onOpenProfile} />
       
     </div>
   );
