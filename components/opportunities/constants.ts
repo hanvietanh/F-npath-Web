@@ -18,6 +18,8 @@ export interface SignalData {
   expectedProfit: number;
   holdingTime: string;
   isSell?: boolean;
+  isLocked?: boolean;
+  reasons?: string[];
 }
 
 export interface ExpertCardData {
@@ -37,6 +39,26 @@ export interface ExpertCardData {
 }
 
 export const SIGNALS: SignalData[] = [
+  {
+    id: 99,
+    expert: {
+      name: 'Nguyễn Văn Duy',
+      avatar: 'https://i.pravatar.cc/150?u=duy',
+      role: 'Chuyên gia nổi bật',
+      isVerified: true
+    },
+    time: '2 ngày trước',
+    action: 'Mua',
+    symbol: '***',
+    price: 0,
+    expectedProfit: 57.68,
+    holdingTime: '---',
+    isLocked: true,
+    reasons: [
+      'Dòng tiền tổ chức đã vào mạnh chiều qua.',
+      'Game chia cổ tức 15% sắp ra tin...'
+    ]
+  },
   {
     id: 1,
     expert: {
