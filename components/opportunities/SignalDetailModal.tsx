@@ -2,6 +2,7 @@
 import React from 'react';
 import { X, BadgeCheck, Heart, MessageCircle, Share2, ThumbsUp, ArrowRight, Minus } from 'lucide-react';
 import { SignalData } from './constants';
+import { SignalCard } from './SignalCard';
 
 interface SignalDetailModalProps {
   signal: SignalData;
@@ -18,14 +19,33 @@ export const SignalDetailModal: React.FC<SignalDetailModalProps> = ({ signal, on
   const stopLoss = (signal.price * 0.92).toFixed(2);
   const currentPL = -10.5; // Mock current P/L
 
+  // Mock Related Signals for the "Cùng khuyến nghị" section
+  const relatedSignals: SignalData[] = [
+      {
+        id: 101,
+        expert: { name: 'Phạm Minh Hương', avatar: 'https://i.pravatar.cc/150?u=huong', role: 'Chuyên gia kỹ thuật', isVerified: true },
+        time: '5 phút trước', action: 'Mua', symbol: signal.symbol, price: signal.price - 0.5, expectedProfit: 15.20, holdingTime: '30 ngày'
+      },
+      {
+        id: 102,
+        expert: { name: 'Dragon Capital', avatar: 'https://ui-avatars.com/api/?name=Dragon&background=00c853&color=fff', role: 'Quỹ đầu tư', isVerified: true },
+        time: '12 phút trước', action: 'Mua', symbol: signal.symbol, price: signal.price + 0.1, expectedProfit: 20.00, holdingTime: '3 tháng'
+      },
+       {
+        id: 103,
+        expert: { name: 'MBS Research', avatar: 'https://ui-avatars.com/api/?name=MBS&background=0ea5e9&color=fff', role: 'Công ty Chứng Khoán', isVerified: true },
+        time: '30 phút trước', action: 'Mua', symbol: signal.symbol, price: signal.price + 0.5, expectedProfit: 18.00, holdingTime: '6 tháng'
+      }
+  ];
+
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 animate-in fade-in duration-200">
       <div 
-        className="w-full max-w-5xl bg-[#13171b] border border-[#2c2c2e] rounded-xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 max-h-[90vh]"
+        className="w-full max-w-6xl bg-[#13171b] border border-[#2c2c2e] rounded-xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#2c2c2e] bg-[#1a1f26]">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#2c2c2e] bg-[#1a1f26] shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full border border-[#2c2c2e] overflow-hidden">
                <img src={signal.expert.avatar} alt={signal.expert.name} className="w-full h-full object-cover" />
@@ -50,12 +70,12 @@ export const SignalDetailModal: React.FC<SignalDetailModalProps> = ({ signal, on
           </button>
         </div>
 
-        {/* Modal Body */}
-        <div className="flex-1 overflow-y-auto p-6 bg-[#0b0e11]">
-           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-               
-               {/* Left Column: Signal Stats */}
-               <div className="lg:col-span-5 flex flex-col gap-4">
+        {/* Modal Body - Split View Layout */}
+        <div className="flex-1 flex overflow-hidden bg-[#0b0e11]">
+           
+           {/* LEFT PANEL: Signal Stats (Fixed/Sticky behavior via independent scrolling container) */}
+           <div className="w-[40%] overflow-y-auto p-6 border-r border-[#1c1c1e] custom-scrollbar bg-[#13171b]">
+               <div className="flex flex-col gap-4 min-h-min">
                    {/* Main Stats Card */}
                    <div className="bg-[#1a1f26] border border-[#2c2c2e] rounded-lg p-5 relative overflow-hidden">
                        {/* Header Row */}
@@ -129,9 +149,11 @@ export const SignalDetailModal: React.FC<SignalDetailModalProps> = ({ signal, on
                        </button>
                    </div>
                </div>
+           </div>
 
-               {/* Right Column: Context & Discussion */}
-               <div className="lg:col-span-7 flex flex-col gap-6">
+           {/* RIGHT PANEL: Reasoning, Discussion & Related (Scrollable independently) */}
+           <div className="w-[60%] overflow-y-auto p-6 custom-scrollbar bg-[#0b0e11]">
+               <div className="flex flex-col gap-6">
                    
                    {/* Reasoning Section */}
                    <div>
@@ -190,28 +212,26 @@ export const SignalDetailModal: React.FC<SignalDetailModalProps> = ({ signal, on
                                </div>
                            </div>
                        </div>
+                       
+                       {/* Comment Input */}
+                       <div className="mt-2 pt-2 border-t border-[#2c2c2e]">
+                           <div className="bg-[#0b0e11] rounded-lg p-2 flex items-center gap-2">
+                               <div className="w-6 h-6 rounded-full bg-gray-700"></div>
+                               <input type="text" placeholder="Viết bình luận..." className="bg-transparent text-sm w-full outline-none text-white placeholder-gray-500" />
+                           </div>
+                       </div>
                    </div>
 
                    {/* Related Recommendation */}
                    <div>
-                       <h4 className="text-sm font-bold text-white mb-3">Cùng khuyến nghị {signal.symbol}</h4>
-                       <div className="bg-[#1a1f26] border border-[#2c2c2e] rounded-lg p-3 flex justify-between items-center group cursor-pointer hover:border-[#2962ff]/50 transition-colors">
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-full border border-[#2c2c2e] overflow-hidden">
-                                    <img src="https://i.pravatar.cc/150?u=tiep" alt="Expert" className="w-full h-full object-cover" />
-                                </div>
-                                <div>
-                                    <div className="flex items-center gap-1">
-                                        <div className="font-bold text-sm text-white group-hover:text-[#2962ff]">Xuân Tiệp Vision</div>
-                                        <BadgeCheck size={14} className="text-[#2962ff] fill-white" />
-                                    </div>
-                                    <div className="text-xs text-gray-400">Chuyên gia nổi bật • 1 phút trước</div>
-                                </div>
-                            </div>
-                            <div className="text-right">
-                                <div className={`text-sm font-bold uppercase ${isBuy ? 'text-[#00c853]' : 'text-[#f23645]'}`}>{signal.action} {signal.symbol}</div>
-                                <div className="text-xs text-gray-400">Giá: {signal.price}</div>
-                            </div>
+                       <h4 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
+                           Cùng khuyến nghị {signal.symbol} 
+                           <span className="bg-[#2c2c2e] text-gray-400 px-1.5 py-0.5 rounded text-[10px]">{relatedSignals.length}</span>
+                       </h4>
+                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                           {relatedSignals.map((item) => (
+                               <SignalCard key={item.id} signal={item} />
+                           ))}
                        </div>
                    </div>
 
