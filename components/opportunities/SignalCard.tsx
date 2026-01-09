@@ -1,26 +1,95 @@
 
 import React from 'react';
-import { BadgeCheck, FlaskConical } from 'lucide-react';
-import { SignalData } from './constants';
+import { BadgeCheck, FlaskConical, Lock } from 'lucide-react';
+import { SignalData, ExpertProfile } from './constants';
 
 interface SignalCardProps {
   signal: SignalData;
   onDetail?: () => void;
+  onExpertClick?: (expert: ExpertProfile) => void;
 }
 
-export const SignalCard: React.FC<SignalCardProps> = ({ signal, onDetail }) => {
+export const SignalCard: React.FC<SignalCardProps> = ({ signal, onDetail, onExpertClick }) => {
+  
+  const handleExpertClick = (e: React.MouseEvent) => {
+      e.stopPropagation();
+      if (onExpertClick) {
+          onExpertClick(signal.expert);
+      }
+  };
+
+  // --- LOCKED STATE VIEW ---
+  if (signal.isLocked) {
+      return (
+        <div className="bg-[#13171b] border border-[#2c2c2e] rounded-xl p-4 hover:border-[#eab308]/50 transition-all flex flex-col gap-4 shadow-sm group">
+            {/* Time Header */}
+            <div className="text-xs text-gray-500 font-medium">{signal.time}</div>
+
+            {/* Info Box */}
+            <div className="bg-[#fffbeb] dark:bg-[#422006]/20 border border-[#facc15] dark:border-[#ca8a04] rounded-xl p-4 relative overflow-hidden">
+                {/* Info Header */}
+                <div className="flex justify-between items-start mb-4">
+                    <div className="flex flex-col gap-1">
+                         <div className="flex items-center gap-2">
+                             <span className="text-xl font-bold text-[#b45309] dark:text-[#facc15]">Mua ***</span>
+                             <div className="border border-[#facc15] dark:border-[#eab308] rounded-full p-1 text-[#b45309] dark:text-[#facc15]">
+                                 <Lock size={12} strokeWidth={2.5} />
+                             </div>
+                         </div>
+                         <div className="text-sm font-bold text-[#b45309] dark:text-[#facc15]">giá ***</div>
+                    </div>
+                    <div className="text-right">
+                        <div className="text-[10px] text-gray-500 uppercase font-medium">Lợi nhuận kỳ vọng</div>
+                        <div className="text-2xl font-bold text-[#b45309] dark:text-[#facc15]">+{signal.expectedProfit}%</div>
+                    </div>
+                </div>
+
+                {/* Reasons List */}
+                <div className="space-y-1 text-[13px] text-gray-800 dark:text-gray-200 font-medium leading-snug">
+                    {signal.reasons?.map((r, i) => (
+                        <div key={i} className="flex gap-1.5 items-start">
+                            <span className="font-bold">{i + 1}.</span>
+                            <p className="line-clamp-2">
+                                {r}
+                                {i === (signal.reasons?.length || 0) - 1 && <span className="text-[#2962ff] font-bold ml-1 cursor-pointer hover:underline">Thêm</span>}
+                            </p>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* CTA Button */}
+            <button className="w-full py-3 bg-[#d97706] hover:bg-[#b45309] text-white font-bold rounded-full text-sm shadow-lg transition-all transform active:scale-[0.98]">
+                Gắn mã giới thiệu để mở khóa
+            </button>
+
+            {/* Footer */}
+            <div className="text-center text-[11px] text-gray-500">
+                Dành riêng cho khách hàng của chuyên gia <span className="font-bold text-gray-300 hover:text-[#2962ff] cursor-pointer transition-colors" onClick={handleExpertClick}>{signal.expert.name}</span>
+            </div>
+        </div>
+      );
+  }
+
+  // --- UNLOCKED / DEFAULT STATE VIEW ---
   return (
     <div className="bg-[#13171b] border border-[#1c1c1e] rounded-xl p-4 hover:border-[#2962ff]/50 transition-all hover:shadow-[0_0_20px_rgba(0,0,0,0.5)] group flex flex-col">
         
         {/* Card Header */}
         <div className="flex justify-between items-start mb-3">
             <div className="flex gap-2">
-                <div className="w-8 h-8 rounded-full overflow-hidden border border-[#2c2c2e] shrink-0">
+                <div 
+                    className="w-8 h-8 rounded-full overflow-hidden border border-[#2c2c2e] shrink-0 cursor-pointer hover:border-[#2962ff] transition-colors"
+                    onClick={handleExpertClick}
+                >
                     <img src={signal.expert.avatar} alt={signal.expert.name} className="w-full h-full object-cover" />
                 </div>
                 <div className="min-w-0">
-                    <div className="flex items-center gap-1">
-                        <h3 className="font-bold text-xs text-gray-100 truncate max-w-[100px]">{signal.expert.name}</h3>
+                    <div 
+                        className="flex items-center gap-1 cursor-pointer hover:opacity-80"
+                        onClick={handleExpertClick}
+                    >
+                        <h3 className="font-bold text-xs text-gray-100 truncate max-w-[100px] hover:text-[#2962ff] transition-colors">{signal.expert.name}</h3>
                         {signal.expert.isVerified && <BadgeCheck size={12} className="text-[#2962ff] fill-white shrink-0" />}
                     </div>
                     <div className="flex items-center gap-1 text-[10px] text-gray-500 mt-0.5">
