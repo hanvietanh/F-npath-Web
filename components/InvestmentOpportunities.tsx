@@ -1,14 +1,25 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { FilterHeader } from './opportunities/FilterHeader';
 import { SignalCard } from './opportunities/SignalCard';
 import { ExpertSidebar } from './opportunities/ExpertSidebar';
-import { SIGNALS } from './opportunities/constants';
+import { SignalDetailModal } from './opportunities/SignalDetailModal';
+import { SIGNALS, SignalData } from './opportunities/constants';
 
 export const InvestmentOpportunities: React.FC = () => {
+  const [selectedSignal, setSelectedSignal] = useState<SignalData | null>(null);
+
   return (
-    <div className="flex h-full w-full bg-[#000000] text-white overflow-hidden font-sans">
+    <div className="flex h-full w-full bg-[#000000] text-white overflow-hidden font-sans relative">
       
+      {/* Modal Overlay */}
+      {selectedSignal && (
+          <SignalDetailModal 
+              signal={selectedSignal} 
+              onClose={() => setSelectedSignal(null)} 
+          />
+      )}
+
       {/* LEFT COLUMN - MAIN CONTENT */}
       <div className="flex-1 flex flex-col min-w-0 border-r border-[#1c1c1e]">
         
@@ -20,7 +31,11 @@ export const InvestmentOpportunities: React.FC = () => {
             {/* Signals Grid: 4 Columns */}
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
                 {SIGNALS.map((signal) => (
-                    <SignalCard key={signal.id} signal={signal} />
+                    <SignalCard 
+                        key={signal.id} 
+                        signal={signal} 
+                        onDetail={() => setSelectedSignal(signal)}
+                    />
                 ))}
             </div>
 
