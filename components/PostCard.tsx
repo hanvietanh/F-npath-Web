@@ -10,8 +10,14 @@ import {
   Flame, 
   Sparkles 
 } from 'lucide-react';
+import { ExpertProfile } from './opportunities/constants';
 
-export const PostCard: React.FC<{ post: any }> = ({ post }) => {
+interface PostCardProps {
+    post: any;
+    onOpenProfile?: (expert: ExpertProfile) => void;
+}
+
+export const PostCard: React.FC<PostCardProps> = ({ post, onOpenProfile }) => {
   // Hot Event Card (handled inside NewsFeed header in new design usually, but if passed here...)
   if (post.type === 'hot_event') {
      return (
@@ -29,13 +35,25 @@ export const PostCard: React.FC<{ post: any }> = ({ post }) => {
 
   const isQuote = post.isQuote || post.type === 'quote';
 
+  const handleProfileClick = () => {
+      if (onOpenProfile) {
+          const profile: ExpertProfile = {
+              name: post.author,
+              avatar: post.avatar,
+              role: post.role || 'Chuyên gia',
+              isVerified: post.verified
+          };
+          onOpenProfile(profile);
+      }
+  };
+
   return (
     <div className="border-b border-[#1c1c1e] py-4 px-0 last:border-0 hover:bg-transparent transition-colors mb-2">
       {/* Header */}
       <div className="flex justify-between items-start mb-2">
          <div className="flex gap-3">
-             <div className="relative">
-                 <img src={post.avatar} alt={post.author} className="w-10 h-10 rounded-full border border-[#2c2c2e]" />
+             <div className="relative cursor-pointer" onClick={handleProfileClick}>
+                 <img src={post.avatar} alt={post.author} className="w-10 h-10 rounded-full border border-[#2c2c2e] hover:border-[#2962ff] transition-colors object-cover" />
                  {post.verified && (
                     <div className="absolute -bottom-1 -right-1 bg-[#000] rounded-full p-[1px]">
                          <BadgeCheck size={14} className="text-[#2962ff] fill-white" />
@@ -44,7 +62,12 @@ export const PostCard: React.FC<{ post: any }> = ({ post }) => {
              </div>
              <div>
                  <div className="flex items-center gap-2">
-                     <h3 className="font-bold text-sm text-white hover:underline cursor-pointer">{post.author}</h3>
+                     <h3 
+                        className="font-bold text-sm text-white hover:underline cursor-pointer hover:text-[#2962ff] transition-colors"
+                        onClick={handleProfileClick}
+                     >
+                         {post.author}
+                     </h3>
                      {post.tag && <button className="text-xs font-medium text-[#2962ff] hover:text-[#2962ff]/80">{post.tag}</button>}
                  </div>
                  <div className="flex items-center gap-2 mt-0.5">

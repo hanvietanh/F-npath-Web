@@ -4,7 +4,11 @@ import { StockTicker } from '../../types';
 import { StockRow } from './StockRow';
 import { generateMockTickers } from './watchlistConstants';
 
-export const PriceTable: React.FC = () => {
+interface PriceTableProps {
+    onStockClick?: (symbol: string) => void;
+}
+
+export const PriceTable: React.FC<PriceTableProps> = ({ onStockClick }) => {
   const [data, setData] = useState<StockTicker[]>([]);
 
   useEffect(() => {
@@ -67,7 +71,7 @@ export const PriceTable: React.FC = () => {
         </thead>
         <tbody className="font-mono text-gray-200">
           {data.map((ticker) => (
-            <StockRow key={ticker.symbol} data={ticker} />
+            <StockRow key={ticker.symbol} data={ticker} onClick={onStockClick} />
           ))}
         </tbody>
       </table>

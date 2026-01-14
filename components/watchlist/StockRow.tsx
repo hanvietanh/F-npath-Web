@@ -4,9 +4,10 @@ import { StockTicker } from '../../types';
 
 interface StockRowProps {
   data: StockTicker;
+  onClick?: (symbol: string) => void;
 }
 
-export const StockRow: React.FC<StockRowProps> = ({ data }) => {
+export const StockRow: React.FC<StockRowProps> = ({ data, onClick }) => {
   // Helper to determine text color based on price vs reference
   const getColor = (price: number, ref: number, ceiling: number, floor: number) => {
     if (price === 0) return 'text-yellow-500';
@@ -24,7 +25,10 @@ export const StockRow: React.FC<StockRowProps> = ({ data }) => {
   const fmtPrice = (num: number) => num === 0 ? '' : num.toFixed(2);
 
   return (
-    <tr className="hover:bg-[#1c1c1e] transition-colors cursor-pointer group text-[11px] font-medium border-b border-[#1c1c1e]/30">
+    <tr 
+        className="hover:bg-[#1c1c1e] transition-colors cursor-pointer group text-[11px] font-medium border-b border-[#1c1c1e]/30"
+        onClick={() => onClick && onClick(data.symbol)}
+    >
       {/* Symbol (Sticky Left) */}
       <td className={`pl-2 py-1.5 font-bold ${closeColor} sticky left-0 bg-[#000000] group-hover:bg-[#1c1c1e] z-10 border-r border-[#1c1c1e]`}>
         {data.symbol}

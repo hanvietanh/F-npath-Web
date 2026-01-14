@@ -1,15 +1,18 @@
 
 import React from 'react';
 import { X, BadgeCheck, Heart, MessageCircle, Share2, ThumbsUp, ArrowRight, Minus } from 'lucide-react';
-import { SignalData } from './constants';
+import { SignalData, ExpertProfile } from './constants';
 import { SignalCard } from './SignalCard';
 
 interface SignalDetailModalProps {
   signal: SignalData;
   onClose: () => void;
+  onOpenProfile?: (expert: ExpertProfile) => void;
 }
 
-export const SignalDetailModal: React.FC<SignalDetailModalProps> = ({ signal, onClose }) => {
+export const SignalDetailModal: React.FC<SignalDetailModalProps> = ({ signal, onClose, onOpenProfile }) => {
+  // Removed local state showExpertProfile, triggering parent instead.
+
   const isBuy = !signal.isSell;
   const colorClass = isBuy ? 'text-[#00c853]' : 'text-[#f23645]';
   const bgClass = isBuy ? 'bg-[#00c853]' : 'bg-[#f23645]';
@@ -38,6 +41,12 @@ export const SignalDetailModal: React.FC<SignalDetailModalProps> = ({ signal, on
       }
   ];
 
+  const handleExpertClick = () => {
+      if (onOpenProfile) {
+          onOpenProfile(signal.expert);
+      }
+  };
+
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 animate-in fade-in duration-200">
       <div 
@@ -47,12 +56,18 @@ export const SignalDetailModal: React.FC<SignalDetailModalProps> = ({ signal, on
         {/* Modal Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#2c2c2e] bg-[#1a1f26] shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full border border-[#2c2c2e] overflow-hidden">
+            <div 
+                className="w-10 h-10 rounded-full border border-[#2c2c2e] overflow-hidden cursor-pointer hover:border-[#2962ff] transition-colors"
+                onClick={handleExpertClick}
+            >
                <img src={signal.expert.avatar} alt={signal.expert.name} className="w-full h-full object-cover" />
             </div>
             <div>
-               <div className="flex items-center gap-1.5">
-                   <h3 className="font-bold text-base text-white">{signal.expert.name}</h3>
+               <div 
+                    className="flex items-center gap-1.5 cursor-pointer hover:opacity-80"
+                    onClick={handleExpertClick}
+               >
+                   <h3 className="font-bold text-base text-white hover:text-[#2962ff] transition-colors">{signal.expert.name}</h3>
                    {signal.expert.isVerified && <BadgeCheck size={16} className="text-[#2962ff] fill-white" />}
                </div>
                <div className="flex items-center gap-2 text-xs text-gray-400">
@@ -230,7 +245,7 @@ export const SignalDetailModal: React.FC<SignalDetailModalProps> = ({ signal, on
                        </h4>
                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                            {relatedSignals.map((item) => (
-                               <SignalCard key={item.id} signal={item} />
+                               <SignalCard key={item.id} signal={item} onExpertClick={onOpenProfile} />
                            ))}
                        </div>
                    </div>

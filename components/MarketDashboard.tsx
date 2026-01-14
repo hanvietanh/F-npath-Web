@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { 
   Activity,
@@ -21,8 +22,13 @@ import {
   MiniStockRow 
 } from './MarketCommon';
 import { NEWS_POSTS, INTELLIGENCE_POSTS } from './mockData';
+import { ExpertProfile } from './opportunities/constants';
 
-export const MarketDashboard = () => {
+interface MarketDashboardProps {
+    onOpenProfile?: (expert: ExpertProfile) => void;
+}
+
+export const MarketDashboard: React.FC<MarketDashboardProps> = ({ onOpenProfile }) => {
   const [activeDashboardTab, setActiveDashboardTab] = useState<'market' | 'top_stocks' | 'industry' | 'derivatives'>('market');
   const [selectedIndex, setSelectedIndex] = useState('VN30');
   const [viewMode, setViewMode] = useState<'heatmap' | 'impact'>('heatmap');
@@ -244,7 +250,7 @@ export const MarketDashboard = () => {
           
           <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
                {currentPosts.map((post: any) => (
-                   <PostCard key={post.id} post={post} />
+                   <PostCard key={post.id} post={post} onOpenProfile={onOpenProfile} />
                ))}
                
                {currentPosts.length === 0 && (

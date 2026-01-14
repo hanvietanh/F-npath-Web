@@ -3,6 +3,7 @@ import React from 'react';
 import { Zap, Eye, UserPlus, ArrowUpRight, Flame } from 'lucide-react';
 import { PostCard } from './PostCard';
 import { INTELLIGENCE_POSTS } from './mockData';
+import { ExpertProfile } from './opportunities/constants';
 
 const SidebarWidget = ({ title, children }: { title: string, children?: React.ReactNode }) => (
     <div className="bg-[#111] rounded-lg border border-[#2a2e39] overflow-hidden mb-4">
@@ -15,7 +16,11 @@ const SidebarWidget = ({ title, children }: { title: string, children?: React.Re
     </div>
 );
 
-export const NewsFeed = () => {
+interface NewsFeedProps {
+    onOpenProfile?: (expert: ExpertProfile) => void;
+}
+
+export const NewsFeed: React.FC<NewsFeedProps> = ({ onOpenProfile }) => {
   // Filter out the 'hot_event' type from standard mapping if we render it manually
   const posts = INTELLIGENCE_POSTS.filter(p => p.type !== 'hot_event');
   const hotEvent = INTELLIGENCE_POSTS.find(p => p.type === 'hot_event');
@@ -48,7 +53,7 @@ export const NewsFeed = () => {
             {/* Posts */}
             <div className="space-y-4">
                 {posts.map(post => (
-                    <PostCard key={post.id} post={post} />
+                    <PostCard key={post.id} post={post} onOpenProfile={onOpenProfile} />
                 ))}
             </div>
             
@@ -120,7 +125,16 @@ export const NewsFeed = () => {
                          { name: "Lý Phạm Stock", role: "Phân tích cơ bản", avatar: "https://i.pravatar.cc/150?u=lypham" },
                          { name: "Team TVI", role: "Tư vấn đầu tư", avatar: "https://i.pravatar.cc/150?u=tvi" },
                      ].map((expert, i) => (
-                         <div key={i} className="flex items-center justify-between group cursor-pointer">
+                         <div 
+                            key={i} 
+                            className="flex items-center justify-between group cursor-pointer"
+                            onClick={() => onOpenProfile && onOpenProfile({
+                                name: expert.name,
+                                avatar: expert.avatar,
+                                role: expert.role,
+                                isVerified: true
+                            })}
+                         >
                              <div className="flex items-center gap-3">
                                  <div className="w-8 h-8 rounded-full border border-[#2c2c2e] overflow-hidden">
                                     <img src={expert.avatar} alt={expert.name} className="w-full h-full object-cover" />

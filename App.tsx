@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+
+import React, { Component, useState, useEffect, useRef, ReactNode } from 'react';
 import { 
   Menu, Search, Bell, Settings, Newspaper, BrainCircuit,
   MessageSquare, Sparkles, ChevronDown, Users, Zap, LogOut,
@@ -12,17 +13,32 @@ import { MarketDashboard } from './components/MarketDashboard';
 import { NewsFeed } from './components/NewsFeed';
 import { PriceBoard } from './components/watchlist/PriceBoard';
 import { InvestmentOpportunities } from './components/InvestmentOpportunities';
+import { AiBotSignals } from './components/AiBotSignals'; 
+import { CommunityPage } from './components/CommunityPage'; // Import new component
 import { PanelMode, TabId, ToolId } from './types';
+import { ExpertProfileModal } from './components/opportunities/ExpertProfileModal';
+import { ExpertProfile } from './components/opportunities/constants';
+
+interface ErrorBoundaryProps {
+  children?: ReactNode;
+}
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+}
 
 // Component bắt lỗi: Giúp hiện lỗi ra màn hình thay vì trắng xoá
-class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean, error: Error | null }> {
-  constructor(props: any) {
+class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false, error: null };
   }
-  static getDerivedStateFromError(error: Error) {
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
     return { hasError: true, error };
   }
+  
   render() {
     if (this.state.hasError) {
       return (
@@ -53,6 +69,9 @@ function MainApp() {
   
   // Lifted state for ChartLayout trade mode
   const [tradeMode, setTradeMode] = useState(false);
+
+  // Global Expert Profile State
+  const [selectedExpert, setSelectedExpert] = useState<ExpertProfile | null>(null);
   
   const navRef = useRef<HTMLDivElement>(null);
 
@@ -120,9 +139,8 @@ function MainApp() {
             setActiveTab('opportunities');
             break;
         case 'aibot':
-            setActiveTool('ask-ai');
-            setPanelMode('floating');
-            setAiNotificationCount(0);
+            // Changed from opening tool to opening main tab
+            setActiveTab('ai_bot_signals');
             break;
         case 'filter':
             setActiveTab('watchlist');
@@ -194,12 +212,12 @@ function MainApp() {
               onClick={() => setOpenDropdown(openDropdown === 'watchlist' ? null : 'watchlist')}
               className={`
                 h-full px-4 flex items-center gap-1 text-[13px] font-bold transition-all relative
-                ${openDropdown === 'watchlist' || activeTab === 'watchlist' || activeTab === 'opportunities' ? 'text-white' : 'text-gray-500 hover:text-gray-300'}
+                ${openDropdown === 'watchlist' || activeTab === 'watchlist' || activeTab === 'opportunities' || activeTab === 'ai_bot_signals' ? 'text-white' : 'text-gray-500 hover:text-gray-300'}
               `}
             >
               Bảng giá & ý tưởng
               <ChevronDown size={14} className={`transition-transform duration-200 ${openDropdown === 'watchlist' ? 'rotate-180' : ''}`} />
-              {(activeTab === 'watchlist' || activeTab === 'opportunities') && <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-[3px] bg-[#2962ff] rounded-t-full shadow-[0_0_10px_#2962ff]" />}
+              {(activeTab === 'watchlist' || activeTab === 'opportunities' || activeTab === 'ai_bot_signals') && <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-[3px] bg-[#2962ff] rounded-t-full shadow-[0_0_10px_#2962ff]" />}
             </button>
             {openDropdown === 'watchlist' && (
                <div className="absolute top-full left-0 mt-1 w-48 bg-[#1c1c1e] border border-[#2c2c2e] rounded-lg shadow-xl py-1 z-50 animate-in fade-in zoom-in-95 duration-100">
@@ -357,6 +375,14 @@ function MainApp() {
     <div className="h-screen max-h-screen flex flex-col bg-[#000000] text-white overflow-hidden font-sans">
       <Header />
 
+      {/* Global Expert Profile Modal */}
+      {selectedExpert && (
+          <ExpertProfileModal 
+              expert={selectedExpert} 
+              onClose={() => setSelectedExpert(null)} 
+          />
+      )}
+
       <div className="flex-1 flex relative overflow-hidden h-full">
         {/* MAIN STAGE */}
         <main 
@@ -374,15 +400,11 @@ function MainApp() {
                 />
               )}
               {activeTab === 'watchlist' && <PriceBoard />}
-              {activeTab === 'market' && <MarketDashboard />}
-              {activeTab === 'news_feed' && <NewsFeed />}
-              {activeTab === 'opportunities' && <InvestmentOpportunities />}
-              {activeTab === 'community' && (
-                <div className="flex items-center justify-center h-full text-gray-500 flex-col gap-4">
-                  <Users size={48} className="opacity-50" />
-                  <p>Community features are under development.</p>
-                </div>
-              )}
+              {activeTab === 'market' && <MarketDashboard onOpenProfile={setSelectedExpert} />}
+              {activeTab === 'news_feed' && <NewsFeed onOpenProfile={setSelectedExpert} />}
+              {activeTab === 'opportunities' && <InvestmentOpportunities onOpenProfile={setSelectedExpert} />}
+              {activeTab === 'ai_bot_signals' && <AiBotSignals />}
+              {activeTab === 'community' && <CommunityPage />}
            </div>
         </main>
 
