@@ -254,14 +254,15 @@ export const historicalPriceData = [
   { id: 22, date: '15/12/2025', change: -1.10, changePercent: -0.76, open: 143.80, high: 147.00, low: 140.00, close: 142.90, avg: 142.50, adjClose: 142.90, putThroughVol: 5000000, matchedVol: 5214800, totalVol: 10214800, rsi1m: 94, rsi3m: 99, rsi6m: 99, rsi52w: 99 },
 ];
 
-// --- New Detailed Financial Report Data ---
-export const detailedReportData = {
-  periods: [
+export const commonPeriods = [
     'Q2/2022', 'Q3/2022', 'Q4/2022', 
     'Q1/2023', 'Q2/2023', 'Q3/2023', 'Q4/2023', 
     'Q1/2024', 'Q2/2024', 'Q3/2024', 'Q4/2024', 
     'Q1/2025', 'Q2/2025', 'Q3/2025'
-  ],
+];
+
+export const detailedReportData = {
+  periods: commonPeriods,
   groups: [
     {
       title: 'ĐỊNH GIÁ & SINH LỜI',
@@ -295,6 +296,42 @@ export const detailedReportData = {
       rows: [
         { name: 'Tỷ lệ nợ xấu', values: [0.6, 0.6, 0.9, 0.8, 1.0, 1.4, 1.2, 1.1, 1.2, 1.4, 1.3, 1.2, 1.2, 1.1], unit: '%' },
         { name: 'Bao phủ nợ xấu', values: [171.6, 162.1, 134.3, 133.8, 115.8, 87.3, 102.1, 105.9, 101.0, 87.3, 85.0, 95.0, 98.0, 102.5], unit: '%' },
+      ]
+    }
+  ]
+};
+
+export const detailedIncomeData = {
+  periods: commonPeriods,
+  groups: [
+    {
+      title: 'KẾT QUẢ KINH DOANH (Tỷ VNĐ)',
+      rows: [
+        { name: 'Doanh thu thuần', values: [15432, 16120, 17500, 16800, 17200, 18500, 19200, 18900, 19500, 20100, 21500, 20800, 21200, 22500] },
+        { name: 'Giá vốn hàng bán', values: [12500, 13200, 14000, 13500, 13800, 14500, 15000, 14800, 15200, 15800, 16500, 16000, 16200, 17000] },
+        { name: 'Lợi nhuận gộp', values: [2932, 2920, 3500, 3300, 3400, 4000, 4200, 4100, 4300, 4300, 5000, 4800, 5000, 5500] },
+        { name: 'Chi phí tài chính', values: [500, 550, 600, 580, 590, 620, 650, 630, 640, 660, 700, 680, 690, 720] },
+        { name: 'Chi phí bán hàng', values: [800, 850, 900, 880, 890, 950, 980, 960, 990, 1050, 1100, 1080, 1120, 1150] },
+        { name: 'Chi phí QLDN', values: [400, 420, 450, 440, 460, 480, 500, 490, 510, 530, 550, 540, 560, 580] },
+        { name: 'Lợi nhuận thuần', values: [1232, 1100, 1550, 1400, 1460, 1950, 2070, 2020, 2160, 2060, 2650, 2500, 2630, 3050] },
+        { name: 'LNST', values: [985, 880, 1240, 1120, 1168, 1560, 1656, 1616, 1728, 1648, 2120, 2000, 2104, 2440] },
+      ]
+    }
+  ]
+};
+
+export const detailedCashFlowData = {
+  periods: commonPeriods,
+  groups: [
+    {
+      title: 'LƯU CHUYỂN TIỀN TỆ (Tỷ VNĐ)',
+      rows: [
+        { name: 'LCTT từ HĐKD', values: [2500, 1800, 3200, -500, 1200, 4500, 3800, 2100, 1500, 4200, 5100, 3000, 2800, 4600] },
+        { name: 'LCTT từ HĐĐT', values: [-1200, -800, -1500, -2000, -1800, -1200, -3000, -2500, -1500, -2200, -1800, -1600, -1400, -2000] },
+        { name: 'LCTT từ HĐTC', values: [-500, -200, -1000, 3000, 800, -2000, -500, -800, 200, -1500, -2500, -1000, -800, -1800] },
+        { name: 'Lưu chuyển tiền thuần', values: [800, 800, 700, 500, 200, 1300, 300, -1200, 200, 500, 800, 400, 600, 800] },
+        { name: 'Tiền đầu kỳ', values: [5000, 5800, 6600, 7300, 7800, 8000, 9300, 9600, 8400, 8600, 9100, 9900, 10300, 10900] },
+        { name: 'Tiền cuối kỳ', values: [5800, 6600, 7300, 7800, 8000, 9300, 9600, 8400, 8600, 9100, 9900, 10300, 10900, 11700] },
       ]
     }
   ]

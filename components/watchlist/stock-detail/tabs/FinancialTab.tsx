@@ -13,12 +13,13 @@ interface FinancialTabProps {
 export const FinancialTab: React.FC<FinancialTabProps> = ({ symbol, onAskCopilot }) => {
   const [financeView, setFinanceView] = useState<'quarter' | 'year'>('quarter');
   const [viewMode, setViewMode] = useState<'dashboard' | 'report'>('dashboard');
+  const [reportType, setReportType] = useState<'balance' | 'income' | 'cashflow'>('balance');
 
   return (
     <div className="h-full w-full bg-[#0b0e11] flex flex-col overflow-hidden">
         {/* Main View Switcher Toolbar */}
         <div className="flex justify-between items-center px-4 py-3 border-b border-gray-800 shrink-0 bg-[#0b0e11]">
-            <div className="flex gap-6">
+            <div className="flex gap-6 items-center">
                 <button 
                     onClick={() => setViewMode('dashboard')}
                     className={`text-xs font-bold uppercase transition-colors relative pb-1 ${viewMode === 'dashboard' ? 'text-blue-400' : 'text-gray-500 hover:text-white'}`}
@@ -34,6 +35,30 @@ export const FinancialTab: React.FC<FinancialTabProps> = ({ symbol, onAskCopilot
                     Báo cáo tài chính
                     {viewMode === 'report' && <div className="absolute bottom-[-13px] left-0 w-full h-[2px] bg-blue-500"></div>}
                 </button>
+
+                {/* Report Type Sub-tabs (Only visible in Report Mode) */}
+                {viewMode === 'report' && (
+                    <div className="flex bg-[#1e2329] rounded-lg p-1 ml-4 border border-[#2c2c2e]">
+                        <button 
+                            onClick={() => setReportType('balance')}
+                            className={`px-3 py-1 text-[10px] font-bold rounded-md transition-all ${reportType === 'balance' ? 'bg-[#2962ff] text-white shadow-md' : 'text-gray-400 hover:text-white'}`}
+                        >
+                            Cân đối kế toán
+                        </button>
+                        <button 
+                            onClick={() => setReportType('income')}
+                            className={`px-3 py-1 text-[10px] font-bold rounded-md transition-all ${reportType === 'income' ? 'bg-[#2962ff] text-white shadow-md' : 'text-gray-400 hover:text-white'}`}
+                        >
+                            Kết quả kinh doanh
+                        </button>
+                        <button 
+                            onClick={() => setReportType('cashflow')}
+                            className={`px-3 py-1 text-[10px] font-bold rounded-md transition-all ${reportType === 'cashflow' ? 'bg-[#2962ff] text-white shadow-md' : 'text-gray-400 hover:text-white'}`}
+                        >
+                            Lưu chuyển tiền tệ
+                        </button>
+                    </div>
+                )}
             </div>
 
             {/* Common Actions */}
@@ -179,7 +204,7 @@ export const FinancialTab: React.FC<FinancialTabProps> = ({ symbol, onAskCopilot
 
             {/* VIEW 2: DETAILED REPORT (New) */}
             {viewMode === 'report' && (
-                <DetailedFinancialTable />
+                <DetailedFinancialTable reportType={reportType} />
             )}
 
         </div>

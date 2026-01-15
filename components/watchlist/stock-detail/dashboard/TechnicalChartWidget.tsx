@@ -10,6 +10,15 @@ import { generateChartData } from '../stockDetailConstants';
 export const TechnicalChartWidget: React.FC<{ symbol: string }> = ({ symbol }) => {
   const chartData = generateChartData();
 
+  const stats = [
+    { label: '7 Ngày', val: '-0,4%', color: 'text-[#f23645]' },
+    { label: '1 Tháng', val: '+91,4%', color: 'text-[#00c853]' },
+    { label: '3 Tháng', val: '+122,1%', color: 'text-[#00c853]' },
+    { label: '1 Năm', val: '+100,9%', color: 'text-[#00c853]' },
+    { label: '5 Năm', val: '-52,4%', color: 'text-[#f23645]' },
+    { label: 'Tất cả', val: '+2,845%', color: 'text-[#00c853]' },
+  ];
+
   return (
     <section className="w-[53%] flex flex-col bg-[#0b0e11]">
         <div className="h-10 border-b border-gray-800 flex items-center px-4 gap-4 bg-[#101317]">
@@ -24,7 +33,8 @@ export const TechnicalChartWidget: React.FC<{ symbol: string }> = ({ symbol }) =
             <button className="hover:text-blue-400">So sánh</button>
             </div>
         </div>
-        <div className="flex-1 relative p-1 flex flex-col">
+        
+        <div className="flex-1 relative p-1 flex flex-col min-h-0">
             <div className="absolute top-2 left-4 z-10 flex gap-4 text-[10px] font-mono pointer-events-none">
             <span className="text-emerald-400">{symbol}: 28.50</span><span className="text-yellow-500">MA20: 28.30</span><span className="text-purple-400">MA50: 28.00</span><span className="text-gray-500">Vol: 35M</span>
             </div>
@@ -72,6 +82,16 @@ export const TechnicalChartWidget: React.FC<{ symbol: string }> = ({ symbol }) =
                 </ComposedChart>
             </ResponsiveContainer>
             </div>
+        </div>
+
+        {/* Footer Stats Row */}
+        <div className="grid grid-cols-6 border-t border-gray-800 bg-[#0b0e11] py-3 shrink-0">
+            {stats.map((s, i) => (
+                <div key={i} className={`flex flex-col items-center justify-center border-r border-gray-800 last:border-0 gap-1`}>
+                    <span className="text-[10px] text-gray-500 font-medium">{s.label}</span>
+                    <span className={`text-[12px] font-bold tracking-tight ${s.color}`}>{s.val}</span>
+                </div>
+            ))}
         </div>
     </section>
   );

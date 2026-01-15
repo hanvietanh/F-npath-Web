@@ -1,20 +1,38 @@
 
 import React, { useRef, useState, useEffect } from 'react';
 import { ArrowLeft, ChevronRight, ChevronLeft } from 'lucide-react';
-import { detailedReportData } from '../stockDetailConstants';
+import { detailedReportData, detailedIncomeData, detailedCashFlowData } from '../stockDetailConstants';
 
-export const DetailedFinancialTable: React.FC = () => {
+interface DetailedFinancialTableProps {
+    reportType?: 'balance' | 'income' | 'cashflow';
+}
+
+export const DetailedFinancialTable: React.FC<DetailedFinancialTableProps> = ({ reportType = 'balance' }) => {
   // Sync scrolling logic
   const leftColRef = useRef<HTMLDivElement>(null);
   const rightScrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
 
+  const activeData = (reportType === 'income' 
+    ? detailedIncomeData 
+    : reportType === 'cashflow' 
+        ? detailedCashFlowData 
+        : detailedReportData) as {
+            periods: string[];
+            groups: {
+                title: string;
+                rows: {
+                    name: string;
+                    values: number[];
+                    unit?: string;
+                }[];
+            }[];
+        };
+
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const target = e.currentTarget;
     const { scrollLeft, scrollWidth, clientWidth } = target;
-    
-    // Sync left column vertical scroll if needed (not needed here as sticky handles it, but good for dual grids)
     
     // Check scroll buttons
     setCanScrollLeft(scrollLeft > 0);
@@ -29,7 +47,7 @@ export const DetailedFinancialTable: React.FC = () => {
 
   return (
     <div className="flex flex-col h-full bg-[#0b0e11] text-xs font-sans relative select-none">
-        {/* Navigation / Scroller Indicators (Optional, mostly for mobile but nice on desktop) */}
+        {/* Navigation / Scroller Indicators */}
         {canScrollLeft && (
             <div className="absolute left-[200px] top-1/2 -translate-y-1/2 z-20 bg-black/50 p-2 rounded-full cursor-pointer hover:bg-black" onClick={() => scrollBy(-200)}>
                 <ChevronLeft size={20} className="text-white"/>
@@ -48,8 +66,8 @@ export const DetailedFinancialTable: React.FC = () => {
                 <div className="h-[40px] border-b border-gray-800 bg-[#151a21]"></div>
                 
                 {/* Rows */}
-                <div className="flex-1 overflow-hidden" ref={leftColRef}> {/* Hidden scroll, synced manually if needed or just aligned by flex */}
-                    {detailedReportData.groups.map((group, gIdx) => (
+                <div className="flex-1 overflow-hidden" ref={leftColRef}>
+                    {activeData.groups.map((group, gIdx) => (
                         <div key={gIdx}>
                             <div className="px-4 py-3 font-bold text-blue-400 text-[11px] uppercase tracking-wider bg-[#0b0e11] border-b border-gray-800/50">
                                 {group.title}
@@ -73,7 +91,7 @@ export const DetailedFinancialTable: React.FC = () => {
                 <div className="min-w-max">
                     {/* Header Row */}
                     <div className="flex border-b border-gray-800 bg-[#151a21] sticky top-0 z-10">
-                        {detailedReportData.periods.map((period, idx) => (
+                        {activeData.periods.map((period, idx) => (
                             <div key={idx} className="w-[100px] py-3 text-center text-gray-400 font-bold shrink-0 border-r border-gray-800/50 last:border-0">
                                 {period}
                             </div>
@@ -83,7 +101,7 @@ export const DetailedFinancialTable: React.FC = () => {
 
                     {/* Data Rows */}
                     <div>
-                        {detailedReportData.groups.map((group, gIdx) => (
+                        {activeData.groups.map((group, gIdx) => (
                             <div key={gIdx}>
                                 {/* Spacer for Group Title Row */}
                                 <div className="py-3 bg-[#0b0e11] border-b border-gray-800/50 opacity-50">
@@ -94,7 +112,7 @@ export const DetailedFinancialTable: React.FC = () => {
                                         {row.values.map((val, vIdx) => {
                                             // Conditional Formatting
                                             let colorClass = 'text-white';
-                                            if (row.name.includes('Tăng trưởng') || row.name.includes('LNST')) {
+                                            if (row.name.includes('Tăng trưởng') || row.name.includes('LNST') || row.name.includes('Lợi nhuận')) {
                                                 if (val > 20) colorClass = 'text-emerald-400 font-bold';
                                                 else if (val < 0) colorClass = 'text-red-400';
                                                 else if (val === 0) colorClass = 'text-yellow-500';

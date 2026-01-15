@@ -4,29 +4,48 @@ import { Search, Calendar } from 'lucide-react';
 import { historicalPriceData } from '../stockDetailConstants';
 
 export const HistoricalPriceTab: React.FC = () => {
+  const stats = [
+    { label: '7 Ngày', val: '-0,4%', color: 'text-[#f23645]' },
+    { label: '1 Tháng', val: '+91,4%', color: 'text-[#00c853]' },
+    { label: '3 Tháng', val: '+122,1%', color: 'text-[#00c853]' },
+    { label: '1 Năm', val: '+100,9%', color: 'text-[#00c853]' },
+    { label: '5 Năm', val: '-52,4%', color: 'text-[#f23645]' },
+    { label: 'Tất cả', val: '+2,845%', color: 'text-[#00c853]' },
+  ];
+
   return (
     <div className="flex flex-col h-full w-full bg-[#0b0e11] font-sans">
         
-        {/* Toolbar */}
-        <div className="flex items-center justify-end px-4 py-3 border-b border-[#2c2c2e] shrink-0 gap-3 bg-[#13171b]">
-            <div className="flex items-center gap-2">
-                <span className="text-xs text-gray-400">Từ ngày</span>
-                <div className="flex items-center bg-[#1c1c1e] border border-[#2c2c2e] rounded px-3 py-1.5 gap-2">
-                    <span className="text-xs text-white font-medium">15/12/2025</span>
-                    <Calendar size={14} className="text-gray-500" />
-                </div>
+        {/* Compact Toolbar with Stats & Date Filters */}
+        <div className="flex items-center justify-between px-4 py-2 border-b border-[#2c2c2e] shrink-0 bg-[#13171b]">
+            
+            {/* Left: Stats Cluster */}
+            <div className="flex items-center gap-6 overflow-x-auto no-scrollbar">
+                {stats.map((s, i) => (
+                    <div key={i} className="flex flex-col items-center justify-center min-w-fit">
+                        <span className="text-[10px] text-gray-500 font-medium whitespace-nowrap mb-0.5">{s.label}</span>
+                        <span className={`text-[13px] font-bold tracking-tight leading-none ${s.color}`}>{s.val}</span>
+                    </div>
+                ))}
             </div>
-            <div className="flex items-center gap-2">
-                <span className="text-xs text-gray-400">Đến ngày</span>
-                <div className="flex items-center bg-[#1c1c1e] border border-[#2c2c2e] rounded px-3 py-1.5 gap-2">
-                    <span className="text-xs text-white font-medium">15/01/2026</span>
-                    <Calendar size={14} className="text-gray-500" />
+
+            {/* Right: Date Controls */}
+            <div className="flex items-center gap-3 pl-4 border-l border-[#2c2c2e] ml-4 shrink-0">
+                <div className="flex items-center gap-2">
+                    <div className="flex items-center bg-[#1c1c1e] border border-[#2c2c2e] rounded px-2 py-1 gap-2 hover:border-[#2962ff] transition-colors cursor-pointer group">
+                        <span className="text-[11px] text-gray-300 group-hover:text-white transition-colors">15/12/25</span>
+                        <Calendar size={12} className="text-gray-500 group-hover:text-[#2962ff] transition-colors" />
+                    </div>
+                    <span className="text-gray-600">-</span>
+                    <div className="flex items-center bg-[#1c1c1e] border border-[#2c2c2e] rounded px-2 py-1 gap-2 hover:border-[#2962ff] transition-colors cursor-pointer group">
+                        <span className="text-[11px] text-gray-300 group-hover:text-white transition-colors">15/01/26</span>
+                        <Calendar size={12} className="text-gray-500 group-hover:text-[#2962ff] transition-colors" />
+                    </div>
                 </div>
+                <button className="flex items-center justify-center w-7 h-7 bg-[#2962ff] hover:bg-[#1e4bd8] text-white rounded transition-all shadow-lg shadow-blue-900/20">
+                    <Search size={14} />
+                </button>
             </div>
-            <button className="flex items-center gap-1.5 bg-[#1e2530] hover:bg-[#2a3441] border border-gray-700 hover:border-gray-500 text-gray-300 hover:text-white rounded px-4 py-1.5 text-xs font-bold transition-all">
-                <Search size={14} />
-                Tìm kiếm
-            </button>
         </div>
 
         {/* Table Container */}
