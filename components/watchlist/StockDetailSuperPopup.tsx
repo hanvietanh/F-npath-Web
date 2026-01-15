@@ -16,7 +16,7 @@ const StockDetailSuperPopupComponent: React.FC<StockDetailSuperPopupProps> = ({
   symbol,
   onClose,
 }) => {
-  const [activeTab, setActiveTab] = useState('DASHBOARD');
+  const [activeTab, setActiveTab] = useState('TỔNG QUAN');
   
   // Copilot State
   const [copilotOpen, setCopilotOpen] = useState(false);
@@ -44,7 +44,7 @@ const StockDetailSuperPopupComponent: React.FC<StockDetailSuperPopupProps> = ({
 
         {/* --- TAB NAVIGATION --- */}
         <nav className="bg-[#151a21] border-b border-gray-800 px-4 flex gap-1 shrink-0">
-          {['DASHBOARD', 'TÀI CHÍNH', 'TIN TỨC', 'CỘ ĐÔNG & CỔ TỨC', 'BIỂU ĐỒ KỸ THUẬT'].map((tab) => (
+          {['TỔNG QUAN', 'TÀI CHÍNH', 'PHÂN TÍCH', 'CỔ ĐÔNG', 'GIÁ QUÁ KHỨ'].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -63,7 +63,7 @@ const StockDetailSuperPopupComponent: React.FC<StockDetailSuperPopupProps> = ({
         <main className="flex-1 overflow-hidden relative flex">
           
           <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative transition-all duration-300">
-              {activeTab === 'DASHBOARD' && (
+              {activeTab === 'TỔNG QUAN' && (
                 <DashboardTab symbol={symbol} onAskCopilot={handleAskCopilot} />
               )}
 
@@ -71,11 +71,11 @@ const StockDetailSuperPopupComponent: React.FC<StockDetailSuperPopupProps> = ({
                 <FinancialTab symbol={symbol} onAskCopilot={handleAskCopilot} />
               )}
 
-              {activeTab === 'TIN TỨC' && (
+              {activeTab === 'PHÂN TÍCH' && (
                 <NewsTab onAskCopilot={handleAskCopilot} />
               )}
 
-              {activeTab === 'CỘ ĐÔNG & CỔ TỨC' && (
+              {activeTab === 'CỔ ĐÔNG' && (
                 <ShareholdersTab symbol={symbol} onAskCopilot={handleAskCopilot} />
               )}
           </div>

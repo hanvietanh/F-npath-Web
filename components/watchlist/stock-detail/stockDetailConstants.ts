@@ -102,33 +102,6 @@ export const financialDataV2: FinancialData = {
   ],
 };
 
-export const newsData = [
-  {
-    id: 1,
-    time: '10:30 AM',
-    date: '14/01',
-    source: 'CafeF',
-    type: 'press',
-    title: 'HPG báo lãi quý 3 đạt 3.500 tỷ, cao nhất trong 2 năm qua',
-    summary: 'Tập đoàn Hòa Phát (HPG) vừa công bố kết quả kinh doanh quý 3/2024 với doanh thu đạt 35.000 tỷ đồng, lợi nhuận sau thuế đạt 3.500 tỷ đồng, tăng trưởng 25% so với cùng kỳ.',
-    content: `...`,
-    image: true,
-    isHot: false
-  },
-  {
-    id: 2,
-    time: '09:15 AM',
-    date: '14/01',
-    source: 'HSX',
-    type: 'official',
-    title: 'CBTT: Nghị quyết HĐQT về việc trả cổ tức bằng tiền mặt tỷ lệ 10%',
-    summary: 'Hội đồng quản trị Công ty CP Tập đoàn Hòa Phát thông qua Nghị quyết chốt danh sách cổ đông để chi trả cổ tức bằng tiền mặt năm 2023.',
-    content: `...`,
-    isHot: true,
-    image: false
-  },
-];
-
 export const companyProfileData = {
   introduction: "Tổng Công ty Điện lực Dầu khí Việt Nam (POW) được thành lập vào năm 2007 theo Quyết định 1468/QĐ-DKVN của Hội đồng quản trị Tập đoàn Dầu khí Quốc gia Việt Nam. Tổng Công ty hoạt động chính trong lĩnh vực sản xuất, truyền tải, kinh doanh, xuất nhập khẩu điện năng. Tổng Công ty chính thức hoạt động theo mô hình công ty cổ phần từ tháng 07/2018. PV Power đang quản lý vận hành 7 Nhà máy điện với tổng công suất lắp đặt là 4205 MW, gồm điện khí, than và thủy điện. Hàng năm PV Power cung cấp khoảng 21 tỷ kWh điện lên lưới điện quốc gia.",
   basicInfo: [
@@ -187,3 +160,73 @@ export const shareholderData = {
     { year: '2020', type: 'Tiền mặt', ratio: '5%', exDate: '15/05/2021' },
   ]
 };
+
+// --- FEED DATA FOR ANALYSIS TAB ---
+
+export const stockAnalysisFeed = [
+  {
+    id: 1,
+    type: 'post',
+    author: {
+      name: 'Dương Văn Duy',
+      avatar: 'https://i.pravatar.cc/150?u=duy',
+      verified: true,
+      role: 'Chuyên gia nổi bật',
+      isFollowing: false
+    },
+    time: '1 giờ trước',
+    title: 'HPG tăng trần 3 phiên liên tiếp, động lực tăng trưởng là gì?',
+    content: 'Giấc mơ nâng hạng đã chính thức trở thành hiện thực, Việt Nam sẽ thoát bỏ chiếc áo chật chội và bước vào sân chơi lớn hơn. Dòng tiền ngoại đang quay trở lại mạnh mẽ...',
+    stats: { likes: 112, comments: 26, shares: 12 }
+  },
+  {
+    id: 2,
+    type: 'signal',
+    author: {
+      name: 'Dương Văn Duy',
+      avatar: 'https://i.pravatar.cc/150?u=duy',
+      verified: true,
+      role: 'Chuyên gia nổi bật',
+      isFollowing: false
+    },
+    time: '1 giờ trước',
+    signal: {
+      action: 'Mua',
+      symbol: 'HPG',
+      price: 28.50,
+      profit: 17.68,
+      duration: '45 ngày'
+    },
+    stats: { likes: 85, comments: 14, shares: 5 }
+  },
+  {
+    id: 3,
+    type: 'post',
+    author: {
+      name: 'Lý Phạm',
+      avatar: 'https://i.pravatar.cc/150?u=lypham',
+      verified: true,
+      role: null,
+      isFollowing: false
+    },
+    time: '1 giờ trước',
+    title: '5 lí do bạn nên mua HPG ở giá này',
+    content: 'Ngành thép đang phục hồi mạnh mẽ từ đáy. HPG với lợi thế quy mô và chuỗi giá trị khép kín sẽ là doanh nghiệp hưởng lợi đầu tiên khi cầu xây dựng tăng trở lại...',
+    stats: { likes: 112, comments: 26, shares: 12 }
+  },
+  {
+    id: 4,
+    type: 'post',
+    author: {
+      name: 'Dương Văn Duy',
+      avatar: 'https://i.pravatar.cc/150?u=duy',
+      verified: true,
+      role: 'Chuyên gia nổi bật',
+      isFollowing: false
+    },
+    time: '2 giờ trước',
+    title: 'Cập nhật nhanh phiên sáng: HPG tiếp tục dẫn sóng',
+    content: 'Thanh khoản bùng nổ ngay từ ATO cho thấy dòng tiền lớn đang quyết liệt gom hàng. Kháng cự 28.0 đã bị phá vỡ...',
+    stats: { likes: 45, comments: 8, shares: 2 }
+  }
+];

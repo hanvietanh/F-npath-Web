@@ -1,60 +1,135 @@
 
 import React, { useState } from 'react';
-import { Clock, Sparkles, FileText, Globe } from 'lucide-react';
-import { newsData } from '../stockDetailConstants';
+import { BadgeCheck, Heart, MessageCircle, Share2, MoreHorizontal, Bookmark, ChevronRight } from 'lucide-react';
+import { stockAnalysisFeed } from '../stockDetailConstants';
 
 interface NewsTabProps {
     onAskCopilot: (type: string | null, query?: string) => void;
 }
 
 export const NewsTab: React.FC<NewsTabProps> = ({ onAskCopilot }) => {
-  const [newsFilter, setNewsFilter] = useState('all');
-  const [selectedNews, setSelectedNews] = useState(newsData[0]);
+  const [activeTab, setActiveTab] = useState<'Nổi bật' | 'Mới nhất' | 'Cơ hội đầu tư'>('Nổi bật');
 
-  const filteredNews = newsData.filter(item => {
-    if (newsFilter === 'all') return true;
-    return item.type === newsFilter;
+  // Filter logic (mock)
+  const feedItems = stockAnalysisFeed.filter(item => {
+      if (activeTab === 'Cơ hội đầu tư') return item.type === 'signal';
+      return true; // Show all for other tabs for now (or sort differently)
   });
 
   return (
-    <div className="flex h-full w-full bg-[#0b0e11]">
-        <div className="w-[40%] border-r border-gray-800 flex flex-col min-w-[320px]">
-            <div className="p-2 border-b border-gray-800 flex gap-2 overflow-x-auto no-scrollbar bg-[#101317]">
-            {['all', 'official', 'press', 'rumor'].map(f => (
-                <button key={f} onClick={() => setNewsFilter(f)} className={`px-3 py-1.5 rounded text-[11px] font-medium whitespace-nowrap transition ${newsFilter === f ? 'bg-blue-600 text-white' : 'bg-[#1e2530] text-gray-400 hover:text-white hover:bg-[#2a3441]'}`}>{f === 'all' ? 'Tất cả' : f}</button>
+    <div className="flex flex-col h-full w-full bg-[#0b0e11]">
+        
+        {/* SUB-NAVIGATION TABS */}
+        <div className="flex items-center px-4 pt-2 border-b border-[#2c2c2e] shrink-0 bg-[#0b0e11]">
+            {['Nổi bật', 'Mới nhất', 'Cơ hội đầu tư'].map((tab) => (
+                <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab as any)}
+                    className={`
+                        px-4 py-3 text-xs font-bold border-b-2 transition-all relative uppercase tracking-wide
+                        ${activeTab === tab 
+                            ? 'text-white border-[#2962ff]' 
+                            : 'text-gray-500 border-transparent hover:text-gray-300 hover:border-[#2c2c2e]'}
+                    `}
+                >
+                    {tab}
+                </button>
             ))}
-            </div>
-            <div className="flex-1 overflow-y-auto custom-scrollbar">
-            {filteredNews.map((news) => (
-                <div key={news.id} onClick={() => setSelectedNews(news)} className={`p-3 border-b border-gray-800 cursor-pointer transition hover:bg-[#1e2530] group ${selectedNews?.id === news.id ? 'bg-[#1e2530] border-l-2 border-l-blue-500' : 'border-l-2 border-l-transparent'}`}>
-                <div className="flex justify-between items-center mb-1"><div className="flex items-center gap-2"><span className={`text-[10px] font-mono px-1.5 rounded ${news.type === 'official' ? 'bg-purple-900/40 text-purple-400 border border-purple-700/50' : news.type === 'rumor' ? 'bg-yellow-900/40 text-yellow-500 border border-yellow-700/50' : 'bg-blue-900/30 text-blue-400 border border-blue-800/50'}`}>{news.source}</span>{news.isHot && <span className="text-[10px] text-red-500 animate-pulse font-bold">LIVE 🔥</span>}</div><span className="text-[10px] text-gray-500">{news.time}</span></div>
-                <h4 className={`text-xs font-medium mb-1 line-clamp-2 ${selectedNews?.id === news.id ? 'text-white' : 'text-gray-300 group-hover:text-white'}`}>{news.title}</h4>
-                <p className="text-[10px] text-gray-500 line-clamp-2">{news.summary}</p>
-                </div>
-            ))}
-            </div>
         </div>
-        <div className="w-[60%] bg-[#0b0e11] flex flex-col">
-        {selectedNews ? (
-            <>
-            <div className="p-4 border-b border-gray-800 bg-[#101317]">
-                <div className="flex justify-between items-start mb-2">
-                    <span className="text-[10px] text-gray-500 flex items-center gap-1"><Clock size={12}/> {selectedNews.date} lúc {selectedNews.time}</span>
-                    <button 
-                        onClick={() => onAskCopilot('news_impact', '')}
-                        className="flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 rounded text-[10px] text-white shadow-lg border border-emerald-500/30 transition"
-                    >
-                        <Sparkles size={10}/> AI: Tóm tắt & Tác động
-                    </button>
-                </div>
-                <h2 className="text-lg font-bold text-white leading-snug">{selectedNews.title}</h2>
+
+        {/* FEED CONTENT */}
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-4">
+            <div className="max-w-3xl mx-auto space-y-4">
+                {feedItems.map((item) => (
+                    <div key={item.id} className="bg-[#13171b] border border-[#2c2c2e] rounded-xl p-4 hover:border-[#3a3a3c] transition-colors">
+                        
+                        {/* HEADER: Author Info */}
+                        <div className="flex justify-between items-start mb-3">
+                            <div className="flex gap-3">
+                                <div className="w-10 h-10 rounded-full border border-[#2c2c2e] overflow-hidden shrink-0">
+                                    <img src={item.author.avatar} alt={item.author.name} className="w-full h-full object-cover" />
+                                </div>
+                                <div>
+                                    <div className="flex items-center gap-1.5">
+                                        <h3 className="font-bold text-sm text-white hover:text-[#2962ff] cursor-pointer transition-colors">
+                                            {item.author.name}
+                                        </h3>
+                                        {item.author.verified && <BadgeCheck size={14} className="text-[#2962ff] fill-white shrink-0" />}
+                                        <button className="bg-[#2c2c2e] text-[#2962ff] text-[10px] font-bold px-2 py-0.5 rounded ml-2 hover:bg-[#3a3a3c] transition-colors">
+                                            Theo dõi
+                                        </button>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-[11px] text-gray-500 mt-0.5">
+                                        {item.author.role && <span className="text-[#f59e0b] font-medium">{item.author.role}</span>}
+                                        <span>•</span>
+                                        <span>{item.time}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <button className="text-gray-500 hover:text-white transition-colors">
+                                <MoreHorizontal size={18} />
+                            </button>
+                        </div>
+
+                        {/* CONTENT: Signal or Post */}
+                        <div className="mb-3">
+                            {item.type === 'signal' && item.signal ? (
+                                <div className="mb-3">
+                                    <div className="text-[13px] text-white font-medium mb-2">
+                                        <span className="text-gray-400">[Tín hiệu]</span> <span className="text-[#00c853] font-bold">Mua {item.signal.symbol}</span> giá <span className="font-bold text-white">{item.signal.price.toFixed(2)}</span>, lợi nhuận kỳ vọng <span className="text-[#00c853] font-bold">+{item.signal.profit}%</span>. Nắm giữ dự kiến {item.signal.duration}.
+                                    </div>
+                                    <button 
+                                        className="text-[12px] font-bold text-[#2962ff] hover:underline flex items-center gap-0.5"
+                                        onClick={() => onAskCopilot(null, `Phân tích tín hiệu mua ${item.signal?.symbol} giá ${item.signal?.price} của ${item.author.name}`)}
+                                    >
+                                        Xem chi tiết <ChevronRight size={14} />
+                                    </button>
+                                </div>
+                            ) : (
+                                <>
+                                    <h3 className="text-sm font-bold text-white mb-2 leading-snug hover:text-[#2962ff] cursor-pointer transition-colors">
+                                        {item.title}
+                                    </h3>
+                                    <p className="text-[13px] text-gray-300 leading-relaxed">
+                                        {item.content}
+                                        <span className="text-gray-500 ml-1">...</span>
+                                        <button className="text-[#2962ff] font-bold ml-1 hover:underline text-xs">Xem thêm</button>
+                                    </p>
+                                </>
+                            )}
+                        </div>
+
+                        {/* FOOTER: Stats & Actions */}
+                        <div className="flex items-center justify-between pt-2">
+                            <div className="flex items-center gap-6">
+                                <button className="flex items-center gap-1.5 text-gray-500 hover:text-[#f23645] transition-colors group">
+                                    <Heart size={18} className="group-hover:fill-[#f23645]" />
+                                    <span className="text-xs font-bold">{item.stats.likes}</span>
+                                </button>
+                                <button className="flex items-center gap-1.5 text-gray-500 hover:text-[#2962ff] transition-colors">
+                                    <MessageCircle size={18} />
+                                    <span className="text-xs font-bold">{item.stats.comments}</span>
+                                </button>
+                                <button className="flex items-center gap-1.5 text-gray-500 hover:text-white transition-colors">
+                                    <Bookmark size={18} />
+                                    <span className="text-xs font-bold">{item.stats.shares}</span>
+                                </button>
+                            </div>
+                            <button className="text-gray-500 hover:text-white transition-colors">
+                                <Share2 size={18} />
+                            </button>
+                        </div>
+
+                    </div>
+                ))}
+                
+                {/* Fallback for empty state */}
+                {feedItems.length === 0 && (
+                    <div className="text-center py-10 text-gray-500 text-sm">
+                        Chưa có bài viết nào trong mục này.
+                    </div>
+                )}
             </div>
-            <div className="flex-1 overflow-y-auto p-6 custom-scrollbar bg-[#0b0e11]">
-                {selectedNews.image && <div className="mb-6 w-full h-48 bg-gray-800 rounded-lg flex items-center justify-center border border-gray-700 relative overflow-hidden group"><div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div><div className="text-gray-500 flex flex-col items-center z-10"><FileText size={48} strokeWidth={1} className="mb-2 opacity-50"/><span className="text-xs italic">[Ảnh minh họa bài viết]</span></div></div>}
-                <div className="prose prose-invert prose-sm max-w-none text-gray-300 leading-relaxed" dangerouslySetInnerHTML={{ __html: selectedNews.content }}></div>
-            </div>
-            </>
-        ) : <div className="flex-1 flex flex-col items-center justify-center text-gray-500"><Globe size={48} strokeWidth={1} className="mb-2 opacity-20"/><p>Chọn một tin để xem chi tiết</p></div>}
         </div>
     </div>
   );
