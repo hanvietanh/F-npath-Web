@@ -39,7 +39,15 @@ export const ShareholdersTab: React.FC<ShareholdersTabProps> = ({ symbol, onAskC
         </div>
         </div>
         <div className="bg-[#151a21] border border-gray-800 rounded-lg p-4">
-            <div className="flex justify-between items-center mb-2"><div className="flex items-center gap-2"><Briefcase size={16} className="text-yellow-500"/><h3 className="text-sm font-bold text-white uppercase">Giao dịch nội bộ (Insider Trading)</h3><span className="px-2 py-0.5 rounded bg-yellow-900/30 text-yellow-500 text-[9px] font-bold border border-yellow-700/30">QUAN TRỌNG ⚠️</span></div><button onClick={() => onAskCopilot(null, `Đánh giá tín hiệu từ các giao dịch nội bộ gần đây của ${symbol}?`)} className="text-[10px] flex items-center gap-1 text-yellow-400 hover:text-white bg-yellow-900/20 px-3 py-1.5 rounded-full border border-yellow-600/30 hover:border-yellow-500 transition"><Sparkles size={10} /> AI: Tốt hay Xấu?</button></div>
+            <div className="flex justify-between items-center mb-2">
+                <div className="flex items-center gap-2"><Briefcase size={16} className="text-yellow-500"/><h3 className="text-sm font-bold text-white uppercase">Giao dịch nội bộ (Insider Trading)</h3><span className="px-2 py-0.5 rounded bg-yellow-900/30 text-yellow-500 text-[9px] font-bold border border-yellow-700/30">QUAN TRỌNG ⚠️</span></div>
+                <button 
+                    onClick={() => onAskCopilot('insider_analysis', '')} 
+                    className="text-[10px] flex items-center gap-1 text-yellow-400 hover:text-white bg-yellow-900/20 px-3 py-1.5 rounded-full border border-yellow-600/30 hover:border-yellow-500 transition"
+                >
+                    <Sparkles size={10} /> AI: Tốt hay Xấu?
+                </button>
+            </div>
             <div className="overflow-x-auto"><table className="w-full text-xs text-left"><thead><tr className="bg-[#1e2530] text-gray-400"><th className="py-2 px-3 font-medium rounded-l">Người thực hiện</th><th className="py-2 px-2 font-medium">Chức vụ</th><th className="py-2 px-2 font-medium">Loại GD</th><th className="py-2 px-2 text-right font-medium">Khối lượng</th><th className="py-2 px-2 text-right font-medium">Giá (Ước tính)</th><th className="py-2 px-3 text-right font-medium rounded-r">Ngày k.thuc</th></tr></thead><tbody className="divide-y divide-gray-800">{shareholderData.insiderDeals.map((deal) => (<tr key={deal.id} className="hover:bg-[#1f2937] transition"><td className="py-3 px-3"><div className="text-white font-medium">{deal.person}</div>{deal.tag && <span className="text-[9px] text-gray-500 bg-gray-800 px-1 rounded border border-gray-700 mt-1 inline-block">{deal.tag}</span>}</td><td className="py-3 px-2 text-gray-400">{deal.position}</td><td className={`py-3 px-2 ${deal.type.includes('Mua') ? 'text-emerald-400' : 'text-red-400'}`}>{deal.type}</td><td className={`py-3 px-2 text-right font-mono font-bold ${deal.color}`}>{deal.vol}</td><td className="py-3 px-2 text-right font-mono text-gray-300">{deal.price}</td><td className="py-3 px-3 text-right text-gray-400">{deal.date}</td></tr>))}</tbody></table></div>
         </div>
         <div className="grid grid-cols-2 gap-4">

@@ -38,7 +38,15 @@ export const NewsTab: React.FC<NewsTabProps> = ({ onAskCopilot }) => {
         {selectedNews ? (
             <>
             <div className="p-4 border-b border-gray-800 bg-[#101317]">
-                <div className="flex justify-between items-start mb-2"><span className="text-[10px] text-gray-500 flex items-center gap-1"><Clock size={12}/> {selectedNews.date} lúc {selectedNews.time}</span><button onClick={() => onAskCopilot(null, `Tóm tắt tin: "${selectedNews.title}" và đánh giá tác động đến giá cổ phiếu?`)} className="flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 rounded text-[10px] text-white shadow-lg border border-emerald-500/30 transition"><Sparkles size={10}/> AI: Tóm tắt & Tác động</button></div>
+                <div className="flex justify-between items-start mb-2">
+                    <span className="text-[10px] text-gray-500 flex items-center gap-1"><Clock size={12}/> {selectedNews.date} lúc {selectedNews.time}</span>
+                    <button 
+                        onClick={() => onAskCopilot('news_impact', '')}
+                        className="flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 rounded text-[10px] text-white shadow-lg border border-emerald-500/30 transition"
+                    >
+                        <Sparkles size={10}/> AI: Tóm tắt & Tác động
+                    </button>
+                </div>
                 <h2 className="text-lg font-bold text-white leading-snug">{selectedNews.title}</h2>
             </div>
             <div className="flex-1 overflow-y-auto p-6 custom-scrollbar bg-[#0b0e11]">

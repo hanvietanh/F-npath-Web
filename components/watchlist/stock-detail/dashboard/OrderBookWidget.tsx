@@ -89,15 +89,6 @@ export const OrderBookWidget: React.FC = () => {
             </table>
             </div>
         </div>
-        <div className="p-2 bg-[#101317]">
-            <h3 className="font-bold text-gray-400 text-[10px] mb-2 uppercase">Thống kê phiên</h3>
-            <div className="grid grid-cols-2 gap-2 text-[11px]">
-            <div className="bg-[#1a2029] p-1.5 rounded border border-gray-800"><div className="text-gray-500 text-[9px]">Mở cửa</div><div className="font-mono text-yellow-500">28.00</div></div>
-            <div className="bg-[#1a2029] p-1.5 rounded border border-gray-800"><div className="text-gray-500 text-[9px]">Cao nhất</div><div className="font-mono text-emerald-500">28.60</div></div>
-            <div className="bg-[#1a2029] p-1.5 rounded border border-gray-800"><div className="text-gray-500 text-[9px]">Thấp nhất</div><div className="font-mono text-red-500">27.90</div></div>
-            <div className="bg-[#1a2029] p-1.5 rounded border border-gray-800"><div className="text-gray-500 text-[9px]">Trung bình</div><div className="font-mono text-white">28.42</div></div>
-            </div>
-        </div>
     </aside>
   );
 };
