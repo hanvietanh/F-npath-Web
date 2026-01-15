@@ -47,8 +47,8 @@ export const MarketDashboard: React.FC<MarketDashboardProps> = ({ onOpenProfile 
   return (
     <div className="flex h-full w-full bg-[#000000] overflow-hidden font-sans">
       
-      {/* --- Left Column: Market Watch (65%) --- */}
-      <div className="w-[65%] flex flex-col border-r border-[#1c1c1e] h-full min-w-0">
+      {/* --- Left Column: Market Watch (75%) --- */}
+      <div className="w-[75%] flex flex-col border-r border-[#1c1c1e] h-full min-w-0">
         
         {/* Dashboard Tabs */}
         <div className="flex h-10 border-b border-[#1c1c1e] bg-[#000000] shrink-0">
@@ -231,8 +231,8 @@ export const MarketDashboard: React.FC<MarketDashboardProps> = ({ onOpenProfile 
 
       </div>
       
-      {/* --- Right Column: Intelligence & News (35%) --- */}
-      <div className="flex-1 flex flex-col min-w-0 bg-[#13171b]">
+      {/* --- Right Column: Intelligence & News (25%) --- */}
+      <div className="w-[25%] flex flex-col min-w-0 bg-[#13171b]">
           <div className="flex h-10 border-b border-[#1c1c1e] shrink-0">
              <button 
                 onClick={() => setActiveRightTab('intelligence')}
