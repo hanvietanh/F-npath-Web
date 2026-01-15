@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { 
   Activity,
@@ -25,10 +26,9 @@ import { ExpertProfile } from './opportunities/constants';
 
 interface MarketDashboardProps {
     onOpenProfile?: (expert: ExpertProfile) => void;
-    onSymbolClick?: (symbol: string) => void;
 }
 
-export const MarketDashboard: React.FC<MarketDashboardProps> = ({ onOpenProfile, onSymbolClick }) => {
+export const MarketDashboard: React.FC<MarketDashboardProps> = ({ onOpenProfile }) => {
   const [activeDashboardTab, setActiveDashboardTab] = useState<'market' | 'top_stocks' | 'industry' | 'derivatives'>('market');
   const [selectedIndex, setSelectedIndex] = useState('VN30');
   const [viewMode, setViewMode] = useState<'heatmap' | 'impact'>('heatmap');
@@ -160,9 +160,9 @@ export const MarketDashboard: React.FC<MarketDashboardProps> = ({ onOpenProfile,
                         <div className="text-[9px] text-gray-500 mt-0.5">Giá trị ròng</div>
                     </div>
                     <div className="flex-1 pl-2 flex flex-col justify-center gap-1">
-                        <MiniStockRow symbol="HPG" value={-5.8} maxVal={6} onSymbolClick={onSymbolClick} />
-                        <MiniStockRow symbol="TCB" value={3.0} maxVal={6} onSymbolClick={onSymbolClick} />
-                        <MiniStockRow symbol="SSI" value={4.0} maxVal={6} onSymbolClick={onSymbolClick} />
+                        <MiniStockRow symbol="HPG" value={-5.8} maxVal={6} />
+                        <MiniStockRow symbol="TCB" value={3.0} maxVal={6} />
+                        <MiniStockRow symbol="SSI" value={4.0} maxVal={6} />
                     </div>
                  </div>
               </MarketOverviewCard>
@@ -179,9 +179,9 @@ export const MarketDashboard: React.FC<MarketDashboardProps> = ({ onOpenProfile,
                         <div className="text-[9px] text-gray-500 mt-0.5">Giá trị ròng</div>
                     </div>
                     <div className="flex-1 pl-2 flex flex-col justify-center gap-1">
-                         <MiniStockRow symbol="TCB" value={3.1} maxVal={4} onSymbolClick={onSymbolClick} />
-                         <MiniStockRow symbol="HPG" value={-1.2} maxVal={4} onSymbolClick={onSymbolClick} />
-                         <MiniStockRow symbol="SST" value={0.8} maxVal={4} onSymbolClick={onSymbolClick} />
+                         <MiniStockRow symbol="TCB" value={3.1} maxVal={4} />
+                         <MiniStockRow symbol="HPG" value={-1.2} maxVal={4} />
+                         <MiniStockRow symbol="SST" value={0.8} maxVal={4} />
                     </div>
                  </div>
               </MarketOverviewCard>
@@ -209,7 +209,7 @@ export const MarketDashboard: React.FC<MarketDashboardProps> = ({ onOpenProfile,
                    </div>
 
                    {viewMode === 'heatmap' ? (
-                       <MarketTreemap onSymbolClick={onSymbolClick} />
+                       <MarketTreemap />
                    ) : (
                        <ImpactChart />
                    )}

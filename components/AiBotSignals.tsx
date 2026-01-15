@@ -1,11 +1,8 @@
+
 import React, { useState } from 'react';
 import { Bell, ChevronRight, Plus, Search, Calendar, PlusCircle } from 'lucide-react';
 import { MOCK_BOT_SIGNALS, SignalItem } from './aiBotConstants';
 import { SignalHistoryModal } from './ai-bot/SignalHistoryModal';
-
-interface AiBotSignalsProps {
-    onSymbolClick?: (symbol: string) => void;
-}
 
 const MiniSparkline = ({ data, color }: { data: number[], color: string }) => {
     const width = 60;
@@ -69,7 +66,7 @@ const BotCard = ({
     </div>
 );
 
-export const AiBotSignals: React.FC<AiBotSignalsProps> = ({ onSymbolClick }) => {
+export const AiBotSignals: React.FC = () => {
   const [selectedSignal, setSelectedSignal] = useState<SignalItem | null>(null);
 
   return (
@@ -177,16 +174,14 @@ export const AiBotSignals: React.FC<AiBotSignalsProps> = ({ onSymbolClick }) => 
                         return (
                             <tr 
                                 key={idx} 
+                                onClick={() => setSelectedSignal(item)}
                                 className="border-b border-[#1c1c1e] hover:bg-[#13171b] transition-colors group cursor-pointer"
                             >
                                 <td className="text-left py-4 text-gray-200 tabular-nums">{item.time}</td>
-                                <td 
-                                    className={`text-center py-4 font-bold cursor-pointer hover:bg-[#2c2c2e] ${item.symbol === 'FOX' || item.symbol === 'PLX' || item.symbol === 'BSR' ? 'text-[#00c853]' : 'text-[#f23645]'}`}
-                                    onClick={() => onSymbolClick && onSymbolClick(item.symbol)}
-                                >
+                                <td className={`text-center py-4 font-bold ${item.symbol === 'FOX' || item.symbol === 'PLX' || item.symbol === 'BSR' ? 'text-[#00c853]' : 'text-[#f23645]'}`}>
                                     {item.symbol}
                                 </td>
-                                <td className="text-left py-4 text-gray-200 pl-4 font-medium max-w-[250px] truncate" title={item.signalName} onClick={() => setSelectedSignal(item)}>
+                                <td className="text-left py-4 text-gray-200 pl-4 font-medium max-w-[250px] truncate" title={item.signalName}>
                                     {item.signalName}
                                 </td>
                                 <td className="py-4 text-gray-200 font-mono">{item.entryPrice.toFixed(2)}</td>

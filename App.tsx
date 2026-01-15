@@ -17,7 +17,6 @@ import { CommunityPage } from './components/CommunityPage'; // Import new compon
 import { PanelMode, TabId, ToolId } from './types';
 import { ExpertProfileModal } from './components/opportunities/ExpertProfileModal';
 import { ExpertProfile } from './components/opportunities/constants';
-import { StockDetailSuperPopup } from './components/watchlist/StockDetailSuperPopup';
 
 interface ErrorBoundaryProps {
   children?: ReactNode;
@@ -72,9 +71,6 @@ function MainApp() {
 
   // Global Expert Profile State
   const [selectedExpert, setSelectedExpert] = useState<ExpertProfile | null>(null);
-
-  // Global Stock Detail State
-  const [selectedStockSymbol, setSelectedStockSymbol] = useState<string | null>(null);
   
   const navRef = useRef<HTMLDivElement>(null);
 
@@ -386,14 +382,6 @@ function MainApp() {
           />
       )}
 
-      {/* Global Stock Detail Super Popup */}
-      {selectedStockSymbol && (
-          <StockDetailSuperPopup 
-              symbol={selectedStockSymbol}
-              onClose={() => setSelectedStockSymbol(null)}
-          />
-      )}
-
       <div className="flex-1 flex relative overflow-hidden h-full">
         {/* MAIN STAGE */}
         <main 
@@ -410,21 +398,11 @@ function MainApp() {
                   aiNotificationCount={aiNotificationCount}
                 />
               )}
-              {activeTab === 'watchlist' && (
-                <PriceBoard onSymbolClick={setSelectedStockSymbol} />
-              )}
-              {activeTab === 'market' && (
-                <MarketDashboard onOpenProfile={setSelectedExpert} onSymbolClick={setSelectedStockSymbol} />
-              )}
-              {activeTab === 'news_feed' && (
-                <NewsFeed onOpenProfile={setSelectedExpert} />
-              )}
-              {activeTab === 'opportunities' && (
-                <InvestmentOpportunities onOpenProfile={setSelectedExpert} onSymbolClick={setSelectedStockSymbol} />
-              )}
-              {activeTab === 'ai_bot_signals' && (
-                <AiBotSignals onSymbolClick={setSelectedStockSymbol} />
-              )}
+              {activeTab === 'watchlist' && <PriceBoard />}
+              {activeTab === 'market' && <MarketDashboard onOpenProfile={setSelectedExpert} />}
+              {activeTab === 'news_feed' && <NewsFeed onOpenProfile={setSelectedExpert} />}
+              {activeTab === 'opportunities' && <InvestmentOpportunities onOpenProfile={setSelectedExpert} />}
+              {activeTab === 'ai_bot_signals' && <AiBotSignals />}
               {activeTab === 'community' && <CommunityPage />}
            </div>
         </main>
