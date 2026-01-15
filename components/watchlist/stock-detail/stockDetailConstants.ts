@@ -129,29 +129,61 @@ export const newsData = [
   },
 ];
 
+export const companyProfileData = {
+  introduction: "Tổng Công ty Điện lực Dầu khí Việt Nam (POW) được thành lập vào năm 2007 theo Quyết định 1468/QĐ-DKVN của Hội đồng quản trị Tập đoàn Dầu khí Quốc gia Việt Nam. Tổng Công ty hoạt động chính trong lĩnh vực sản xuất, truyền tải, kinh doanh, xuất nhập khẩu điện năng. Tổng Công ty chính thức hoạt động theo mô hình công ty cổ phần từ tháng 07/2018. PV Power đang quản lý vận hành 7 Nhà máy điện với tổng công suất lắp đặt là 4205 MW, gồm điện khí, than và thủy điện. Hàng năm PV Power cung cấp khoảng 21 tỷ kWh điện lên lưới điện quốc gia.",
+  basicInfo: [
+    { label: 'Mã SIC', value: 'POW' },
+    { label: 'Mã ngành ICB', value: '7535' },
+    { label: 'Năm thành lập', value: '31/05/2007' },
+    { label: 'Vốn điều lệ', value: '27,868 Tỷ' },
+    { label: 'Số lượng nhân sự', value: '2,112' },
+  ],
+  listingInfo: [
+    { label: 'Ngày niêm yết', value: '06/03/2018' },
+    { label: 'Nơi niêm yết', value: 'HOSE' },
+    { label: 'Giá chào sàn (VNĐ)', value: '14,900' },
+    { label: 'Vốn hoá', value: '40,688 Tỷ' },
+    { label: 'KL đang niêm yết', value: '2.79 Tỷ' },
+  ],
+  leaders: [
+    { name: 'Hoàng Văn Quang', position: 'Chủ tịch Hội đồng Quản trị' },
+    { name: 'Lê Như Linh', position: 'Tổng Giám đốc' },
+    { name: 'Phạm Minh Đức', position: 'Trưởng Ban kiểm soát' },
+    { name: 'Chu Quang Toản', position: 'Kế toán trưởng' },
+    { name: 'Trương Việt Phương', position: 'Phó Tổng Giám đốc' },
+    { name: 'Nguyễn Duy Giang', position: 'Phó Tổng Giám đốc' },
+    { name: 'Nguyễn Kiên', position: 'Phó Tổng Giám đốc' },
+    { name: 'Ngô Văn Chiến', position: 'Phó Tổng Giám đốc' },
+    { name: 'Phan Ngọc Hiền', position: 'Phó Tổng Giám đốc' },
+    { name: 'Nguyễn Thị Thanh Hường', position: 'Thành viên Ban kiểm soát' },
+    { name: 'Vũ Thị Ngọc Dung', position: 'Thành viên Ban kiểm soát' },
+    { name: 'Hà Thị Minh Nguyệt', position: 'Thành viên Ban kiểm soát' },
+  ]
+};
+
 export const shareholderData = {
   structure: [
-    { name: 'Nước ngoài', value: 25, color: '#3b82f6' }, 
-    { name: 'Ban lãnh đạo & TC', value: 40, color: '#10b981' }, 
-    { name: 'Trôi nổi (Free float)', value: 35, color: '#6b7280' }, 
+    { name: 'Ban lãnh đạo', value: 40, color: '#10b981' },
+    { name: 'Nước ngoài', value: 25, color: '#3b82f6' },
+    { name: 'Khác', value: 35, color: '#6b7280' },
   ],
   majorHolders: [
-    { id: 1, name: 'Trần Đình Long (Chủ tịch HĐQT)', shares: '1,500,000,000', percent: '26.5%', date: '30/06/2024' },
-    { id: 2, name: 'Dragon Capital (Quỹ ngoại)', shares: '350,000,000', percent: '6.2%', date: '15/12/2024' },
-    { id: 3, name: 'Vũ Thị Hiền (Vợ CT)', shares: '280,000,000', percent: '5.1%', date: '30/06/2024' },
-    { id: 4, name: 'Trần Vũ Minh (Con trai CT)', shares: '100,000,000', percent: '1.8%', date: '30/06/2024' },
-    { id: 5, name: 'VinaCapital', shares: '50,000,000', percent: '0.9%', date: '10/12/2024' },
+    { id: 1, name: 'Trần Đình Long', shares: '1,516,320,000', percent: '26.08%', date: '30/06/2024' },
+    { id: 2, name: 'Dragon Capital', shares: '350,200,000', percent: '6.02%', date: '15/07/2024' },
+    { id: 3, name: 'VinaCapital', shares: '120,500,000', percent: '2.07%', date: '20/06/2024' },
+    { id: 4, name: 'Vũ Thị Hiền', shares: '426,500,000', percent: '7.34%', date: '30/06/2024' },
+    { id: 5, name: 'Trần Tuấn Dương', shares: '134,800,000', percent: '2.32%', date: '30/06/2024' },
   ],
   insiderDeals: [
-    { id: 1, person: 'Nguyễn Văn A', position: 'TV HĐQT', type: 'Mua khớp lệnh', vol: '+500,000', price: '27,500', date: '10/01/2026', tag: 'Đăng ký mới', color: 'text-emerald-400' },
-    { id: 2, person: 'Trần Thị B', position: 'Người LQ', type: 'Bán khớp lệnh', vol: '-200,000', price: '29,100', date: '05/12/2025', tag: 'Đã kết thúc', color: 'text-red-400' },
-    { id: 3, person: 'Phạm Văn C', position: 'Phó TGĐ', type: 'Mua ESOP', vol: '+1,000,000', price: '10,000', date: '01/11/2025', tag: 'Hoàn tất', color: 'text-blue-400' },
+    { id: 1, person: 'Nguyễn Văn A', position: 'Thành viên HĐQT', type: 'Bán khớp lệnh', vol: '200,000', price: '28,500', date: '12/01/2025', color: 'text-red-400' },
+    { id: 2, person: 'Lê Thị B', tag: 'Vợ CT HĐQT', position: 'Người có lquan', type: 'Mua thỏa thuận', vol: '5,000,000', price: '27,000', date: '05/01/2025', color: 'text-emerald-400' },
+    { id: 3, person: 'Quỹ Đầu tư X', position: 'Cổ đông lớn', type: 'Bán khớp lệnh', vol: '1,500,000', price: '28,200', date: '28/12/2024', color: 'text-red-400' },
   ],
   dividends: [
-    { year: 2024, type: 'Tiền mặt', ratio: '10%', exDate: '25/05/2024' },
-    { year: 2024, type: 'Cổ phiếu', ratio: '15%', exDate: '25/05/2024' },
-    { year: 2023, type: 'Tiền mặt', ratio: '5%', exDate: '10/06/2023' },
-    { year: 2022, type: 'Tiền mặt', ratio: '5%', exDate: '20/06/2022' },
-    { year: 2022, type: 'Cổ phiếu', ratio: '30%', exDate: '20/06/2022' },
+    { year: '2023', type: 'Tiền mặt', ratio: '10%', exDate: '25/05/2024' },
+    { year: '2022', type: 'Cổ phiếu', ratio: '30%', exDate: '10/06/2023' },
+    { year: '2022', type: 'Tiền mặt', ratio: '5%', exDate: '10/06/2023' },
+    { year: '2021', type: 'Cổ phiếu', ratio: '40%', exDate: '01/06/2022' },
+    { year: '2020', type: 'Tiền mặt', ratio: '5%', exDate: '15/05/2021' },
   ]
 };
