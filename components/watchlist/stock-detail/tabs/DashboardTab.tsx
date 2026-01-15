@@ -73,7 +73,7 @@ const NetValueChart = ({ data }: { data: { date: string, value: number }[] }) =>
 };
 
 export const DashboardTab: React.FC<DashboardTabProps> = ({ symbol, onAskCopilot }) => {
-  const [expandedChart, setExpandedChart] = useState<string | null>(null);
+  const [expandedChart, setExpandedChart] = useState<string | null>('foreign');
 
   const toggleChart = (type: string) => {
       setExpandedChart(prev => prev === type ? null : type);
