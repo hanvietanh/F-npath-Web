@@ -57,7 +57,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
 }
 
 function MainApp() {
-  const [activeTab, setActiveTab] = useState<TabId>('chart');
+  const [activeTab, setActiveTab] = useState<TabId>('market');
   const [panelMode, setPanelMode] = useState<PanelMode>('closed');
   const [activeTool, setActiveTool] = useState<ToolId | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);

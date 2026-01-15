@@ -161,8 +161,6 @@ export const shareholderData = {
   ]
 };
 
-// --- FEED DATA FOR ANALYSIS TAB ---
-
 export const stockAnalysisFeed = [
   {
     id: 1,
@@ -229,4 +227,29 @@ export const stockAnalysisFeed = [
     content: 'Thanh khoản bùng nổ ngay từ ATO cho thấy dòng tiền lớn đang quyết liệt gom hàng. Kháng cự 28.0 đã bị phá vỡ...',
     stats: { likes: 45, comments: 8, shares: 2 }
   }
+];
+
+export const historicalPriceData = [
+  { id: 1, date: '15/01/2026', change: -7.20, changePercent: -4.49, open: 160.10, high: 160.20, low: 150.90, close: 153.00, avg: 153.90, adjClose: 153.00, putThroughVol: 900000, matchedVol: 8278800, totalVol: 9178800, rsi1m: 3, rsi3m: 94, rsi6m: 99, rsi52w: 99 },
+  { id: 2, date: '14/01/2026', change: -7.70, changePercent: -4.59, open: 171.20, high: 171.20, low: 159.00, close: 160.20, avg: 162.60, adjClose: 160.20, putThroughVol: 0, matchedVol: 4416000, totalVol: 4416000, rsi1m: 19, rsi3m: 96, rsi6m: 99, rsi52w: 99 },
+  { id: 3, date: '13/01/2026', change: 4.20, changePercent: 2.57, open: 159.00, high: 173.30, low: 158.00, close: 167.90, avg: 167.00, adjClose: 167.90, putThroughVol: 4000000, matchedVol: 5382600, totalVol: 9382600, rsi1m: 74, rsi3m: 98, rsi6m: 99, rsi52w: 99 },
+  { id: 4, date: '12/01/2026', change: -12.30, changePercent: -6.99, open: 174.60, high: 175.40, low: 163.70, close: 163.70, avg: 166.10, adjClose: 163.70, putThroughVol: 4000000, matchedVol: 9379500, totalVol: 13379500, rsi1m: 78, rsi3m: 98, rsi6m: 99, rsi52w: 99 },
+  { id: 5, date: '09/01/2026', change: -0.60, changePercent: -0.34, open: 176.00, high: 180.20, low: 172.60, close: 176.00, avg: 176.70, adjClose: 176.00, putThroughVol: 5929000, matchedVol: 5389600, totalVol: 11318600, rsi1m: 94, rsi3m: 99, rsi6m: 99, rsi52w: 99 },
+  { id: 6, date: '08/01/2026', change: -2.40, changePercent: -1.34, open: 183.50, high: 190.00, low: 176.60, close: 176.60, avg: 182.80, adjClose: 176.60, putThroughVol: 5954800, matchedVol: 6593700, totalVol: 12548500, rsi1m: 93, rsi3m: 99, rsi6m: 99, rsi52w: 99 },
+  { id: 7, date: '07/01/2026', change: 5.90, changePercent: 3.41, open: 173.10, high: 179.00, low: 168.60, close: 179.00, avg: 174.10, adjClose: 179.00, putThroughVol: 377000, matchedVol: 7674800, totalVol: 8051800, rsi1m: 97, rsi3m: 99, rsi6m: 99, rsi52w: 99 },
+  { id: 8, date: '06/01/2026', change: 0.00, changePercent: 0.00, open: 173.60, high: 176.00, low: 171.40, close: 173.10, avg: 173.50, adjClose: 173.10, putThroughVol: 20000, matchedVol: 7681000, totalVol: 7701000, rsi1m: 97, rsi3m: 99, rsi6m: 99, rsi52w: 99 },
+  { id: 9, date: '05/01/2026', change: 3.50, changePercent: 2.06, open: 169.60, high: 174.50, low: 166.80, close: 173.10, avg: 171.60, adjClose: 173.10, putThroughVol: 81000, matchedVol: 6644800, totalVol: 6725800, rsi1m: 98, rsi3m: 99, rsi6m: 99, rsi52w: 99 },
+  { id: 10, date: '31/12/2025', change: 6.60, changePercent: 4.05, open: 163.00, high: 172.00, low: 158.80, close: 169.60, avg: 166.80, adjClose: 169.60, putThroughVol: 0, matchedVol: 9438700, totalVol: 9438700, rsi1m: 98, rsi3m: 99, rsi6m: 99, rsi52w: 99 },
+  { id: 11, date: '30/12/2025', change: 3.30, changePercent: 2.07, open: 159.70, high: 163.00, low: 151.60, close: 163.00, avg: 159.10, adjClose: 163.00, putThroughVol: 0, matchedVol: 8091800, totalVol: 8091800, rsi1m: 94, rsi3m: 99, rsi6m: 99, rsi52w: 99 },
+  { id: 12, date: '29/12/2025', change: 4.70, changePercent: 3.03, open: 155.00, high: 159.90, low: 155.00, close: 159.70, avg: 158.00, adjClose: 159.70, putThroughVol: 70000, matchedVol: 6667000, totalVol: 6737000, rsi1m: 87, rsi3m: 99, rsi6m: 99, rsi52w: 99 },
+  { id: 13, date: '26/12/2025', change: -3.00, changePercent: -1.90, open: 147.00, high: 155.20, low: 147.00, close: 155.00, avg: 147.80, adjClose: 155.00, putThroughVol: 148700, matchedVol: 15336300, totalVol: 15485000, rsi1m: 91, rsi3m: 99, rsi6m: 99, rsi52w: 99 },
+  { id: 14, date: '25/12/2025', change: -11.80, changePercent: -6.95, open: 167.60, high: 174.50, low: 158.00, close: 158.00, avg: 164.50, adjClose: 158.00, putThroughVol: 3973500, matchedVol: 6373600, totalVol: 10347100, rsi1m: 97, rsi3m: 99, rsi6m: 99, rsi52w: 99 },
+  { id: 15, date: '24/12/2025', change: -0.10, changePercent: -0.06, open: 174.00, high: 176.60, low: 164.00, close: 169.80, avg: 168.30, adjClose: 169.80, putThroughVol: 4000000, matchedVol: 8749100, totalVol: 12749100, rsi1m: 99, rsi3m: 99, rsi6m: 99, rsi52w: 99 },
+  { id: 16, date: '23/12/2025', change: 11.10, changePercent: 6.99, open: 165.00, high: 169.90, low: 163.00, close: 169.90, avg: 168.40, adjClose: 169.90, putThroughVol: 300000, matchedVol: 6615800, totalVol: 6915800, rsi1m: 99, rsi3m: 99, rsi6m: 99, rsi52w: 99 },
+  { id: 17, date: '22/12/2025', change: 10.30, changePercent: 6.94, open: 153.80, high: 158.80, low: 151.80, close: 158.80, avg: 156.80, adjClose: 158.80, putThroughVol: 4500000, matchedVol: 4500800, totalVol: 9000800, rsi1m: 98, rsi3m: 99, rsi6m: 99, rsi52w: 99 },
+  { id: 18, date: '19/12/2025', change: 5.80, changePercent: 4.06, open: 142.70, high: 152.10, low: 142.00, close: 148.50, avg: 148.70, adjClose: 148.50, putThroughVol: 509800, matchedVol: 12784300, totalVol: 13294100, rsi1m: 95, rsi3m: 99, rsi6m: 99, rsi52w: 99 },
+  { id: 19, date: '18/12/2025', change: -0.20, changePercent: -0.14, open: 143.00, high: 143.00, low: 139.70, close: 142.70, avg: 141.30, adjClose: 142.70, putThroughVol: 4000000, matchedVol: 5429000, totalVol: 9429000, rsi1m: 93, rsi3m: 99, rsi6m: 99, rsi52w: 99 },
+  { id: 20, date: '17/12/2025', change: 0.00, changePercent: 0.00, open: 143.70, high: 146.80, low: 142.60, close: 142.90, avg: 143.80, adjClose: 142.90, putThroughVol: 579800, matchedVol: 2867800, totalVol: 3447600, rsi1m: 96, rsi3m: 99, rsi6m: 99, rsi52w: 99 },
+  { id: 21, date: '16/12/2025', change: 0.00, changePercent: 0.00, open: 142.90, high: 149.30, low: 140.40, close: 142.90, avg: 143.40, adjClose: 142.90, putThroughVol: 6000000, matchedVol: 5330200, totalVol: 11330200, rsi1m: 96, rsi3m: 99, rsi6m: 99, rsi52w: 99 },
+  { id: 22, date: '15/12/2025', change: -1.10, changePercent: -0.76, open: 143.80, high: 147.00, low: 140.00, close: 142.90, avg: 142.50, adjClose: 142.90, putThroughVol: 5000000, matchedVol: 5214800, totalVol: 10214800, rsi1m: 94, rsi3m: 99, rsi6m: 99, rsi52w: 99 },
 ];

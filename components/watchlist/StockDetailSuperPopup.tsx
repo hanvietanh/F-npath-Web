@@ -6,6 +6,7 @@ import { DashboardTab } from './stock-detail/tabs/DashboardTab';
 import { FinancialTab } from './stock-detail/tabs/FinancialTab';
 import { NewsTab } from './stock-detail/tabs/NewsTab';
 import { ShareholdersTab } from './stock-detail/tabs/ShareholdersTab';
+import { HistoricalPriceTab } from './stock-detail/tabs/HistoricalPriceTab';
 
 interface StockDetailSuperPopupProps {
   symbol: string;
@@ -77,6 +78,10 @@ const StockDetailSuperPopupComponent: React.FC<StockDetailSuperPopupProps> = ({
 
               {activeTab === 'CỔ ĐÔNG' && (
                 <ShareholdersTab symbol={symbol} onAskCopilot={handleAskCopilot} />
+              )}
+
+              {activeTab === 'GIÁ QUÁ KHỨ' && (
+                <HistoricalPriceTab />
               )}
           </div>
 
