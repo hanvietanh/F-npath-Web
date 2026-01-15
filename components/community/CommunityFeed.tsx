@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   BadgeCheck, MoreVertical, Search, Heart, Lock, PlusCircle, Smile, Send, Crown
@@ -7,7 +6,11 @@ import { CHAT_MESSAGES } from './constants';
 import { SignalDetailModal } from '../opportunities/SignalDetailModal';
 import { SignalData } from '../opportunities/constants';
 
-export const CommunityFeed: React.FC = () => {
+interface CommunityFeedProps {
+    onStockClick?: (symbol: string) => void;
+}
+
+export const CommunityFeed: React.FC<CommunityFeedProps> = ({ onStockClick }) => {
   const [selectedSignal, setSelectedSignal] = useState<SignalData | null>(null);
 
   const handleOpenSignal = (post: any) => {
@@ -119,7 +122,16 @@ export const CommunityFeed: React.FC = () => {
                                <div className="flex justify-between items-start mb-2">
                                    <div className="flex items-baseline gap-1.5">
                                        <span className={`text-sm font-bold ${post.actionColor}`}>{post.action}</span>
-                                       <span className="text-sm font-bold text-white">{post.symbol}</span>
+                                       <span 
+                                            className="text-sm font-bold text-white hover:text-[#2962ff] cursor-pointer hover:underline"
+                                            onClick={() => {
+                                                if (post.symbol !== '***' && onStockClick) {
+                                                    onStockClick(post.symbol);
+                                                }
+                                            }}
+                                       >
+                                           {post.symbol}
+                                       </span>
                                        <span className="text-sm text-gray-200">giá {post.price}</span>
                                    </div>
                                    {post.statusLabel && (

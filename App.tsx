@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, ReactNode } from 'react';
+import React, { useState, useEffect, useRef, ReactNode, Component } from 'react';
 import { 
   Menu, Search, Bell, Settings, Newspaper, BrainCircuit,
   MessageSquare, Sparkles, ChevronDown, Users, Zap, LogOut,
@@ -17,6 +17,7 @@ import { CommunityPage } from './components/CommunityPage'; // Import new compon
 import { PanelMode, TabId, ToolId } from './types';
 import { ExpertProfileModal } from './components/opportunities/ExpertProfileModal';
 import { ExpertProfile } from './components/opportunities/constants';
+import { StockDetailSuperPopup } from './components/watchlist/StockDetailSuperPopup';
 
 interface ErrorBoundaryProps {
   children?: ReactNode;
@@ -28,17 +29,17 @@ interface ErrorBoundaryState {
 }
 
 // Component bắt lỗi: Giúp hiện lỗi ra màn hình thay vì trắng xoá
-class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
-  constructor(props: ErrorBoundaryProps) {
-    super(props);
-    this.state = { hasError: false, error: null };
-  }
+class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  public state: ErrorBoundaryState = {
+    hasError: false,
+    error: null
+  };
 
-  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+  public static getDerivedStateFromError(error: Error): ErrorBoundaryState {
     return { hasError: true, error };
   }
   
-  render() {
+  public render() {
     if (this.state.hasError) {
       return (
         <div className="h-screen w-full flex flex-col items-center justify-center bg-black text-white p-4">
@@ -71,6 +72,9 @@ function MainApp() {
 
   // Global Expert Profile State
   const [selectedExpert, setSelectedExpert] = useState<ExpertProfile | null>(null);
+
+  // Global Stock Detail State
+  const [selectedStock, setSelectedStock] = useState<string | null>(null);
   
   const navRef = useRef<HTMLDivElement>(null);
 
@@ -153,6 +157,11 @@ function MainApp() {
         default:
             break;
     }
+  };
+
+  // Global Stock Click Handler
+  const handleStockClick = (symbol: string) => {
+      setSelectedStock(symbol);
   };
 
   // --- Header Component ---
@@ -382,6 +391,14 @@ function MainApp() {
           />
       )}
 
+      {/* Global Stock Detail Super Popup */}
+      {selectedStock && (
+          <StockDetailSuperPopup 
+              symbol={selectedStock} 
+              onClose={() => setSelectedStock(null)} 
+          />
+      )}
+
       <div className="flex-1 flex relative overflow-hidden h-full">
         {/* MAIN STAGE */}
         <main 
@@ -398,12 +415,22 @@ function MainApp() {
                   aiNotificationCount={aiNotificationCount}
                 />
               )}
-              {activeTab === 'watchlist' && <PriceBoard />}
-              {activeTab === 'market' && <MarketDashboard onOpenProfile={setSelectedExpert} />}
+              {activeTab === 'watchlist' && (
+                <PriceBoard onStockClick={handleStockClick} />
+              )}
+              {activeTab === 'market' && (
+                <MarketDashboard onOpenProfile={setSelectedExpert} onStockClick={handleStockClick} />
+              )}
               {activeTab === 'news_feed' && <NewsFeed onOpenProfile={setSelectedExpert} />}
-              {activeTab === 'opportunities' && <InvestmentOpportunities onOpenProfile={setSelectedExpert} />}
-              {activeTab === 'ai_bot_signals' && <AiBotSignals />}
-              {activeTab === 'community' && <CommunityPage />}
+              {activeTab === 'opportunities' && (
+                <InvestmentOpportunities onOpenProfile={setSelectedExpert} onStockClick={handleStockClick} />
+              )}
+              {activeTab === 'ai_bot_signals' && (
+                <AiBotSignals onStockClick={handleStockClick} />
+              )}
+              {activeTab === 'community' && (
+                <CommunityPage onStockClick={handleStockClick} />
+              )}
            </div>
         </main>
 

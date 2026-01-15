@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { FilterHeader } from './opportunities/FilterHeader';
 import { SignalCard } from './opportunities/SignalCard';
@@ -8,9 +7,10 @@ import { SIGNALS, SignalData, ExpertProfile } from './opportunities/constants';
 
 interface InvestmentOpportunitiesProps {
     onOpenProfile?: (expert: ExpertProfile) => void;
+    onStockClick?: (symbol: string) => void;
 }
 
-export const InvestmentOpportunities: React.FC<InvestmentOpportunitiesProps> = ({ onOpenProfile }) => {
+export const InvestmentOpportunities: React.FC<InvestmentOpportunitiesProps> = ({ onOpenProfile, onStockClick }) => {
   const [selectedSignal, setSelectedSignal] = useState<SignalData | null>(null);
 
   return (
@@ -41,6 +41,7 @@ export const InvestmentOpportunities: React.FC<InvestmentOpportunitiesProps> = (
                         signal={signal} 
                         onDetail={() => setSelectedSignal(signal)}
                         onExpertClick={onOpenProfile}
+                        onStockClick={onStockClick}
                     />
                 ))}
             </div>

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BadgeCheck, FlaskConical, Lock } from 'lucide-react';
 import { SignalData, ExpertProfile } from './constants';
@@ -7,14 +6,22 @@ interface SignalCardProps {
   signal: SignalData;
   onDetail?: () => void;
   onExpertClick?: (expert: ExpertProfile) => void;
+  onStockClick?: (symbol: string) => void;
 }
 
-export const SignalCard: React.FC<SignalCardProps> = ({ signal, onDetail, onExpertClick }) => {
+export const SignalCard: React.FC<SignalCardProps> = ({ signal, onDetail, onExpertClick, onStockClick }) => {
   
   const handleExpertClick = (e: React.MouseEvent) => {
       e.stopPropagation();
       if (onExpertClick) {
           onExpertClick(signal.expert);
+      }
+  };
+
+  const handleSymbolClick = (e: React.MouseEvent) => {
+      e.stopPropagation();
+      if (onStockClick && signal.symbol !== '***') {
+          onStockClick(signal.symbol);
       }
   };
 
@@ -115,7 +122,13 @@ export const SignalCard: React.FC<SignalCardProps> = ({ signal, onDetail, onExpe
             <div className="flex justify-between items-start mb-2 relative z-10">
                 <div>
                     <div className={`text-xs font-bold mb-0.5 ${signal.isSell ? 'text-[#f23645]' : 'text-[#00c853]'}`}>
-                        {signal.action} <span className="text-lg text-white ml-0.5">{signal.symbol}</span>
+                        {signal.action} 
+                        <span 
+                            className="text-lg text-white ml-0.5 hover:text-[#2962ff] hover:underline cursor-pointer"
+                            onClick={handleSymbolClick}
+                        >
+                            {signal.symbol}
+                        </span>
                     </div>
                     <div className="text-[10px] text-gray-500 font-medium">giá <span className="text-gray-300">{signal.price}</span></div>
                 </div>

@@ -91,12 +91,12 @@ export const MarketOverviewCard: React.FC<{
   </div>
 );
 
-export const MiniStockRow = ({ symbol, value, maxVal }: { symbol: string, value: number, maxVal: number }) => {
+export const MiniStockRow = ({ symbol, value, maxVal, onClick }: { symbol: string, value: number, maxVal: number, onClick?: (s: string) => void }) => {
     const isPos = value >= 0;
     const widthPct = Math.min((Math.abs(value) / maxVal) * 100, 100);
     
     return (
-        <div className="flex items-center justify-between text-[10px] h-5">
+        <div className="flex items-center justify-between text-[10px] h-5 cursor-pointer hover:bg-[#2c2c2e] rounded px-1 transition-colors" onClick={() => onClick && onClick(symbol)}>
              <span className="text-gray-300 font-bold w-8">{symbol}</span>
              
              <div className="flex-1 mx-2 h-1.5 bg-[#2a2e39] rounded-full overflow-hidden flex items-center">

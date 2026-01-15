@@ -1,24 +1,16 @@
-
-import React, { useState } from 'react';
+import React from 'react';
 import { FilterBar } from './FilterBar';
 import { PriceTable } from './PriceTable';
 import { WatchlistHeader } from './WatchlistHeader';
-import { StockDetailSuperPopup } from './StockDetailSuperPopup';
 
-export const PriceBoard: React.FC = () => {
-  const [selectedSymbol, setSelectedSymbol] = useState<string | null>(null);
+interface PriceBoardProps {
+    onStockClick: (symbol: string) => void;
+}
 
+export const PriceBoard: React.FC<PriceBoardProps> = ({ onStockClick }) => {
   return (
     <div className="flex flex-col h-full w-full bg-[#000000] relative">
       
-      {/* Super Popup (Overlay) */}
-      {selectedSymbol && (
-          <StockDetailSuperPopup 
-              symbol={selectedSymbol} 
-              onClose={() => setSelectedSymbol(null)} 
-          />
-      )}
-
       {/* Top Header & Dashboard */}
       <WatchlistHeader />
       
@@ -26,7 +18,7 @@ export const PriceBoard: React.FC = () => {
       <FilterBar />
 
       {/* Main Table */}
-      <PriceTable onStockClick={setSelectedSymbol} />
+      <PriceTable onStockClick={onStockClick} />
     </div>
   );
 };
